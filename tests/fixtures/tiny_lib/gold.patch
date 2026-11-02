@@ -1,0 +1,13 @@
+diff --git a/tiny_lib/report.py b/tiny_lib/report.py
+index f2b61ad..d6a023b 100644
+--- a/tiny_lib/report.py
++++ b/tiny_lib/report.py
+@@ -8,7 +8,7 @@ Row = Mapping[str, object]
+ 
+ 
+ def _widest(rows: Sequence[Row]) -> int:
+-    return max(len(util.label(r)) for r in rows)
++    return max((len(util.label(r)) for r in rows), default=0)
+ 
+ 
+ def format_row(row: Row, width: int) -> str:

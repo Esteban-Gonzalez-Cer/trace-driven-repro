@@ -1,0 +1,29 @@
+# Draft manifest for the toy fixture, covering every spec §5.5 field.
+# Shapes the Phase 1 manifest schema; values here are fixture-local, not upstream commits.
+id: tiny_lib-001
+repo: local:tests/fixtures/tiny_lib
+issue_url: null                      # never shown to the agent
+c_bug: buggy/                        # real bugs: parent commit hash
+c_fix: fixed/                        # real bugs: human fix commit hash
+fix_date: 2026-11-01
+target_exception: ValueError
+target_frame:
+  file: tiny_lib/report.py
+  function: _widest
+payload_path: null                   # built by the Phase 1 payload builder
+oracle_tests:
+  - tests/test_regression.py::test_empty_report_does_not_crash
+baseline_pass_set:
+  - tests/test_report.py::test_rows_are_aligned_and_totalled
+  - tests/test_report.py::test_custom_title
+  - tests/test_report.py::test_missing_name_is_question_mark
+  - tests/test_report.py::test_missing_amount_is_zero
+flaky_set: []
+gold_files:
+  - tiny_lib/report.py
+image_tag: bug_env:tiny_lib-001
+python_version: "3.11"
+deps_lock: null                      # no third-party dependencies
+notes: >
+  Planted crash: format_report([]) -> _widest([]) -> max() on an empty iterable.
+  util.py is a 1-hop import of report.py, for context-assembler tests.
