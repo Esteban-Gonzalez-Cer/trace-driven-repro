@@ -21,6 +21,9 @@ A bug is a candidate only if all of the following hold:
    files and about 40 changed lines.
 4. The failing behavior is deterministic across repeated runs.
 5. Fix date is recorded. Prefer fixes from the last 12 months.
+6. The crash traceback contains at least one frame inside the library's own package source
+   (not tests, stdlib, or installed dependencies). `target_frame` is the innermost such frame.
+   Added by [Amendment 2](../docs/AMENDMENTS.md#amendment-2-crashes-with-no-library-frame).
 
 Each bug pins one exact Python version in its manifest (`python_version`); 3.11 is the default.
 A bug that needs a different interpreter (for example, a 3.12-only code path) may pin it, and
@@ -37,6 +40,17 @@ the reason goes in the manifest's `notes`.
 
 Bugs failing any check are dataset exclusions, not model failures, and are never counted in a
 denominator. Every decision is recorded in [`screening_log.jsonl`](screening_log.jsonl).
+
+## Oracle and gold-file derivation (Amendment 1)
+
+Some human fixes bundle the crash fix with an independent non-crash change. Under
+[Amendment 1](../docs/AMENDMENTS.md#amendment-1-mixed-fixes-crash-only-oracle):
+
+- `oracle_tests` contains only the fix-commit tests that fail on `c_bug` with the target exception
+  from the target frame. If there are none, the bug is excluded.
+- Other new fix tests go in `excluded_fix_tests` and are not run.
+- `gold_files` is the smallest set of gold files whose hunks alone make the oracle pass with no
+  baseline regressions. `gold_files_full` keeps every file the fix touched.
 
 ## Screening log fields
 

@@ -3,8 +3,22 @@
 Phase 0, task 9. I ran the spec §5.4 gold-patch preflight by hand with plain `git` and `docker`, to learn what the
 Phase 1 harness has to do. Run on 2026-11-01 (macOS, Docker 29.2.1, `python:3.11-slim`).
 
-**Verdict: VALIDATED** as a dev-set bug, with `oracle_tests` limited to the crash test. One
-curation policy is still open: the fix bundles a second, non-crash change (see *Mixed fix*).
+**Verdict: VALIDATED** as a dev-set bug under
+[Amendment 1](../AMENDMENTS.md#amendment-1-mixed-fixes-crash-only-oracle): `oracle_tests` is the
+crash test only and `gold_files` is `[src/flask/app.py]`. The fix bundles a second, non-crash
+change (see *Mixed fix*).
+
+Manifest values under Amendment 1:
+
+```yaml
+oracle_tests:
+  - tests/test_basic.py::test_run_from_config[None-None-[::1]:8080-::1-8080]
+excluded_fix_tests:
+  - id: tests/test_testing.py::test_session_transaction_ipv6
+    reason: fails on c_bug with AssertionError, not the target ValueError (non-crash cookie-domain fix)
+gold_files: [src/flask/app.py]
+gold_files_full: [src/flask/app.py, src/flask/testing.py]
+```
 
 ## Bug
 
@@ -35,7 +49,7 @@ port string `":1]:8080"` and `int()` raises.
 
 Cost: the image builds in about 10 s and the full suite runs in about 0.7 s. Flask is cheap to host.
 
-## Mixed fix (open policy question)
+## Mixed fix (resolved by Amendment 1, option 1)
 
 PR #6096 fixes two `.partition(":")` uses:
 
@@ -45,7 +59,9 @@ PR #6096 fixes two `.partition(":")` uses:
   (`'None' == '42'`), not with the target exception.
 
 Applying only the `app.py` hunk to `c_bug` makes the crash oracle pass, while
-`test_session_transaction_ipv6` still fails. The two changes are independent.
+`test_session_transaction_ipv6` still fails. The two changes are independent. With only that hunk
+applied, the full `c_bug` suite still passes (491/491), so `{src/flask/app.py}` is the minimal
+`gold_files` set required by Amendment 1, rule 4.
 
 If both new tests were oracle tests, check 1 would fail and the bug would be excluded. With only
 the crash test as the oracle, every check passes. That choice raises a second question about
@@ -56,14 +72,14 @@ bug would be labeled a localization miss because of a change the oracle doesn't 
 
 Options:
 
-1. **Restrict the oracle (recommended):** `oracle_tests` = the tests that fail on `c_bug` with the
+1. **Restrict the oracle (chosen):** `oracle_tests` = the tests that fail on `c_bug` with the
    target exception. `gold_files` = the files touched by the gold hunks those tests need, after
-   checking that this subset of the gold patch makes the oracle pass. Record the full gold file
-   list in `notes`.
+   checking that this subset of the gold patch makes the oracle pass.
 2. **Exclude mixed fixes:** stricter and simpler, but lowers yield.
 
-Whichever we choose, record it as an amendment, since it pins the meaning of `oracle_tests` and
-`gold_files`, and apply it to every bug.
+**Decision (2026-11-01):** option 1, logged as
+[Amendment 1](../AMENDMENTS.md#amendment-1-mixed-fixes-crash-only-oracle). It adds a no-regression
+check on the gold subset and two manifest fields: `excluded_fix_tests` and `gold_files_full`.
 
 ## Problems hit (what the harness needs)
 

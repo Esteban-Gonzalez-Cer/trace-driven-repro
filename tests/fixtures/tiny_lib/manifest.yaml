@@ -1,10 +1,10 @@
-# Draft manifest for the toy fixture, covering every spec §5.5 field.
-# Shapes the Phase 1 manifest schema; values here are fixture-local, not upstream commits.
+# Draft manifest for the toy fixture, covering every spec §5.5 field (plus Amendment 1 fields).
+# The repo is repo.bundle, built by make_repo.py with deterministic commit hashes.
 id: tiny_lib-001
-repo: local:tests/fixtures/tiny_lib
+repo: local:tests/fixtures/tiny_lib/repo.bundle
 issue_url: null                      # never shown to the agent
-c_bug: buggy/                        # real bugs: parent commit hash
-c_fix: fixed/                        # real bugs: human fix commit hash
+c_bug: 168d79c049cb2a8b7b5faa7558becd9199556a34
+c_fix: 10a766b6d6e7d7e9d3a15a8fbff30e3ae1d35336
 fix_date: 2026-11-01
 target_exception: ValueError
 target_frame:
@@ -13,17 +13,20 @@ target_frame:
 payload_path: null                   # built by the Phase 1 payload builder
 oracle_tests:
   - tests/test_regression.py::test_empty_report_does_not_crash
+excluded_fix_tests: []               # Amendment 1: fix tests that don't reproduce the crash
 baseline_pass_set:
   - tests/test_report.py::test_rows_are_aligned_and_totalled
   - tests/test_report.py::test_custom_title
   - tests/test_report.py::test_missing_name_is_question_mark
   - tests/test_report.py::test_missing_amount_is_zero
 flaky_set: []
-gold_files:
+gold_files:                          # Amendment 1: minimal gold files the oracle needs
+  - tiny_lib/report.py
+gold_files_full:                     # every file the human fix touched
   - tiny_lib/report.py
 image_tag: bug_env:tiny_lib-001
 python_version: "3.11"
-deps_lock: null                      # no third-party dependencies
+deps_lock: tests/fixtures/tiny_lib/requirements.lock.txt   # pytest only
 notes: >
   Planted crash: format_report([]) -> _widest([]) -> max() on an empty iterable.
   util.py is a 1-hop import of report.py, for context-assembler tests.

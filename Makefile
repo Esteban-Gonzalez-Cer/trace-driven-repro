@@ -6,7 +6,7 @@ help:
 	@echo "fmt           ruff fix + format"
 	@echo "typecheck     mypy (strict) on src/"
 	@echo "test          full pytest suite (docker tests skip without a daemon)"
-	@echo "build-images  build one pinned image per bug manifest      (Phase 1)"
+	@echo "build-images  build bug_env:{id} images (MANIFESTS=..., BUILD_FLAGS=--no-cache)"
 	@echo "validate-gold run gold-patch preflight on every manifest  (Phase 1)"
 	@echo "run-benchmark run Pipelines A and B                       (Phase 2)"
 	@echo "analyze       regenerate tables and figures from logs     (Phase 5)"
@@ -33,8 +33,10 @@ test-docker:
 	uv run pytest -m docker
 
 # Placeholders: exit non-zero so a stub is never mistaken for success.
+# MANIFESTS defaults to every benchmark/manifests/*.yaml; e.g.
+#   make build-images MANIFESTS=tests/fixtures/tiny_lib/manifest.yaml
 build-images:
-	@echo "build-images: not implemented yet (Phase 1)"; exit 2
+	uv run python -m tracerepro.dataset.image_builder $(BUILD_FLAGS) $(MANIFESTS)
 
 validate-gold:
 	@echo "validate-gold: not implemented yet (Phase 1)"; exit 2
