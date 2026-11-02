@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Harness scratch and outputs
+work/
+runs/
+*.junit.xml
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
