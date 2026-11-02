@@ -46,6 +46,16 @@ def test_check_freeze_accepts_lock_and_base_packages() -> None:
     check_freeze(["pip==24.0", "pytest==9.0.2", "setuptools==79.0.1"], pins)
 
 
+def test_check_freeze_accepts_any_marker_conditional_version() -> None:
+    pins = parse_lock(
+        "greenlet==2.0.2 ; python_full_version < '3.12'\n"
+        "greenlet==3.5.0 ; python_full_version >= '3.12'\n"
+    )
+    check_freeze(["greenlet==2.0.2"], pins)
+    with pytest.raises(BuildFailed, match=r"lock pins 2\.0\.2, 3\.5\.0"):
+        check_freeze(["greenlet==1.0"], pins)
+
+
 @pytest.mark.parametrize(
     ("freeze", "message"),
     [

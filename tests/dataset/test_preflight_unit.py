@@ -8,7 +8,12 @@ import yaml
 
 from tracerepro.dataset.candidate import CandidateError, parse_candidate
 from tracerepro.dataset.manifest import dump_manifest, load_manifest, parse_manifest
-from tracerepro.dataset.preflight import crash_target, subsets_smallest_first
+from tracerepro.dataset.preflight import (
+    changed_lines,
+    changed_tests,
+    crash_target,
+    subsets_smallest_first,
+)
 from tracerepro.dataset.screening import read_log, upsert
 from tracerepro.payload.builder import PayloadError, build_payload, dump_payload
 from tracerepro.sandbox.runner import FailureInfo
@@ -39,6 +44,12 @@ def test_assertion_in_test_is_not_a_crash() -> None:
 def test_pytest_raises_did_not_raise_is_not_a_crash() -> None:
     target, _ = crash_target(failure(TEST, SITE, type_="Failed"))
     assert target is None
+
+
+def test_unittest_assertion_is_not_a_crash() -> None:
+    case = ("/usr/local/lib/python3.11/unittest/case.py", "assertRaises", 778)
+    target, reason = crash_target(failure(TEST, case, type_="AssertionError"))
+    assert target is None and "not a crash" in reason
 
 
 def test_crash_with_no_library_frame_is_excluded() -> None:
@@ -136,3 +147,41 @@ def test_payload_drops_test_frames_and_masks_addresses(tmp_path: Path) -> None:
 def test_payload_needs_a_library_frame(tmp_path: Path) -> None:
     with pytest.raises(PayloadError):
         build_payload("pkg-1", "c" * 40, "3.11", failure(TEST, STDLIB), tmp_path)
+
+
+TEST_MODULE = """\
+import pytest
+
+
+def helper():
+    return 1
+
+
+def test_untouched():
+    assert helper()
+
+
+class TestThing:
+    @pytest.mark.parametrize("x", [1, 2, 3])
+    def test_param(self, x):
+        assert x
+
+    def test_body_changed(self):
+        assert helper() == 1
+
+
+async def test_new_async():
+    pass
+"""
+
+
+def test_changed_lines_from_zero_context_diff() -> None:
+    diff = "@@ -10,0 +11,2 @@\n+a\n+b\n@@ -20 +22 @@\n-x\n+y\n@@ -30,2 +31,0 @@\n-z\n-w\n"
+    assert changed_lines(diff) == {11, 12, 22, 31}
+
+
+def test_changed_tests_maps_lines_to_test_functions() -> None:
+    assert changed_tests(TEST_MODULE, {13}) == {"TestThing::test_param"}  # decorator line
+    assert changed_tests(TEST_MODULE, {18}) == {"TestThing::test_body_changed"}
+    assert changed_tests(TEST_MODULE, {22}) == {"test_new_async"}
+    assert changed_tests(TEST_MODULE, {5}) == set()  # helper changed, no test body touched
