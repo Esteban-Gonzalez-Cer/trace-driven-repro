@@ -7,7 +7,7 @@ help:
 	@echo "typecheck     mypy (strict) on src/"
 	@echo "test          full pytest suite (docker tests skip without a daemon)"
 	@echo "build-images  build bug_env:{id} images (MANIFESTS=..., BUILD_FLAGS=--no-cache)"
-	@echo "validate-gold run gold-patch preflight on every manifest  (Phase 1)"
+	@echo "validate-gold run gold-patch preflight (CANDIDATES=...); writes manifests and payloads"
 	@echo "run-benchmark run Pipelines A and B                       (Phase 2)"
 	@echo "analyze       regenerate tables and figures from logs     (Phase 5)"
 
@@ -38,8 +38,9 @@ test-docker:
 build-images:
 	uv run python -m tracerepro.dataset.image_builder $(BUILD_FLAGS) $(MANIFESTS)
 
+# CANDIDATES defaults to every benchmark/candidates/*.yaml.
 validate-gold:
-	@echo "validate-gold: not implemented yet (Phase 1)"; exit 2
+	uv run python -m tracerepro.dataset.preflight $(CANDIDATES)
 
 run-benchmark:
 	@echo "run-benchmark: not implemented yet (Phase 2)"; exit 2

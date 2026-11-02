@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import platform
+import reprlib
 import traceback
 from typing import Any
 
@@ -24,12 +25,25 @@ MAX_FRAMES = 40
 MAX_MESSAGE = 2000
 MAX_LONGREPR = 8000
 REPO_ROOT = "/repo/"
+MAX_LOCALS = 25
+
+_repr = reprlib.Repr()
+_repr.maxlevel = 3
+_repr.maxstring = 160
+_repr.maxother = 160
+_repr.maxlist = _repr.maxtuple = _repr.maxset = _repr.maxdict = 8
 
 _records: list[dict[str, Any]] = []
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--tracerepro-json", default=None, help="write per-test results to PATH")
+    parser.addoption(
+        "--tracerepro-locals",
+        action="store_true",
+        default=False,
+        help="also record truncated reprs of local variables for repo frames of each failure",
+    )
 
 
 def _path(filename: str) -> str:
@@ -43,14 +57,31 @@ def _type_name(exc_type: type) -> str:
     return f"{module}.{exc_type.__qualname__}"
 
 
-def _failure(excinfo: pytest.ExceptionInfo[BaseException]) -> dict[str, Any]:
-    frames = traceback.extract_tb(excinfo.tb)[-MAX_FRAMES:]
+def _safe_repr(value: object) -> str:
+    try:
+        return _repr.repr(value)
+    except Exception:
+        return "<unrepresentable>"
+
+
+def _locals(frame: Any) -> dict[str, str]:
+    names = [n for n in frame.f_locals if not n.startswith("__")][:MAX_LOCALS]
+    return {n: _safe_repr(frame.f_locals[n]) for n in names}
+
+
+def _failure(excinfo: pytest.ExceptionInfo[BaseException], with_locals: bool) -> dict[str, Any]:
+    walked = list(traceback.walk_tb(excinfo.tb))[-MAX_FRAMES:]
+    summary = traceback.StackSummary.extract(iter(walked), lookup_lines=False)
+    frames = []
+    for (frame, _), f in zip(walked, summary):  # noqa: B905 (strict= needs 3.10; plugin is 3.8+)
+        record: dict[str, Any] = {"file": _path(f.filename), "function": f.name, "line": f.lineno}
+        if with_locals and f.filename.startswith(REPO_ROOT):
+            record["vars"] = _locals(frame)
+        frames.append(record)
     return {
         "type": _type_name(excinfo.type),
         "message": str(excinfo.value)[:MAX_MESSAGE],
-        "frames": [
-            {"file": _path(f.filename), "function": f.name, "line": f.lineno} for f in frames
-        ],
+        "frames": frames,
     }
 
 
@@ -76,7 +107,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) ->
         "duration": round(report.duration, 6),
     }
     if report.failed and call.excinfo is not None:
-        record["failure"] = _failure(call.excinfo)
+        record["failure"] = _failure(call.excinfo, item.config.getoption("--tracerepro-locals"))
     _records.append(record)
 
 
