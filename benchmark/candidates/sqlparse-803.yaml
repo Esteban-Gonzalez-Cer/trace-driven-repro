@@ -1,0 +1,13 @@
+id: sqlparse-803
+repo: andialbrecht/sqlparse
+c_fix: 73c8ba3ae88b608d39740c0776fb15064232258e
+python_version: "3.11"
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/803
+fix_date: 2025-11-27
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2025-11-27
+notes: >
+  strip_comments when the statement is only comments.
+split: dev

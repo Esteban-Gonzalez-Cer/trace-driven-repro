@@ -16,3 +16,4 @@ One line per merged task (plan §2, definition of done).
 - Container runner: locked-down `run_sandboxed`/`run_pytest` with throwaway workspaces and a harness pytest plugin that records exception type and frames per failure (#11).
 - Patch validator: host-side `validate`/`apply_patch` enforcing every spec §7.1 rule, with shared path classification (#12).
 - Preflight automation: `make validate-gold` derives oracle, baseline, flaky set, minimal gold files and a synthetic payload per candidate; Amendment 3 (docs/changelog edits dropped from gold) (#13).
+- Five dev bugs validated by automated preflight (flask-6096, marshmallow-3004/3016/3082, more-itertools-1342); 25 candidates screened (#13).
