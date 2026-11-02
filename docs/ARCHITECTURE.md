@@ -66,3 +66,30 @@ Results: `applied`, `rejected` (a Scope Violation) or `failed` (valid but does n
 
 Path rules live in `tracerepro.sandbox.paths` and are shared with preflight and the evaluator
 (`is_test_path`, `is_docs_path`, `is_library_frame`).
+
+## Preflight automation (`tracerepro.dataset.preflight`, Phase 1)
+
+`make validate-gold [CANDIDATES=...]` turns each `benchmark/candidates/{id}.yaml` (fix commit,
+Python version, dependency strategy) into a validated manifest, or an exclusion with a reason.
+It is a mechanical version of `docs/preflight/flask-6096.md`:
+
+1. `c_bug` = first parent of `c_fix`. Changed files are split by `sandbox.paths` into tests, docs
+   (dropped, Amendment 3), deny-listed (exclusion) and source; criterion 3 is checked on source.
+2. The lock (`uv-lock`, `compile` capped at a date, or an existing `file`) is written and
+   `bug_env:{id}` is built with the image builder.
+3. The fix commit's test files run on `c_bug` and with the gold source diff. A failing fix test is
+   an oracle test if its exception was raised outside the test, its traceback has a library frame,
+   and it passes with gold. All oracle tests must share one target (Amendment 2). Other failing fix
+   tests become `excluded_fix_tests` with the reason (Amendment 1).
+4. The whole suite runs 3 times on `c_bug` in evaluation layout: oracle tests must crash the same
+   way each time, varying tests become `flaky_set`, always-passing tests the baseline.
+5. Subsets of the source files are tried smallest first; the first that makes the oracle pass with
+   no baseline regression is `gold_files` (Amendment 1).
+6. The oracle is re-run with `--tracerepro-locals` and `tracerepro.payload.builder` writes the
+   synthetic Sentry-style payload: frames from the outermost library frame inward, source context
+   and masked local reprs for library frames, no test frames.
+
+Outputs: `benchmark/manifests/{id}.yaml` (deterministic YAML), `benchmark/locks/{id}.txt`,
+`benchmark/payloads/{id}.json`, an upserted `benchmark/screening_log.jsonl` row, and
+`work/preflight/{id}/report.json` with every run's outcome counts and durations. Re-running gives
+byte-identical manifests and payloads.

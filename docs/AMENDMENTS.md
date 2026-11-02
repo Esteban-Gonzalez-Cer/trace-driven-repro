@@ -8,6 +8,7 @@ valid reason.
 |---|---|---|---|---|
 | 1 | 2026-11-01 | §5.4 check 1, §5.5 (`oracle_tests`, `gold_files`), §8 category 5 | (b) Infeasibility found by running the flask-6096 preflight: some human fixes bundle the crash fix with an independent non-crash change | Oracle limited to tests that reproduce the crash; `gold_files` limited to the gold hunks those tests need. Details below |
 | 2 | 2026-11-01 | §5.2 (new criterion 6), §5.5 (`target_frame`), §7.4 condition 2 | (b) Infeasibility found by running click-3805: the crash traceback contains no frame inside the library, so `target_frame` is undefined and the agent's context would contain no source files | Such bugs are excluded at curation; "library frame" is defined precisely. Details below |
+| 3 | 2026-11-02 | §5.2 criterion 3, §5.5 (`gold_files_full`) | (b) Infeasibility found while automating preflight (#13): most pallets fixes also edit a changelog (`CHANGES.rst`), so "touches only source files" read literally would exclude nearly every candidate | Changelog and documentation files are dropped from the gold diff and not counted toward the size limit. Details below |
 
 ## Amendment 1: Mixed fixes (crash-only oracle)
 
@@ -98,3 +99,35 @@ the agent's context from "the source files containing trace frames". With no lib
   harness pytest plugin's frame records (#11).
 - LIMITATIONS.md notes that the benchmark leaves out crashes raised entirely outside the library's
   own code. That is a scope limit, not a model result.
+
+## Amendment 3: Changelog and documentation edits in fix commits
+
+**Found by:** automating preflight (#13) and screening pallets candidates. Projects such as click,
+flask and jinja2 ask contributors to add a `CHANGES.rst` entry in the same commit as the fix, and
+some fixes also touch `docs/`.
+
+**The problem:** criterion 3 (§5.2) says the gold fix "touches only source files". Read literally,
+a fix with a one-line changelog entry is excluded, which would remove most pallets bugs for a
+reason unrelated to the crash, the patch, or the agent's task. Counting those lines toward the
+"about 40 lines" limit has the same effect for larger entries.
+
+**The rule:**
+
+1. **Docs files** are files matching `CHANGES*`, `CHANGELOG*`, `HISTORY*`, `NEWS*`, `*.rst`,
+   `*.md`, or anything under a top-level `docs/` or `doc/` directory, unless they are test files
+   (`tracerepro.sandbox.paths.is_docs_path`).
+2. Docs files in the fix commit are **dropped from the gold diff**. They are not applied during
+   preflight or in known-answer tests, and they do not count toward the 3-file / about-40-line
+   limit.
+3. They are **not** listed in `gold_files` or `gold_files_full`, since neither the oracle nor
+   fault localization depends on them. Preflight's `work/preflight/{id}/report.json` lists them.
+4. **Unchanged:** deny-listed non-test files (§7.1: dependency, CI, test or interpreter
+   configuration) still exclude a bug. The agent's patch limits and validator are unchanged: an
+   agent patch that edits a docs file is allowed, but counts toward its own size limit.
+
+**Impact:**
+
+- Earlier screening decisions stand. click-3678 and click-3484 mention docs edits, but each was
+  excluded for another reason (46 source lines, and not a crash).
+- The check-1 claim "passes on the fix commit" is run as `c_bug` plus the gold source diff, which
+  equals the fix commit except for test and docs files.

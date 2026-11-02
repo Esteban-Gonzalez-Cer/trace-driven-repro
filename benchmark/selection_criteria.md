@@ -52,6 +52,13 @@ Some human fixes bundle the crash fix with an independent non-crash change. Unde
 - `gold_files` is the smallest set of gold files whose hunks alone make the oracle pass with no
   baseline regressions. `gold_files_full` keeps every file the fix touched.
 
+## Changelog and documentation files (Amendment 3)
+
+Under [Amendment 3](../docs/AMENDMENTS.md#amendment-3-changelog-and-documentation-edits-in-fix-commits),
+changelog and documentation files in the fix commit (`CHANGES*`, `CHANGELOG*`, `HISTORY*`,
+`NEWS*`, `*.rst`, `*.md`, `docs/`, `doc/`) are dropped from the gold diff and do not count toward
+criterion 3's file and line limits. Deny-listed files still exclude a bug.
+
 ## Screening log fields
 
 | Field | Meaning |

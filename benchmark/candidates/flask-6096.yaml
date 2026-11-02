@@ -1,0 +1,15 @@
+id: flask-6096
+repo: pallets/flask
+c_fix: 05e9c6bd630ecf4ec0ec884b1fc7901663737bc7
+python_version: "3.11"
+issue_url: https://github.com/pallets/flask/issues/6093
+fix_pr_url: https://github.com/pallets/flask/pull/6096
+fix_date: 2026-08-11
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  Flask.run() splits an IPv6 SERVER_NAME with partition(":"), so int() gets ":1]:8080".
+  Mixed fix: the testing.py change is an independent non-crash fix (Amendment 1).
+  Manual preflight: docs/preflight/flask-6096.md.
+split: dev

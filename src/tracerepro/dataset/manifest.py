@@ -179,3 +179,29 @@ def load_manifest(path: Path) -> Manifest:
         return parse_manifest(data, source_path=path)
     except ManifestError as exc:
         raise ManifestError(f"{path}: {exc}") from exc
+
+
+def manifest_to_dict(m: Manifest) -> dict[str, Any]:
+    """Plain data in field order, ready for YAML. Inverse of `parse_manifest`."""
+    data: dict[str, Any] = {}
+    for key in (*REQUIRED[:4], *OPTIONAL, *REQUIRED[4:]):
+        value = getattr(m, key)
+        if isinstance(value, TargetFrame):
+            value = {"file": value.file, "function": value.function}
+        elif isinstance(value, tuple):
+            value = [dict(v) if isinstance(v, dict) else v for v in value]
+        data[key] = value
+    return data
+
+
+def dump_manifest(m: Manifest, header: str = "") -> str:
+    """Deterministic YAML for a manifest. The same manifest always gives the same bytes."""
+    body = yaml.safe_dump(
+        manifest_to_dict(m),
+        sort_keys=False,
+        default_flow_style=False,
+        width=100,
+        allow_unicode=True,
+    )
+    comments = "".join(f"# {line}\n" if line else "#\n" for line in header.splitlines())
+    return comments + body
