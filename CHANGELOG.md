@@ -11,3 +11,4 @@ One line per merged task (plan §2, definition of done).
 - Toy fixture `tests/fixtures/tiny_lib` (buggy, fixed, gold patch, oracle and baseline tests).
 - Frozen selection criteria and screening log started.
 - Amendment 1: crash-only oracle and minimal gold_files for mixed fixes (#15).
+- Amendment 2: exclude crashes whose traceback has no library frame; define target_frame (#16).

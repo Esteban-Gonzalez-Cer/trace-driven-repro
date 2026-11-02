@@ -7,6 +7,7 @@ valid reason.
 | # | Date | Spec section | Reason | Impact |
 |---|---|---|---|---|
 | 1 | 2026-11-01 | §5.4 check 1, §5.5 (`oracle_tests`, `gold_files`), §8 category 5 | (b) Infeasibility found by running the flask-6096 preflight: some human fixes bundle the crash fix with an independent non-crash change | Oracle limited to tests that reproduce the crash; `gold_files` limited to the gold hunks those tests need. Details below |
+| 2 | 2026-11-01 | §5.2 (new criterion 6), §5.5 (`target_frame`), §7.4 condition 2 | (b) Infeasibility found by running click-3805: the crash traceback contains no frame inside the library, so `target_frame` is undefined and the agent's context would contain no source files | Such bugs are excluded at curation; "library frame" is defined precisely. Details below |
 
 ## Amendment 1: Mixed fixes (crash-only oracle)
 
@@ -53,3 +54,47 @@ bug in `testing.py`.
 - The write-up and LIMITATIONS.md report how many bugs had a reduced oracle.
 - flask-6096 stays validated: `oracle_tests` is the crash test only and `gold_files` is
   `[src/flask/app.py]`. Applying only that hunk passes the crash oracle and all 491 baseline tests.
+
+## Amendment 2: Crashes with no library frame
+
+**Found by:** screening and a manual run of click-3805 (issue #16). On Python 3.11, pickling
+`click._utils.Sentinel` members fails with `ValueError: <object ...> is not a valid Sentinel`. The
+traceback has only two kinds of frames: the test file and `/usr/local/lib/python3.11/enum.py`.
+No frame inside `src/click/` is ever on the stack, because the bug is a missing `__reduce_ex__`
+that stdlib code trips over.
+
+**The problem:** spec §5.5 defines `target_frame` as the "innermost library frame", and §6 builds
+the agent's context from "the source files containing trace frames". With no library frame:
+
+- `target_frame` is undefined, and so is repro oracle condition 2 (§7.4).
+- The context would contain no source files, so the run is close to a guaranteed Fault
+  Localization Miss. That says nothing about the agent and would bias H2.
+
+**The rule:**
+
+1. **Library frame:** a traceback frame whose file, resolved relative to the repository root, is
+   inside the project's importable package source (for example `src/click/`, `src/flask/`). These
+   are never library frames:
+   - test files, matched by the §7.1 test patterns (`tests/*`, `test_*.py`, `*_test.py`,
+     `conftest.py`)
+   - the standard library
+   - `site-packages` (installed dependencies)
+   - synthetic files such as `<string>` or `<frozen ...>`
+2. **`target_frame`** is the innermost library frame of the failure, recorded as `file` (relative to
+   the repo root) and `function`. Frames from the standard library or dependencies *inside* it,
+   such as `int()` raising for flask-6096, don't change the target.
+3. **New selection criterion 6 (§5.2):** the crash traceback must contain at least one library
+   frame. Under Amendment 1, a fix test whose failure has no library frame cannot be an oracle test
+   and goes in `excluded_fix_tests`. If no fix test has a library frame, the bug is a dataset
+   exclusion.
+4. **One target:** every test in `oracle_tests` must share the same `target_exception` and
+   `target_frame`. If the reproducing fix tests disagree, the bug is excluded with that reason,
+   because a single synthetic payload cannot describe two different crashes.
+
+**Impact:**
+
+- click-3805 is excluded.
+- Preflight automation (#13) and the payload builder apply rules 1–4 mechanically from the
+  harness pytest plugin's frame records (#11).
+- LIMITATIONS.md notes that the benchmark leaves out crashes raised entirely outside the library's
+  own code. That is a scope limit, not a model result.

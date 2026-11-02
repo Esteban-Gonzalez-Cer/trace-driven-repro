@@ -21,6 +21,9 @@ A bug is a candidate only if all of the following hold:
    files and about 40 changed lines.
 4. The failing behavior is deterministic across repeated runs.
 5. Fix date is recorded. Prefer fixes from the last 12 months.
+6. The crash traceback contains at least one frame inside the library's own package source
+   (not tests, stdlib, or installed dependencies). `target_frame` is the innermost such frame.
+   Added by [Amendment 2](../docs/AMENDMENTS.md#amendment-2-crashes-with-no-library-frame).
 
 Each bug pins one exact Python version in its manifest (`python_version`); 3.11 is the default.
 A bug that needs a different interpreter (for example, a 3.12-only code path) may pin it, and
