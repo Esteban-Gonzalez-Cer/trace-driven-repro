@@ -112,4 +112,13 @@ def test_plugin_is_stdlib_only() -> None:
         for line in source.splitlines()
         if line.startswith(("import ", "from "))
     }
-    assert imports <= {"__future__", "json", "os", "platform", "traceback", "typing", "pytest"}
+    assert imports <= {
+        "__future__",
+        "json",
+        "os",
+        "platform",
+        "reprlib",
+        "traceback",
+        "typing",
+        "pytest",
+    }

@@ -101,6 +101,8 @@ class FailureInfo:
     type: str
     message: str
     frames: tuple[tuple[str, str, int], ...]  # (file, function, line), innermost last
+    # Per frame, truncated reprs of local variables (only with --tracerepro-locals, repo frames).
+    locals: tuple[dict[str, str], ...] = ()
 
     @property
     def innermost(self) -> tuple[str, str, int] | None:
@@ -132,6 +134,17 @@ class PytestRun:
             if current is None or rank.get(t.outcome, 0) > rank.get(current, 0):
                 result[t.nodeid] = t.outcome
         return result
+
+    def failures(self) -> dict[str, FailureInfo]:
+        """Node id -> the first recorded failure (call phase preferred) for tests that raised."""
+        found: dict[str, FailureInfo] = {}
+        for t in sorted(self.tests, key=lambda t: t.when != "call"):
+            if t.failure is not None and t.nodeid not in found:
+                found[t.nodeid] = t.failure
+        return found
+
+    def collection_errors(self) -> dict[str, str]:
+        return {t.nodeid: t.longrepr or "" for t in self.tests if t.when == "collect"}
 
 
 def _container_user() -> str:
@@ -285,11 +298,13 @@ def run_pytest(
     extra_args: Sequence[str] = (),
     client: docker.DockerClient | None = None,
 ) -> PytestRun:
+    results = ws.out / RESULTS_FILE
+    junit = ws.out / JUNIT_FILE
+    for stale in (results, junit):
+        stale.unlink(missing_ok=True)
     run = run_sandboxed(
         image, pytest_command(test_ids, extra_args=extra_args), ws, limits=limits, client=client
     )
-    results = ws.out / RESULTS_FILE
-    junit = ws.out / JUNIT_FILE
     exitstatus, tests = (None, ()) if not results.is_file() else parse_results(results)
     return PytestRun(
         run=run,
@@ -310,11 +325,18 @@ def _parse_failure(obj: Any) -> FailureInfo:
     if not isinstance(obj, dict) or not isinstance(obj.get("frames"), list):
         raise SandboxError("results: malformed failure")
     frames = []
+    frame_vars: list[dict[str, str]] = []
     for f in obj["frames"]:
         if not isinstance(f, dict) or not isinstance(f.get("line"), int):
             raise SandboxError("results: malformed frame")
         frames.append((_str(f, "file"), _str(f, "function"), int(f["line"])))
-    return FailureInfo(_str(obj, "type"), _str(obj, "message"), tuple(frames))
+        values = f.get("vars", {})
+        if not isinstance(values, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in values.items()
+        ):
+            raise SandboxError("results: malformed frame vars")
+        frame_vars.append(values)
+    return FailureInfo(_str(obj, "type"), _str(obj, "message"), tuple(frames), tuple(frame_vars))
 
 
 def parse_results(path: Path) -> tuple[int | None, tuple[CaseResult, ...]]:

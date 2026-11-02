@@ -1,5 +1,3 @@
-# flask-6096 test environment (c_bug 514fc6b), Python 3.11.
-# uv export --frozen --no-emit-project --no-default-groups --group tests --no-hashes --python 3.11
 asgiref==3.12.1
 blinker==1.9.0
 click==8.4.2

@@ -27,7 +27,7 @@ import docker.errors
 
 from tracerepro.dataset.lockfile import Pin, load_lock, normalize_name
 from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, load_manifest
-from tracerepro.dataset.repo import ensure_clone, materialize
+from tracerepro.dataset.repo import clone_name, ensure_clone, materialize
 
 RUNNER_UID = 1000
 # Present in the python:*-slim base image rather than installed from the lock.
@@ -89,7 +89,7 @@ def prepare_context(manifest: Manifest, work_dir: Path) -> Path:
     git_dir = ensure_clone(
         manifest.repo_location(),
         work_dir / "repos",
-        manifest.repo.replace("/", "__").replace(":", "_"),
+        clone_name(manifest.repo),
         [manifest.c_bug, manifest.c_fix],
     )
     context = work_dir / "builds" / manifest.id / "context"
