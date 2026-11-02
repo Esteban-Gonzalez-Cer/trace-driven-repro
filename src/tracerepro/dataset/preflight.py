@@ -31,9 +31,11 @@ With no arguments, runs every `benchmark/candidates/*.yaml`.
 from __future__ import annotations
 
 import argparse
+import ast
 import datetime as dt
 import itertools
 import json
+import re
 import shutil
 import sys
 from collections.abc import Iterator, Sequence
@@ -45,8 +47,9 @@ from typing import Any
 import docker
 
 from tracerepro.dataset import screening
-from tracerepro.dataset.candidate import Candidate, load_candidate, make_lock
-from tracerepro.dataset.image_builder import DEFAULT_WORK_DIR, build_image
+from tracerepro.dataset.candidate import Candidate, CandidateError, load_candidate, make_lock
+from tracerepro.dataset.image_builder import DEFAULT_WORK_DIR, BuildFailed, build_image
+from tracerepro.dataset.lockfile import LockError
 from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, TargetFrame, dump_manifest
 from tracerepro.dataset.repo import (
     changed_files,
@@ -78,7 +81,8 @@ from tracerepro.sandbox.validator import ApplyStatus, apply_patch
 
 MAX_SOURCE_FILES = 3
 MAX_SOURCE_LINES = 40
-PYTEST_INTERNALS = ("/_pytest/", "/pluggy/")
+# Test-framework code: an exception raised here is a failed check, not a crash.
+TEST_FRAMEWORK = ("/_pytest/", "/pluggy/", "/unittest/")
 SUITE_ARGS = ("--continue-on-collection-errors",)
 PREFLIGHT_LIMITS = Limits(timeout_s=900)
 
@@ -130,13 +134,55 @@ def crash_target(failure: FailureInfo) -> tuple[Target | None, str]:
     if not failure.frames:
         return None, f"{failure.type} with no traceback"
     innermost = failure.frames[-1][0]
-    if is_test_path(innermost) or any(p in innermost for p in PYTEST_INTERNALS):
-        return None, f"fails with {failure.type} raised in the test itself, not a crash"
+    if is_test_path(innermost) or any(p in innermost for p in TEST_FRAMEWORK):
+        detail = failure.message.strip().splitlines()[0][:100] if failure.message.strip() else ""
+        return None, f"fails with {failure.type} raised in the test itself, not a crash" + (
+            f" ({detail})" if detail else ""
+        )
     library = [(file, fn) for file, fn, _ in failure.frames if is_library_frame(file)]
     if not library:
         return None, f"{failure.type} with no library frame in the traceback (Amendment 2)"
     file, function = library[-1]
     return (failure.type, file, function), ""
+
+
+_HUNK_NEW_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", re.MULTILINE)
+
+
+def changed_lines(zero_context_diff: str) -> set[int]:
+    """Line numbers in the new file touched by a `-U0` diff (deletions mark the next line)."""
+    lines: set[int] = set()
+    for match in _HUNK_NEW_RE.finditer(zero_context_diff):
+        start, count = int(match[1]), int(match[2]) if match[2] is not None else 1
+        lines.update(range(start, start + count) if count else {max(start, 1)})
+    return lines
+
+
+def changed_tests(source: str, touched: set[int]) -> set[str]:
+    """Qualified names (`Class::test_x` or `test_x`) of test functions with touched lines,
+    counting decorators (so a new parametrize case counts as a change)."""
+    found: set[str] = set()
+
+    def visit(body: list[ast.stmt], prefix: str) -> None:
+        for node in body:
+            if isinstance(node, ast.ClassDef):
+                visit(node.body, f"{prefix}{node.name}::")
+            elif isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+                if not node.name.startswith("test"):
+                    continue
+                first = min([node.lineno, *(d.lineno for d in node.decorator_list)])
+                last = node.end_lineno or node.lineno
+                if touched & set(range(first, last + 1)):
+                    found.add(prefix + node.name)
+
+    visit(ast.parse(source).body, "")
+    return found
+
+
+def _qualname(nodeid: str) -> tuple[str, str]:
+    """('tests/t.py', 'Class::test_x') from 'tests/t.py::Class::test_x[param]'."""
+    path, _, rest = nodeid.partition("::")
+    return path, rest.split("[", 1)[0]
 
 
 def subsets_smallest_first(paths: Sequence[str]) -> Iterator[tuple[str, ...]]:
@@ -261,9 +307,26 @@ class _Preflight:
             p: show_file(self.git_dir, cand.c_fix, p) for p in tests if changed[p][0] != "D"
         }
         self.fix_modules = sorted(p for p in self.fix_tests if _is_test_module(p))
+        # Amendment 1's T: only tests the fix added or changed, not every test in those files.
+        self.changed: set[tuple[str, str]] = set()
+        for path in self.fix_modules:
+            touched = changed_lines(diff(self.git_dir, self.c_bug, cand.c_fix, [path], context=0))
+            try:
+                names = changed_tests(self.fix_tests[path].decode(), touched)
+            except (SyntaxError, UnicodeDecodeError) as exc:
+                raise _exclude(f"Criterion 1: cannot parse fix test file {path}: {exc}") from exc
+            self.changed |= {(path, name) for name in names}
+        self.report["changed_tests"] = sorted("::".join(t) for t in self.changed)
+        if not self.changed:
+            raise _exclude("Criterion 1: the fix commit adds or changes no test function.")
 
     def build(self) -> None:
-        lock = make_lock(self.cand, self.git_dir, self.c_bug, self.root / "requirements.lock.txt")
+        try:
+            lock = make_lock(
+                self.cand, self.git_dir, self.c_bug, self.root / "requirements.lock.txt"
+            )
+        except (CandidateError, LockError) as exc:
+            raise _exclude(f"Criterion 2: dependencies cannot be pinned: {exc}") from exc
         self.lock = lock
         self.draft = Manifest(
             id=self.cand.id,
@@ -275,7 +338,13 @@ class _Preflight:
             deps_lock=str(lock.resolve()),
         )
         self.image = self.draft.image_tag
-        record = build_image(self.draft, work_dir=self.work_dir, client=self.client)
+        try:
+            record = build_image(self.draft, work_dir=self.work_dir, client=self.client)
+        except BuildFailed as exc:
+            log = self.work_dir / "builds" / self.cand.id / "build.log"
+            raise _exclude(
+                f"Criterion 2: the c_bug image does not build ({exc}); see {log}"
+            ) from exc
         self.report["image_id"] = record.image_id
 
     def find_crash(self) -> None:
@@ -296,7 +365,10 @@ class _Preflight:
         failures = bug.failures()
         targets: dict[str, Target] = {}
         self.excluded: list[dict[str, str]] = []
-        for nodeid, outcome in sorted(bug.outcomes().items()):
+        bug_out = {k: v for k, v in bug.outcomes().items() if _qualname(k) in self.changed}
+        if not bug_out:
+            raise _exclude("Criterion 1: none of the fix's changed tests were collected on c_bug.")
+        for nodeid, outcome in sorted(bug_out.items()):
             if outcome not in ("failed", "error"):
                 continue
             failure = failures.get(nodeid)
@@ -316,10 +388,16 @@ class _Preflight:
         distinct = sorted(set(targets.values()))
         self.report["targets"] = {k: list(v) for k, v in targets.items()}
         if not distinct:
-            reasons = "; ".join(f"{e['id']}: {e['reason']}" for e in self.excluded[:3])
+            passing = sorted(k for k, v in bug_out.items() if v not in ("failed", "error"))
+            reasons = [f"{e['id']}: {e['reason']}" for e in self.excluded[:3]]
+            if passing:
+                reasons.append(
+                    f"{len(passing)} changed test(s) do not fail on c_bug: {passing[:3]}"
+                )
             raise _exclude(
-                "Criterion 1: no fix test crashes on c_bug with a library frame"
-                + (f" ({reasons})." if reasons else ".")
+                "Criterion 1: no changed fix test crashes on c_bug with a library frame ("
+                + "; ".join(reasons)
+                + ")."
             )
         if len(distinct) > 1:
             raise _exclude(f"Amendment 2 rule 4: the reproducing fix tests disagree: {distinct}.")
@@ -342,9 +420,13 @@ class _Preflight:
                         f"run {i + 1} (got {target}, expected {self.target})."
                     )
             outcomes.append(run.outcomes())
-        ids = sorted(set().union(*outcomes))
-        self.flaky = [t for t in ids if len({o.get(t) for o in outcomes}) > 1]
-        stable = [t for t in ids if all(o.get(t) == "passed" for o in outcomes)]
+        everywhere = set.intersection(*(set(o) for o in outcomes))
+        # Ids that do not appear in every run (e.g. parametrized with the current time) cannot be
+        # baseline or flaky tests: they would not exist at evaluation time.
+        self.report["unstable_ids"] = sorted(set().union(*outcomes) - everywhere)
+        ids = sorted(everywhere)
+        self.flaky = [t for t in ids if len({o[t] for o in outcomes}) > 1]
+        stable = [t for t in ids if all(o[t] == "passed" for o in outcomes)]
         self.baseline = [t for t in stable if t not in self.candidates]
         if not self.baseline:
             raise _fail("Check 3: no test passes on c_bug, so there is no baseline.")
