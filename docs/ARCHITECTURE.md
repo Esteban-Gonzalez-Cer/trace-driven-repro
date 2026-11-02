@@ -24,3 +24,27 @@ manifest:
 
 Locks (`benchmark/locks/*.txt`) accept only exact `==` pins. Options such as `--index-url` and
 `-e`, and direct URLs, are rejected.
+
+## Container runner (`tracerepro.sandbox.runner`, Phase 1)
+
+`run_sandboxed(image, argv, workspace, limits=...)` runs one command and returns exit code,
+output (last 200k chars), duration, and whether it timed out or was OOM-killed.
+`run_pytest(image, test_ids, workspace)` adds the pytest flags and reads results back.
+
+- **Workspace:** a throwaway host directory per run. `repo/` is a copy of the image's `/repo`
+  (`create_workspace(root, image)`), mounted read-write at `/repo`. Patches are applied and oracle
+  test files copied in (`copy_into`) on the host before the run. `out/` is mounted at `/out` for
+  result files.
+- **Lockdown (spec §7.2):** `--network none`, `--read-only` root, tmpfs `/tmp` (also `HOME`),
+  `--cap-drop ALL`, `no-new-privileges`, PID/CPU/memory limits (no swap), host-enforced
+  wall-clock timeout (kill, then remove), no Docker socket, explicit environment only,
+  `PYTHONDONTWRITEBYTECODE=1`, `-p no:cacheprovider`. The container runs as the invoking host
+  user when that user is not root (so Linux bind mounts stay writable), otherwise as uid 1000.
+- **Results:** pytest writes `--junitxml` and the harness plugin
+  (`sandbox/plugin/tracerepro_pytest_plugin.py`, stdlib-only, mounted read-only) writes
+  `results.json`: per test the pytest node id, phase and outcome, and per failure the exception
+  type, message and traceback frames (innermost last, paths relative to `/repo`). Collection
+  errors are recorded with their report text. The repro gate and oracle checks read this file;
+  node ids match manifest ids directly, so no JUnit name mapping is needed.
+- **Trust:** result files are written inside the sandbox, so `parse_results` caps their size,
+  refuses symlinks, and checks the schema.
