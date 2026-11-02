@@ -1,0 +1,13 @@
+id: more-itertools-1279
+repo: more-itertools/more-itertools
+c_fix: b2f3aff7633057d234ec9186c18a53f4df306d08
+python_version: "3.11"
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1279
+fix_date: 2026-09-14
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-09-14
+notes: >
+  one() and only() drop a falsy user-supplied exception.
+split: dev

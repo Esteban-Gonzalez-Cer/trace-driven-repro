@@ -1,0 +1,12 @@
+id: marshmallow-3082
+repo: marshmallow-code/marshmallow
+c_fix: 5761beab3985d654d712f9326e08bfb2e2ec9c4c
+python_version: "3.11"
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/3082
+fix_date: 2026-10-19
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  Pluck with an empty data_key.
+split: dev

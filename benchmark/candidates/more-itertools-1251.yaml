@@ -1,0 +1,13 @@
+id: more-itertools-1251
+repo: more-itertools/more-itertools
+c_fix: d92f081a089714e0aa92434c797fdd1a06da1290
+python_version: "3.11"
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1251
+fix_date: 2026-09-03
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-09-03
+notes: >
+  value_chain masks a TypeError raised while iterating.
+split: dev

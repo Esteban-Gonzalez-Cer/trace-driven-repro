@@ -110,11 +110,11 @@ def show_file(git_dir: Path, sha: str, path: str) -> bytes:
     return result.stdout
 
 
-def diff(git_dir: Path, a: str, b: str, paths: list[str]) -> str:
+def diff(git_dir: Path, a: str, b: str, paths: list[str], *, context: int = 3) -> str:
     """Unified diff of `paths` between two commits, in the format `git apply -p1` expects."""
     return _git(
         ["--git-dir", str(git_dir), "diff", "--no-renames", "--no-ext-diff", "--no-color",
-         "--full-index", a, b, "--", *paths]
+         "--full-index", f"-U{context}", a, b, "--", *paths]
     )  # fmt: skip
 
 
