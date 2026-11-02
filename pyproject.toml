@@ -6,7 +6,10 @@ readme = "README.md"
 license = "MIT"
 authors = [{ name = "Esteban Gonzalez Cervantes" }]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "docker>=7.1",
+    "pyyaml>=6.0",
+]
 
 [dependency-groups]
 dev = [
@@ -14,6 +17,8 @@ dev = [
     "pre-commit>=4.0",
     "pytest>=8.3",
     "ruff>=0.8",
+    "types-docker>=7.2.0.20261006",
+    "types-pyyaml>=6.0.12.20261030",
 ]
 
 [build-system]
