@@ -1,4 +1,4 @@
-# Draft manifest for the toy fixture, covering every spec §5.5 field.
+# Draft manifest for the toy fixture, covering every spec §5.5 field (plus Amendment 1 fields).
 # Shapes the Phase 1 manifest schema; values here are fixture-local, not upstream commits.
 id: tiny_lib-001
 repo: local:tests/fixtures/tiny_lib
@@ -13,13 +13,16 @@ target_frame:
 payload_path: null                   # built by the Phase 1 payload builder
 oracle_tests:
   - tests/test_regression.py::test_empty_report_does_not_crash
+excluded_fix_tests: []               # Amendment 1: fix tests that don't reproduce the crash
 baseline_pass_set:
   - tests/test_report.py::test_rows_are_aligned_and_totalled
   - tests/test_report.py::test_custom_title
   - tests/test_report.py::test_missing_name_is_question_mark
   - tests/test_report.py::test_missing_amount_is_zero
 flaky_set: []
-gold_files:
+gold_files:                          # Amendment 1: minimal gold files the oracle needs
+  - tiny_lib/report.py
+gold_files_full:                     # every file the human fix touched
   - tiny_lib/report.py
 image_tag: bug_env:tiny_lib-001
 python_version: "3.11"

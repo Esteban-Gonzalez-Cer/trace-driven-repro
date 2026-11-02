@@ -10,3 +10,4 @@ One line per merged task (plan §2, definition of done).
 - Makefile with `test` and placeholder `build-images`, `validate-gold`, `run-benchmark`, `analyze`.
 - Toy fixture `tests/fixtures/tiny_lib` (buggy, fixed, gold patch, oracle and baseline tests).
 - Frozen selection criteria and screening log started.
+- Amendment 1: crash-only oracle and minimal gold_files for mixed fixes (#15).

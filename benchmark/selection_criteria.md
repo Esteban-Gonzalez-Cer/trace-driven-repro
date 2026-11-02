@@ -38,6 +38,17 @@ the reason goes in the manifest's `notes`.
 Bugs failing any check are dataset exclusions, not model failures, and are never counted in a
 denominator. Every decision is recorded in [`screening_log.jsonl`](screening_log.jsonl).
 
+## Oracle and gold-file derivation (Amendment 1)
+
+Some human fixes bundle the crash fix with an independent non-crash change. Under
+[Amendment 1](../docs/AMENDMENTS.md#amendment-1-mixed-fixes-crash-only-oracle):
+
+- `oracle_tests` contains only the fix-commit tests that fail on `c_bug` with the target exception
+  from the target frame. If there are none, the bug is excluded.
+- Other new fix tests go in `excluded_fix_tests` and are not run.
+- `gold_files` is the smallest set of gold files whose hunks alone make the oracle pass with no
+  baseline regressions. `gold_files_full` keeps every file the fix touched.
+
 ## Screening log fields
 
 | Field | Meaning |
