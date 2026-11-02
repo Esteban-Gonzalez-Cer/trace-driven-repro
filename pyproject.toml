@@ -35,6 +35,7 @@ norecursedirs = ["tests/fixtures"]
 addopts = "-p no:cacheprovider -ra"
 markers = [
     "docker: needs a running Docker daemon (skipped otherwise)",
+    "realbugs: known-answer tests on real benchmark bugs (clone upstream, build images; network)",
 ]
 
 [tool.ruff]

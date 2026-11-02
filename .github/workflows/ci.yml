@@ -26,7 +26,18 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.3
       - run: uv sync --locked
       - run: docker pull python:3.11-slim
-      - run: uv run pytest -m docker
+      - run: uv run pytest -m "docker and not realbugs"
+
+  known-answer:
+    # Known-answer tests on every validated benchmark bug (plan §5.5): clones upstream at the
+    # pinned commits and builds each bug_env image, so it needs network and Docker.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --locked
+      - run: uv run pytest -m realbugs -ra
 
   secrets:
     runs-on: ubuntu-latest
