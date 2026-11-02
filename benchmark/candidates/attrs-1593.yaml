@@ -1,0 +1,12 @@
+id: attrs-1593
+repo: python-attrs/attrs
+c_fix: 97f8d175656bc03c373a1c9038048a4d312c307c
+python_version: "3.11"
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1593
+fix_date: 2026-07-31
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  ClassVar forward reference detection.
+split: dev

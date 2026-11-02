@@ -1,0 +1,12 @@
+id: marshmallow-3016
+repo: marshmallow-code/marshmallow
+c_fix: 902f99c4151d1f0c4c3b8e8dfbafc7b6a76aeaa6
+python_version: "3.11"
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/3016
+fix_date: 2026-08-08
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  URL validator rejects a fragment after an empty path.
+split: dev

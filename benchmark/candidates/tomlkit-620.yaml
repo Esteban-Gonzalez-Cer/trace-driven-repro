@@ -1,0 +1,15 @@
+id: tomlkit-620
+repo: python-poetry/tomlkit
+c_fix: 49d6efa980fedb321f16371a4b05abd2a449f775
+python_version: "3.11"
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/620
+fix_date: 2026-09-30
+deps:
+  # uv.lock was added upstream after this fix; resolve the dev group's test tools instead.
+  strategy: compile
+  inputs: [pyproject.toml]
+  extra: [pytest~=7.2, PyYAML~=6.0]
+  exclude_newer: 2026-09-30
+notes: >
+  stdlib fold argument for Time and DateTime.
+split: dev

@@ -1,0 +1,13 @@
+id: more-itertools-1223
+repo: more-itertools/more-itertools
+c_fix: 9ddc55c57390707d97d96302eea1992919c8d930
+python_version: "3.11"
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1223
+fix_date: 2026-07-20
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-07-20
+notes: >
+  chunked() with negative n.
+split: dev

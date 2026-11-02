@@ -1,0 +1,12 @@
+id: tomlkit-658
+repo: python-poetry/tomlkit
+c_fix: 10fbd373f4ce2916ba08d7a2c4421a77f68a2ca2
+python_version: "3.11"
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/658
+fix_date: 2026-10-27
+deps:
+  strategy: uv-lock
+  groups: [dev]
+notes: >
+  regression in String.from_raw.
+split: dev

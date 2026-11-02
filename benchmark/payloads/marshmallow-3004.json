@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "e61a56e3b11775bae02dd73f82f68851",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "cannot convert float NaN to integer",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "deserialize",
+              "lineno": 392,
+              "in_app": true,
+              "pre_context": [
+                "            value = func(value)",
+                "",
+                "        if self.allow_none and value is None:",
+                "            return None",
+                ""
+              ],
+              "context_line": "        output = self._deserialize(value, attr, data, **kwargs)",
+              "post_context": [
+                "        # Apply validators",
+                "        self._validate(output)",
+                "",
+                "        # Apply post_load functions",
+                "        for func in self.post_load:"
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "kwargs": "{}",
+                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate... period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
+                "value": "'nan'"
+              }
+            },
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "_deserialize",
+              "lineno": 1583,
+              "in_app": true,
+              "pre_context": [
+                "            raise self.make_error(\"invalid\") from error",
+                "",
+                "        kwargs = {self.precision: value}",
+                "",
+                "        try:"
+              ],
+              "context_line": "            return dt.timedelta(**kwargs)",
+              "post_context": [
+                "        except OverflowError as error:",
+                "            raise self.make_error(\"invalid\") from error",
+                "",
+                "",
+                "_MappingT = typing.TypeVar(\"_MappingT\", bound=_Mapping)"
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "kwargs": "{'days': nan}",
+                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate... period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
+                "value": "nan"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}
