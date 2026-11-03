@@ -96,6 +96,10 @@ Outputs: `benchmark/manifests/{id}.yaml` (deterministic YAML), `benchmark/locks/
 `work/preflight/{id}/report.json` with every run's outcome counts and durations. Re-running gives
 byte-identical manifests and payloads.
 
+A candidate that is excluded or fails has its `bug_env:{id}` image removed (with its untagged
+layers) so screening does not pile up images; `--keep-images` keeps them for debugging. Images
+rebuild from the candidate on demand.
+
 ## Patch oracle (`tracerepro.evaluate.patch_oracle`, Phase 1)
 
 `score_patch(manifest, diff)` implements spec §7.3 and §7.4 for patches: validate on the host

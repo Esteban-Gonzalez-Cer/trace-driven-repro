@@ -3,12 +3,17 @@
 import json
 from pathlib import Path
 
+import docker.errors
 import pytest
 import yaml
 
 from tracerepro.dataset.candidate import CandidateError, parse_candidate
 from tracerepro.dataset.manifest import dump_manifest, load_manifest, parse_manifest
 from tracerepro.dataset.preflight import (
+    PREFLIGHT_LIMITS,
+    Outputs,
+    _exclude,
+    _Preflight,
     changed_lines,
     changed_tests,
     crash_target,
@@ -185,3 +190,72 @@ def test_changed_tests_maps_lines_to_test_functions() -> None:
     assert changed_tests(TEST_MODULE, {18}) == {"TestThing::test_body_changed"}
     assert changed_tests(TEST_MODULE, {22}) == {"test_new_async"}
     assert changed_tests(TEST_MODULE, {5}) == set()  # helper changed, no test body touched
+
+
+class FakeImages:
+    def __init__(self, error: Exception | None = None) -> None:
+        self.removed: list[str] = []
+        self.error = error
+
+    def remove(self, image: str) -> None:
+        if self.error:
+            raise self.error
+        self.removed.append(image)
+
+
+class FakeClient:
+    def __init__(self, error: Exception | None = None) -> None:
+        self.images = FakeImages(error)
+
+
+def run_stopped_after_build(
+    tmp_path: Path, client: FakeClient, *, built: bool = True, keep_image: bool = False
+) -> tuple[str, dict[str, object]]:
+    """Run a preflight whose image 'builds', then is excluded at the crash search."""
+    flight = _Preflight(
+        parse_candidate(CANDIDATE),
+        work_dir=tmp_path,
+        outputs=Outputs(tmp_path, tmp_path, tmp_path, None),
+        client=client,  # type: ignore[arg-type]
+        runs=1,
+        limits=PREFLIGHT_LIMITS,
+        keep_image=keep_image,
+    )
+
+    def build() -> None:
+        flight.image = "bug_env:pkg-1"
+
+    def find_crash() -> None:
+        raise _exclude("Criterion 1: no crash")
+
+    def classify_and_stop() -> None:
+        raise _exclude("Criterion 3: too big")
+
+    flight.classify = (lambda: None) if built else classify_and_stop  # type: ignore[method-assign]
+    flight.build = build  # type: ignore[method-assign]
+    flight.find_crash = find_crash  # type: ignore[method-assign]
+    result = flight.run()
+    report = json.loads((tmp_path / "preflight" / "pkg-1" / "report.json").read_text())
+    return result.decision, report
+
+
+def test_image_of_an_excluded_candidate_is_removed(tmp_path: Path) -> None:
+    client = FakeClient()
+    decision, report = run_stopped_after_build(tmp_path, client)
+    assert decision == "excluded"
+    assert client.images.removed == ["bug_env:pkg-1"]
+    assert report["image_removed"] == "bug_env:pkg-1"
+
+
+def test_no_removal_before_the_image_exists_or_when_kept(tmp_path: Path) -> None:
+    client = FakeClient()
+    run_stopped_after_build(tmp_path, client, built=False)
+    run_stopped_after_build(tmp_path, client, keep_image=True)
+    assert client.images.removed == []
+
+
+def test_image_removal_problems_are_reported_not_raised(tmp_path: Path) -> None:
+    _, report = run_stopped_after_build(tmp_path, FakeClient(docker.errors.ImageNotFound("gone")))
+    assert "image_removed" not in report
+    _, report = run_stopped_after_build(tmp_path, FakeClient(docker.errors.APIError("in use")))
+    assert report["image_removal_error"] == "in use"
