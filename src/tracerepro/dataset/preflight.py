@@ -19,6 +19,9 @@ For one candidate (`benchmark/candidates/{id}.yaml`):
    If even the full gold diff fails, the preflight fails (checks 1 and 2).
 6. **Payload.** Re-run the oracle on `c_bug` with locals captured and build the synthetic payload.
 
+A candidate that does not pass has its `bug_env:{id}` image removed afterwards (unless
+`keep_image`): nothing uses it, and it rebuilds from the candidate if ever needed.
+
 Every run goes through the locked-down runner, so check 4 (offline isolation) holds by
 construction. Check 1's "passes on the fix commit" is run as `c_bug` plus the gold source diff,
 which equals the fix commit except for test and docs files.
@@ -45,6 +48,7 @@ from pathlib import Path
 from typing import Any
 
 import docker
+import docker.errors
 
 from tracerepro.dataset import screening
 from tracerepro.dataset.candidate import Candidate, CandidateError, load_candidate, make_lock
@@ -208,14 +212,17 @@ class _Preflight:
         client: docker.DockerClient,
         runs: int,
         limits: Limits,
+        keep_image: bool = False,
     ) -> None:
         self.cand = cand
         self.outputs = outputs
         self.client = client
         self.runs = runs
         self.limits = limits
+        self.keep_image = keep_image
         self.work_dir = work_dir
         self.root = work_dir / "preflight" / cand.id
+        self.image = ""  # the bug_env tag, set by build()
         self.stats: dict[str, Any] = {}
         self.report: dict[str, Any] = {"id": cand.id, "runs": []}
         self._n = 0
@@ -328,16 +335,16 @@ class _Preflight:
         except (CandidateError, LockError) as exc:
             raise _exclude(f"Criterion 2: dependencies cannot be pinned: {exc}") from exc
         self.lock = lock
+        self.image = f"bug_env:{self.cand.id}"
         self.draft = Manifest(
             id=self.cand.id,
             repo=self.cand.repo,
             c_bug=self.c_bug,
             c_fix=self.cand.c_fix,
             python_version=self.cand.python_version,
-            image_tag=f"bug_env:{self.cand.id}",
+            image_tag=self.image,
             deps_lock=str(lock.resolve()),
         )
-        self.image = self.draft.image_tag
         try:
             record = build_image(self.draft, work_dir=self.work_dir, client=self.client)
         except BuildFailed as exc:
@@ -496,6 +503,19 @@ class _Preflight:
         (out.manifests / f"{cand.id}.yaml").write_text(dump_manifest(manifest, header))
         return manifest
 
+    def drop_image(self) -> None:
+        """Remove the image of a candidate that did not pass, with its untagged parent layers."""
+        if not self.image or self.keep_image:
+            return
+        try:
+            self.client.images.remove(self.image)
+        except docker.errors.ImageNotFound:
+            return
+        except docker.errors.APIError as exc:
+            self.report["image_removal_error"] = str(exc)
+            return
+        self.report["image_removed"] = self.image
+
     def run(self) -> PreflightResult:
         if self.root.exists():
             shutil.rmtree(self.root)
@@ -509,6 +529,7 @@ class _Preflight:
             manifest = self.write(self.payload())
         except _Stop as stop:
             result = PreflightResult(self.cand.id, stop.decision, stop.reason, stats=self.stats)
+            self.drop_image()
         else:
             reason = (
                 f"All four §5.4 checks pass: {len(self.candidates)} oracle test(s) crash with "
@@ -542,6 +563,7 @@ def preflight(
     client: docker.DockerClient | None = None,
     runs: int = 3,
     limits: Limits = PREFLIGHT_LIMITS,
+    keep_image: bool = False,
 ) -> PreflightResult:
     outputs = outputs or Outputs.default()
     result = _Preflight(
@@ -551,6 +573,7 @@ def preflight(
         client=client or docker.from_env(),
         runs=runs,
         limits=limits,
+        keep_image=keep_image,
     ).run()
     if outputs.screening_log is not None:
         screening.upsert(
@@ -580,6 +603,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("candidates", nargs="*", type=Path)
     parser.add_argument("--work-dir", type=Path, default=DEFAULT_WORK_DIR)
     parser.add_argument("--runs", type=int, default=3, help="stability runs on c_bug")
+    parser.add_argument(
+        "--keep-images", action="store_true", help="keep the images of candidates that do not pass"
+    )
     args = parser.parse_args(argv)
     paths = args.candidates or sorted((PROJECT_ROOT / "benchmark" / "candidates").glob("*.yaml"))
     if not paths:
@@ -588,7 +614,12 @@ def main(argv: list[str] | None = None) -> int:
     failures = 0
     for path in paths:
         try:
-            result = preflight(load_candidate(path), work_dir=args.work_dir, runs=args.runs)
+            result = preflight(
+                load_candidate(path),
+                work_dir=args.work_dir,
+                runs=args.runs,
+                keep_image=args.keep_images,
+            )
         except Exception as exc:
             failures += 1
             print(f"ERROR {path}: {type(exc).__name__}: {exc}", file=sys.stderr)
