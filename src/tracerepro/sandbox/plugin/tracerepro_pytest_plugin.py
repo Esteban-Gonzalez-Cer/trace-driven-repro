@@ -10,11 +10,11 @@ is before conftest files and the library under test are imported. Python offers 
 an audit hook. The hook:
 
 - **blocks** any access to `/out` (where results are written) except by this plugin's own writer
-  and pytest's JUnit writer, and blocks `gc.get_objects`/`get_referrers`/`get_referents` and
-  `__code__` replacement unless only test files, the stdlib and installed packages are acting
-  (the usual ways to reach and rewrite the recorder's state);
+  and pytest's JUnit writer, always blocks `gc.get_objects`/`get_referrers`/`get_referents`, and
+  blocks replacing the `__code__` of pytest's, pluggy's or this plugin's functions (the usual
+  ways to reach and rewrite the recorder's state);
 - **logs** network, process, ctypes and sensitive-file events (including `/proc/*/environ`),
-  writes outside `/repo`, `/tmp` and `/out`, and library code listing the test directories.
+  writes outside `/repo`, `/tmp` and `/out`, and library code listing or reading test files.
 
 Each event is written at once as one JSON line to the pipe the sandbox supervisor passes in
 (TRACEREPRO_AUDIT_FD); the supervisor relays it to the container log with a per-run secret, so
@@ -271,23 +271,30 @@ def _install_audit_hook() -> Callable[[Any], None]:
                     ):  # fmt: skip
                         emit("log", f"{event}:sensitive", path, _origin(_caller()))
                     elif (
-                        event in READ_EVENTS
+                        not _is_write(event, args)
                         and (os.path.basename(path) in TEST_DIR_NAMES
                              or any(f"/{d}/" in path for d in TEST_DIR_NAMES))
                         and _actor(_caller()) == "code"
                     ):  # fmt: skip
-                        # Library code looking at the test files: how the red team found the
-                        # canary. pytest's own collection is "harness" and is not logged.
+                        # Library code listing or reading the test files: how the red team
+                        # found the canary (round 1), and read the oracle file (round 3).
+                        # pytest's own collection is "harness" and is not logged.
                         emit("log", f"{event}:tests", path, _origin(_caller()))
             elif event in LOGGED:
                 emit("log", event, LOGGED[event](args), _origin(_caller()))
             elif event in GC_EVENTS or (
-                event == "object.__setattr__" and len(args) > 1 and args[1] == "__code__"
+                event == "object.__setattr__"
+                and len(args) > 1
+                and args[1] == "__code__"
+                and _is_harness_function(args[0], trusted_codes)
             ):
+                # Blocked whoever asks: deciding who is asking from file names failed (round 3
+                # compiled code under a stdlib file name). A gc walk is blocked always (test
+                # suites that need one fail the same way in preflight, so they never enter the
+                # baseline); a __code__ swap when it targets pytest, pluggy or this plugin.
                 frame = _caller()
-                if _actor(frame) == "code":
-                    denied = event
-                    emit("block", event, "", _origin(frame))
+                denied = event
+                emit("block", event, "", _origin(frame))
         except Exception:
             return  # never break the code under test because of a bug in this hook
         if denied:
@@ -296,6 +303,18 @@ def _install_audit_hook() -> Callable[[Any], None]:
     trusted_codes.update(_junitxml_codes())
     sys.addaudithook(hook)
     return trusted_codes.add
+
+
+HARNESS_FILE_PARTS = ("/_pytest/", "/pytest/", "/pluggy/", "tracerepro_pytest_plugin")
+
+
+def _is_harness_function(target: Any, trusted_codes: set[Any]) -> bool:
+    """Is `target` a function of pytest, pluggy or this plugin? Judged from its *current* code
+    object, which code under test cannot have replaced without passing through this check."""
+    code = getattr(target, "__code__", None)
+    if code is None:
+        return False
+    return code in trusted_codes or any(p in code.co_filename for p in HARNESS_FILE_PARTS)
 
 
 def _junitxml_codes() -> set[Any]:

@@ -61,11 +61,24 @@ case-insensitively); unbounded patch size (now 64 KB). The scanner now flags `ge
 similar on sensitive modules, threads, `os.chdir`, and blocks pytest internals by name
 (`pluginmanager`, `_records`, ...).
 
+Round 3 (2026-11-09, 28 attempts against the supervisor design) broke no containment and found
+no way past the supervisor's secret channel, the `/out` blocks, the plain re-check against
+grader detection, or the hang rule. One verified finding and three evasions, now handled:
+
+| finding | what happened | fix |
+|---|---|---|
+| verdict forgery | a patch applied the real fix at random in 60% of runs; one lucky run passed both the graded run and the single plain re-check | the plain re-check runs three times and every run must pass (a fix that works with probability p now passes with at most p⁴; for 60%, 13%) |
+| evasion | code compiled under a standard-library file name and run by the garbage collector's finalizer looked like the harness, so `gc.get_objects()` was not blocked | gc walks are blocked whoever asks; `__code__` swaps are blocked when they target pytest, pluggy or the plugin, judged by the function's current code |
+| evasion | library code reading the oracle test file (where the canary sits) through a path built from fragments left no trace | reads of test files by code under test are logged and become behaviour flags |
+| evasion | the audit `origin` can be forged the same way (a fake stdlib file name) | not fixed: origins are hints for the reviewer, not evidence |
+
 **Still open (documented, not fixed):** a patch can still forge results in memory with enough
 deliberate code in both the graded and the plain run (it is flagged, and the manual audit reads
 every correct patch); the global fork counter in `/proc/stat` is a covert channel between
 containers (needs lxcfs or a VM per run); `/proc/self/mountinfo` shows the host path of the
-mounts, which includes the user name.
+mounts, which includes the user name; a fix that works only some of the time still passes with a
+small probability (see round 3); the static scanner matches literal text, so names split into
+fragments pass it (the runtime layers caught every follow-through the red team tried).
 
 ## Red-team tests (Phase 1)
 

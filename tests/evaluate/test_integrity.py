@@ -241,3 +241,38 @@ def test_hostile_numbers_and_origins_do_not_crash_the_host() -> None:
     assert summary_counts(f"{huge} failed, 1 passed in 0.1s") in (None, {"passed": 1})
     odd = AuditEvent("log", "socket.connect", "('1.1.1.1', 1)", "pkg/mod.py:\u00b2")
     assert behaviour_flags((odd,), set())[0].line == 0
+
+
+def test_every_plain_rerun_must_pass(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Red-team round 3: a fix applied at random (60% of runs) was graded correct on a lucky run.
+    from tracerepro.evaluate import patch_oracle
+
+    outcomes = iter([(True, "ok"), (False, "exit 2"), (True, "ok")])
+    calls: list[int] = []
+
+    def once(*_: object) -> tuple[bool, str]:
+        calls.append(1)
+        return next(outcomes)
+
+    monkeypatch.setattr(patch_oracle, "_plain_run_once", once)
+    manifest = load_manifest(TOY)
+    passes, detail = patch_oracle.plain_oracle_passes(
+        manifest,
+        "",
+        {},
+        Path("."),
+        None,
+        None,  # type: ignore[arg-type]
+    )
+    assert not passes and detail == "plain run 2 of 3: exit 2"
+    assert len(calls) == 2  # stops at the first failure
+
+    monkeypatch.setattr(patch_oracle, "_plain_run_once", lambda *_: (True, "ok"))
+    assert patch_oracle.plain_oracle_passes(
+        manifest,
+        "",
+        {},
+        Path("."),
+        None,
+        None,  # type: ignore[arg-type]
+    ) == (True, "3 plain runs passed")

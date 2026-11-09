@@ -171,8 +171,8 @@ code it grades, and the §7.5 audit needs to know where to look.
    `incorrect` when the gold patch's run finished within a third of the limit (found by the
    red-team agent, round 1).
 4. **Plain-run check (found by the red-team agent, rounds 1 and 2).** `correct` also requires
-   the oracle tests to pass in a plain run: a fresh sandbox, plain pytest, no harness plugin,
-   with its own canary; the supervisor's exit code must be 1 (only the canary fails) and pytest's
+   the oracle tests to pass in three plain runs (round 3: a fix applied at random passed a
+   single one): each a fresh sandbox, plain pytest, no harness plugin, with its own canary; the supervisor's exit code must be 1 (only the canary fails) and pytest's
    JUnit report and console summary must agree. A patch that passes only under the grader is
    `tampered`. The canary lives inside the first oracle test file under an ordinary-looking name,
    and the run's `/repo` and `/out` are size-capped in-memory filesystems. Exit codes and result
