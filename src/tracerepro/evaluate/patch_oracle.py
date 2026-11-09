@@ -7,12 +7,17 @@
 4. Re-apply the patch from the host. A valid patch that does not apply is recorded as such.
 5. Scan what the patch added (`sandbox.scanner`). Code that reaches for the test harness is a
    Scope Violation; other suspicious code is flagged for the reviewer.
-6. Add a canary test, then run `oracle_tests` plus `baseline_pass_set` plus the canary. The
-   plugin's audit hook blocks access to the results directory and logs suspicious actions.
+6. Append a canary test to an oracle test file, then run `oracle_tests` plus
+   `baseline_pass_set` plus the canary. The plugin's audit hook blocks access to the results
+   directory and logs suspicious actions.
 7. Check the run's integrity (`evaluate.integrity`): a blocked action, an unreadable results
    file or an inconsistency between the results, JUnit, the console and the canary is Tampered.
-8. Correct only if every oracle test passes and no baseline test fails.
+8. Correct only if every oracle test passes and no baseline test fails, **and** the oracle also
+   passes in a plain run (fresh sandbox, plain pytest, no harness plugin, no canary). Code that
+   fixes the bug only when it detects the grader is Tampered.
 9. Compare the run's audit events with the gold patch's; new ones are flagged for the reviewer.
+10. A run killed at the time or memory limit is `incorrect` when the gold patch's run finished
+    well within the limit (the patch caused it); otherwise it stays `infra_error`.
 
 Flags never change a verdict: they direct the manual audit of correct patches (spec §7.5);
 `review_report` renders them. This is the core of the Phase 3 evaluator.
@@ -33,22 +38,40 @@ import docker.errors
 from tracerepro.dataset.image_builder import DEFAULT_WORK_DIR, build_image
 from tracerepro.dataset.manifest import Manifest
 from tracerepro.dataset.repo import changed_files, clone_name, diff, ensure_clone, show_file
-from tracerepro.evaluate.integrity import check_integrity, make_canary
+from tracerepro.evaluate.integrity import (
+    check_integrity,
+    junit_address,
+    make_canary,
+    read_junit,
+    summary_counts,
+)
 from tracerepro.sandbox.paths import is_test_path
 from tracerepro.sandbox.runner import (
+    JUNIT_FILE,
+    OUT_MOUNT,
     AuditEvent,
     Limits,
     PytestRun,
+    SandboxError,
     copy_into,
     create_workspace,
     remove_workspace,
     run_pytest,
+    run_sandboxed,
 )
-from tracerepro.sandbox.scanner import Finding, scan_patch
+from tracerepro.sandbox.scanner import HARNESS, Finding, ScanResult, scan_patch
 from tracerepro.sandbox.validator import ApplyStatus, Validation, apply_patch, validate
 
 EVAL_LIMITS = Limits(timeout_s=900)
+# Errors from reading what came out of a container. That data is untrusted: failing to read it
+# means the patch's run is not trusted (`tampered`), never a crash of the grader (red-team
+# round 2 crashed it four ways).
+UNTRUSTED_INPUT_ERRORS = (
+    SandboxError, ValueError, OSError, RecursionError, UnicodeError, KeyError, IndexError,
+)  # fmt: skip
 GOLD_AUDIT_FILE = "gold-audit.json"
+# A run killed at a limit is blamed on the patch when gold finished within this share of it.
+GOLD_HEADROOM = 3
 
 
 class VerdictKind(enum.StrEnum):
@@ -116,11 +139,29 @@ def score_patch(
     verdict = _evaluate(manifest, diff, work_dir=work_dir, client=client, limits=limits)
     if verdict.run is None:
         return verdict
+    run = verdict.run.run
     profile = gold_profile(manifest, work_dir=work_dir, client=client, limits=limits)
     if profile is None:
         note = Finding("behaviour_unavailable", "", 0, "the gold patch did not score correct")
         return replace(verdict, flags=(*verdict.flags, note))
-    return replace(verdict, flags=(*verdict.flags, *behaviour_flags(verdict.audit, profile)))
+    verdict = replace(
+        verdict, flags=(*verdict.flags, *behaviour_flags(verdict.audit, profile.behaviour))
+    )
+    # Red-team finding (failure_laundering): a patch that hangs or eats memory must not turn
+    # its failure into an infrastructure error, which never counts against the model.
+    killed = run.timed_out or run.oom_killed
+    if (
+        verdict.kind is VerdictKind.INFRA_ERROR
+        and killed
+        and profile.duration_s * GOLD_HEADROOM < limits.timeout_s
+    ):
+        what = "ran out of memory" if run.oom_killed else f"timed out at {limits.timeout_s:.0f}s"
+        return replace(
+            verdict,
+            kind=VerdictKind.INCORRECT,
+            message=f"the run {what}; the gold patch's run took {profile.duration_s:.1f}s",
+        )
+    return verdict
 
 
 def _evaluate(
@@ -143,28 +184,41 @@ def _evaluate(
 
     ensure_image(manifest, client, work_dir)
     git_dir = bug_repo(manifest, work_dir)
-    canary = make_canary(manifest)
+    fix_tests = fix_test_files(manifest, git_dir)
+    oracle_file = manifest.oracle_tests[0].split("::", 1)[0]
+    canary = make_canary(manifest, fix_tests.get(oracle_file, b""))
     decisive = [*manifest.oracle_tests, *manifest.baseline_pass_set]
     ws = create_workspace(
         work_dir / "eval" / f"{manifest.id}-{uuid.uuid4().hex[:12]}", manifest.image_tag,
         client=client,
     )  # fmt: skip
     try:
-        copy_into(ws, fix_test_files(manifest, git_dir))
+        copy_into(ws, fix_tests)
         applied = apply_patch(ws, diff)
         if applied.status is ApplyStatus.FAILED:
             return Verdict(VerdictKind.APPLY_FAILED, applied.message, validation)
-        scan = scan_patch(ws.repo, validation.files)
+        try:
+            scan = scan_patch(ws.repo, validation.files)
+        except Exception as exc:  # fail closed: code the scanner cannot read does not run
+            reason = f"the scanner could not analyse the patch ({type(exc).__name__})"
+            scan = ScanResult(blocks=(Finding(HARNESS, "", 0, reason),))
         if not scan.ok:
             message = "; ".join(str(b) for b in scan.blocks)
             return Verdict(VerdictKind.SCOPE_VIOLATION, message, validation, flags=scan.flags)
         copy_into(ws, {canary.path: canary.source})
-        run = run_pytest(
-            manifest.image_tag, [*decisive, canary.nodeid], ws, limits=limits, client=client
-        )
+        try:
+            run = run_pytest(
+                manifest.image_tag, [*decisive, canary.nodeid], ws, limits=limits, client=client
+            )
+        except UNTRUSTED_INPUT_ERRORS as exc:
+            return Verdict(VerdictKind.TAMPERED, f"results refused: {exc}"[:500], validation,
+                           flags=scan.flags)  # fmt: skip
         finished = run.exitstatus is not None and not run.results_error and not run.run.blocked
         # Before the workspace goes: the check reads junit.xml from it.
-        problems = check_integrity(run, canary, decisive) if finished else []
+        try:
+            problems = check_integrity(run, canary, decisive) if finished else []
+        except UNTRUSTED_INPUT_ERRORS as exc:
+            problems = [f"results could not be checked: {type(exc).__name__}"]
     finally:
         remove_workspace(ws)
 
@@ -172,6 +226,12 @@ def _evaluate(
         return Verdict(kind, message, validation, run=run, flags=scan.flags,
                        audit=run.run.audit, **kwargs)  # fmt: skip
 
+    if run.run.flooded:
+        return verdict(VerdictKind.TAMPERED, "the console output flooded past its cap")
+    if run.run.audit_overflow:
+        return verdict(VerdictKind.TAMPERED, "the audit channel was flooded")
+    if run.run.refused:
+        return verdict(VerdictKind.TAMPERED, f"result files refused: {list(run.run.refused)}")
     if run.run.blocked:
         return verdict(
             VerdictKind.TAMPERED,
@@ -192,8 +252,67 @@ def _evaluate(
     outcomes = run.outcomes()
     failing = tuple(t for t in manifest.oracle_tests if outcomes.get(t) != "passed")
     regressions = tuple(t for t in manifest.baseline_pass_set if outcomes.get(t) != "passed")
-    kind = VerdictKind.CORRECT if not failing and not regressions else VerdictKind.INCORRECT
-    return verdict(kind, failing_oracle=failing, regressions=regressions)
+    if failing or regressions:
+        return verdict(VerdictKind.INCORRECT, failing_oracle=failing, regressions=regressions)
+    try:
+        passes, detail = plain_oracle_passes(manifest, diff, fix_tests, work_dir, client, limits)
+    except UNTRUSTED_INPUT_ERRORS as exc:
+        passes, detail = False, f"its results could not be read: {type(exc).__name__}"
+    if not passes:
+        # Red-team finding (verdict_forgery): a patch that fixed the bug only when it detected
+        # the grader (it noticed the canary file) was scored correct.
+        return verdict(VerdictKind.TAMPERED, f"the oracle passes only under the grader ({detail})")
+    return verdict(VerdictKind.CORRECT)
+
+
+def plain_oracle_passes(
+    manifest: Manifest,
+    diff: str,
+    fix_tests: dict[str, bytes],
+    work_dir: Path,
+    client: docker.DockerClient,
+    limits: Limits,
+) -> tuple[bool, str]:
+    """Run the oracle tests with the patch in a fresh sandbox with plain pytest: no harness
+    plugin and no audit hook, only pytest's own JUnit report and a new canary (another random
+    name). Passes only if the supervisor reports exit code 1 (the canary's failure), JUnit says
+    every oracle test passed and the canary failed, and the console summary agrees."""
+    oracle_file = manifest.oracle_tests[0].split("::", 1)[0]
+    canary = make_canary(manifest, fix_tests.get(oracle_file, b""))
+    ws = create_workspace(
+        work_dir / "eval" / f"{manifest.id}-plain-{uuid.uuid4().hex[:12]}", manifest.image_tag,
+        client=client,
+    )  # fmt: skip
+    try:
+        copy_into(ws, fix_tests)
+        if apply_patch(ws, diff).status is not ApplyStatus.APPLIED:
+            return False, "the patch does not apply"
+        copy_into(ws, {canary.path: canary.source})
+        argv = [
+            "python",
+            "-m",
+            "pytest",
+            "-p",
+            "no:cacheprovider",
+            "-q",
+            f"--junitxml={OUT_MOUNT}/{JUNIT_FILE}",
+            *manifest.oracle_tests,
+            canary.nodeid,
+        ]
+        result = run_sandboxed(manifest.image_tag, argv, ws, limits=limits, client=client)
+        junit_path = ws.out / JUNIT_FILE
+        junit = read_junit(junit_path) if junit_path.is_file() else {}
+    finally:
+        remove_workspace(ws)
+    if not result.completed or result.exit_code != 1:
+        return False, f"plain pytest exit code {result.exit_code}"
+    failed = [t for t in manifest.oracle_tests if junit.get(junit_address(t)) != "passed"]
+    if failed or junit.get(junit_address(canary.nodeid)) not in ("failed", "error"):
+        return False, f"plain JUnit report: oracle {failed[:3]} not passed, or canary not failed"
+    summary = summary_counts(result.output) or {}
+    if summary.get("failed") != 1 or summary.get("passed") != len(manifest.oracle_tests):
+        return False, f"plain console summary {summary}"
+    return True, "plain run passed"
 
 
 # --- behaviour comparison (Amendment 4, layer 3) ---------------------------------------------
@@ -232,13 +351,16 @@ def behaviour_flags(
         if key in gold or key in found:
             continue
         path, _, line = event.origin.rpartition(":")
-        found[key] = Finding(
-            f"behaviour:{event.event}",
-            path or event.origin,
-            int(line) if line.isdigit() else 0,
-            event.detail,
-        )
+        number = int(line) if re.fullmatch(r"[0-9]{1,9}", line) else 0
+        found[key] = Finding(f"behaviour:{event.event}", path or event.origin, number,
+                             event.detail)  # fmt: skip
     return tuple(found.values())
+
+
+@dataclass(frozen=True)
+class GoldProfile:
+    behaviour: set[tuple[str, str]]
+    duration_s: float  # the graded run's duration, for blaming timeouts
 
 
 def gold_profile(
@@ -247,28 +369,34 @@ def gold_profile(
     work_dir: Path = DEFAULT_WORK_DIR,
     client: docker.DockerClient,
     limits: Limits = EVAL_LIMITS,
-) -> set[tuple[str, str]] | None:
-    """The gold patch's behaviour, computed once per image and cached. None if gold does not
-    score correct (then there is nothing trustworthy to compare with)."""
+) -> GoldProfile | None:
+    """The gold patch's behaviour and run time, computed once per image and cached. None if
+    gold does not score correct (then there is nothing trustworthy to compare with)."""
     ensure_image(manifest, client, work_dir)
     image_id = client.images.get(manifest.image_tag).id
     cache = work_dir / "eval" / manifest.id / GOLD_AUDIT_FILE
     if cache.is_file():
         data = json.loads(cache.read_text())
-        if data.get("image_id") == image_id:
-            return {(e, d) for e, d in data["behaviour"]}
+        if data.get("image_id") == image_id and "duration_s" in data:
+            return GoldProfile({(e, d) for e, d in data["behaviour"]}, float(data["duration_s"]))
     gold = _evaluate(
         manifest, gold_diff(manifest, bug_repo(manifest, work_dir)),
         work_dir=work_dir, client=client, limits=limits,
     )  # fmt: skip
-    if gold.kind is not VerdictKind.CORRECT:
+    if gold.kind is not VerdictKind.CORRECT or gold.run is None:
         return None
-    behaviour = {behaviour_key(e) for e in gold.audit if e.kind == "log"}
-    cache.parent.mkdir(parents=True, exist_ok=True)
-    cache.write_text(
-        json.dumps({"image_id": image_id, "behaviour": sorted(behaviour)}, indent=2) + "\n"
+    profile = GoldProfile(
+        {behaviour_key(e) for e in gold.audit if e.kind == "log"},
+        round(gold.run.run.duration_s, 2),
     )
-    return behaviour
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "image_id": image_id,
+        "duration_s": profile.duration_s,
+        "behaviour": sorted(profile.behaviour),
+    }
+    cache.write_text(json.dumps(record, indent=2) + "\n")
+    return profile
 
 
 # --- review report (Amendment 4, layer G) ----------------------------------------------------

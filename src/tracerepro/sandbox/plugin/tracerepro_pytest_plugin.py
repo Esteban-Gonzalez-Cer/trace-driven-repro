@@ -11,14 +11,15 @@ an audit hook. The hook:
 
 - **blocks** any access to `/out` (where results are written) except by this plugin's own writer
   and pytest's JUnit writer, and blocks `gc.get_objects`/`get_referrers`/`get_referents` and
-  `__code__` replacement when called from library code (the usual ways to reach and rewrite
-  the recorder's state);
-- **logs** network, process, ctypes and sensitive-file events, and writes outside
-  `/repo`, `/tmp` and `/out`.
+  `__code__` replacement unless only test files, the stdlib and installed packages are acting
+  (the usual ways to reach and rewrite the recorder's state);
+- **logs** network, process, ctypes and sensitive-file events (including `/proc/*/environ`),
+  writes outside `/repo`, `/tmp` and `/out`, and library code listing the test directories.
 
-Each event is written at once, as a `TRACEREPRO-AUDIT {json}` line, to a copy of the original
-stderr taken at import (so pytest's output capture never swallows it). The container's log is
-kept by the Docker daemon, so code that runs later cannot take a line back.
+Each event is written at once as one JSON line to the pipe the sandbox supervisor passes in
+(TRACEREPRO_AUDIT_FD); the supervisor relays it to the container log with a per-run secret, so
+printing cannot forge an event, and the Docker daemon keeps the log, so code that runs later
+cannot take a line back. Outside the sandbox the lines go to a copy of stderr taken at import.
 
 This file runs inside bug images, under whatever Python the bug needs. It must stay
 stdlib-only and importable on Python 3.8+.
@@ -35,6 +36,7 @@ import reprlib
 import sys
 import sysconfig
 import tempfile
+import threading
 import traceback
 from collections.abc import Callable
 from typing import Any
@@ -77,14 +79,17 @@ SENSITIVE_PARTS = (
     "/run/secrets", "/var/run/secrets",
 )  # fmt: skip
 SENSITIVE_PREFIXES = ("/etc/passwd", "/etc/shadow", "/etc/sudoers", "/root/", "/home/")
+# Process information that can hold secrets (environment, command line, memory).
+PROC_SENSITIVE = ("environ", "cmdline", "mem", "maps", "auxv", "stack", "syscall")
+TEST_DIR_NAMES = ("tests", "test", "testing")
 # Event -> positions of path arguments. All but listing and `open` (checked by mode) are writes.
 PATH_EVENTS = {
     "open": (0,), "os.rename": (0, 1), "os.remove": (0,), "os.rmdir": (0,), "os.truncate": (0,),
     "os.chmod": (0,), "os.chown": (0,), "os.symlink": (0, 1), "os.link": (0, 1),
     "os.utime": (0,), "os.listdir": (0,), "os.scandir": (0,), "shutil.rmtree": (0,),
-    "shutil.move": (0, 1), "shutil.copyfile": (0, 1),
+    "shutil.move": (0, 1), "shutil.copyfile": (0, 1), "os.chdir": (0,),
 }  # fmt: skip
-READ_EVENTS = ("os.listdir", "os.scandir")
+READ_EVENTS = ("os.listdir", "os.scandir", "os.chdir")
 # Frames from these directories (stdlib, installed packages) are skipped when naming the code
 # that triggered an event, so the origin is the library or test line rather than socket.py.
 _LIB_DIRS = tuple(
@@ -144,9 +149,11 @@ def _as_path(value: Any) -> str | None:
     if not isinstance(value, str):
         return None  # file descriptors and path-like objects whose __fspath__ we must not call
     try:
-        return _realpath(os.path.join("/repo", value))  # resolves symlinks and /proc/self/fd/N
+        # Against the *current* directory (red-team round 2: `os.chdir("/")` then "out/x" got
+        # past a check that assumed /repo), resolving symlinks and /proc/self/fd/N.
+        return _realpath(value)
     except (OSError, ValueError):
-        return os.path.normpath(os.path.join("/repo", value))
+        return None
 
 
 def _is_write(event: str, args: tuple[Any, ...]) -> bool:
@@ -180,24 +187,42 @@ def _origin(frame: Any) -> str:
     return f"{_path(first.f_code.co_filename)}:{first.f_lineno}" if first is not None else ""
 
 
-def _from_library(frame: Any) -> bool:
-    """True if the frame runs code from the repo that is not a test file."""
-    if frame is None:
-        return False
-    filename = frame.f_code.co_filename
-    if not filename.startswith(REPO_ROOT):
-        return False
+def _is_test_file(filename: str) -> bool:
     name = os.path.basename(filename)
-    return not (
+    return (
         any(p in filename for p in TEST_FILE_PARTS)
         or name.startswith("test_")
         or name.endswith("_test.py")
     )
 
 
+def _actor(frame: Any) -> str:
+    """Who is acting: "harness" (only stdlib and installed packages on the stack, e.g. pytest),
+    "test" (the innermost other frame is a test file) or "code" (anything else: the library,
+    or code compiled at runtime, such as `exec(compile(src, "<x>", "exec"))`).
+
+    Judged by the innermost frame outside the stdlib and installed packages, so calling through
+    a stdlib helper does not hide the caller, and a made-up filename does not look trusted."""
+    while frame is not None:
+        filename = frame.f_code.co_filename
+        if not (filename.startswith(_LIB_DIRS) or filename.startswith("<frozen")):
+            return "test" if _is_test_file(filename) else "code"
+        frame = frame.f_back
+    # Only stdlib and installed packages on the stack. pytest runs in the main thread; a worker
+    # thread with no frame of its own was started by code under test (red-team round 2:
+    # `Thread(target=gc.get_objects)`), so it acts for that code.
+    if threading.current_thread() is not threading.main_thread():
+        return "code"
+    return "harness"
+
+
 def _install_audit_hook() -> Callable[[Any], None]:
     """Install the hook. Returns `trust(code)`, used once to register the results writer."""
-    audit_fd = os.dup(2)
+    # In the sandbox the supervisor passes a pipe and relays its lines with a per-run secret,
+    # so code under test cannot forge them by printing. Elsewhere (host tests), a copy of stderr.
+    passed_fd = os.environ.pop("TRACEREPRO_AUDIT_FD", "")
+    audit_fd = int(passed_fd) if passed_fd.isdigit() else os.dup(2)
+    prefix = "" if passed_fd.isdigit() else AUDIT_PREFIX
     trusted_codes: set[Any] = set()
     seen: set[tuple[str, str, str]] = set()
     count = [0]
@@ -213,16 +238,14 @@ def _install_audit_hook() -> Callable[[Any], None]:
         if count[0] == MAX_AUDIT_LINES + 1:
             kind, event, detail, origin = "truncated", "", "", ""
         record = {"kind": kind, "event": event, "detail": detail, "origin": origin}
-        line = AUDIT_PREFIX + _dumps(record, ensure_ascii=True) + "\n"
+        line = prefix + _dumps(record, ensure_ascii=True) + "\n"
         with contextlib.suppress(OSError):
             _fd_write(audit_fd, line.encode("ascii"))
 
     def trusted(frame: Any) -> bool:
-        if frame is None:
-            return False
-        return frame.f_code in trusted_codes or frame.f_globals.get("__name__") == (
-            "_pytest.junitxml"
-        )
+        # By code object identity, never by module name or file name: both can be forged
+        # (red-team round 2 set a module's __name__ to "_pytest.junitxml").
+        return frame is not None and frame.f_code in trusted_codes
 
     def hook(event: str, args: tuple[Any, ...]) -> None:
         denied = ""
@@ -240,17 +263,29 @@ def _install_audit_hook() -> Callable[[Any], None]:
                             break
                     elif _is_write(event, args) and not (path + "/").startswith(WRITE_ROOTS):
                         emit("log", f"{event}:write", path, _origin(_caller()))
-                    elif path.startswith(SENSITIVE_PREFIXES) or any(
-                        p in path for p in SENSITIVE_PARTS
-                    ):
+                    elif (
+                        path.startswith(SENSITIVE_PREFIXES)
+                        or any(p in path for p in SENSITIVE_PARTS)
+                        or (path.startswith("/proc/")
+                            and os.path.basename(path) in PROC_SENSITIVE)
+                    ):  # fmt: skip
                         emit("log", f"{event}:sensitive", path, _origin(_caller()))
+                    elif (
+                        event in READ_EVENTS
+                        and (os.path.basename(path) in TEST_DIR_NAMES
+                             or any(f"/{d}/" in path for d in TEST_DIR_NAMES))
+                        and _actor(_caller()) == "code"
+                    ):  # fmt: skip
+                        # Library code looking at the test files: how the red team found the
+                        # canary. pytest's own collection is "harness" and is not logged.
+                        emit("log", f"{event}:tests", path, _origin(_caller()))
             elif event in LOGGED:
                 emit("log", event, LOGGED[event](args), _origin(_caller()))
             elif event in GC_EVENTS or (
                 event == "object.__setattr__" and len(args) > 1 and args[1] == "__code__"
             ):
                 frame = _caller()
-                if _from_library(frame):
+                if _actor(frame) == "code":
                     denied = event
                     emit("block", event, "", _origin(frame))
         except Exception:
@@ -258,8 +293,25 @@ def _install_audit_hook() -> Callable[[Any], None]:
         if denied:
             raise PermissionError(f"tracerepro sandbox: {event} on {denied} is not allowed")
 
+    trusted_codes.update(_junitxml_codes())
     sys.addaudithook(hook)
     return trusted_codes.add
+
+
+def _junitxml_codes() -> set[Any]:
+    """The code objects of pytest's JUnit writer, taken before any code under test runs."""
+    try:
+        from _pytest import junitxml
+    except ImportError:
+        return set()
+    codes: set[Any] = set()
+    for value in vars(junitxml).values():
+        members = [value, *vars(value).values()] if isinstance(value, type) else [value]
+        for member in members:
+            code = getattr(member, "__code__", None)
+            if code is not None:
+                codes.add(code)
+    return codes
 
 
 _trust = _install_audit_hook()

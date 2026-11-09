@@ -128,6 +128,7 @@ def test_plugin_is_stdlib_only() -> None:
         "sys",
         "sysconfig",
         "tempfile",
+        "threading",
         "json",
         "os",
         "platform",

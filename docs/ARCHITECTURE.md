@@ -34,14 +34,25 @@ output (last 200k chars), duration, and whether it timed out or was OOM-killed.
 `run_pytest(image, test_ids, workspace)` adds the pytest flags and reads results back.
 
 - **Workspace:** a throwaway host directory per run. `repo/` is a copy of the image's `/repo`
-  (`create_workspace(root, image)`), mounted read-write at `/repo`. Patches are applied and oracle
-  test files copied in (`copy_into`) on the host before the run. `out/` is mounted at `/out` for
-  result files.
+  (`create_workspace(root, image)`). Patches are applied and oracle test files copied in
+  (`copy_into`) on the host before the run. `repo/` is mounted **read-only** at `/src` and copied
+  at start into `/repo`, which like `/out` is a size-capped in-memory tmpfs (1 GB and 64 MB by
+  default): nothing the code under test writes reaches the host disk.
+- **Supervisor** (`sandbox/plugin/tracerepro_supervisor.py`): process 1 of every container,
+  started with `python -I -S` and a per-run secret in its environment. It makes itself
+  non-dumpable (code running as the same user cannot read its memory or environment), removes
+  the secret from its children's environment, copies `/src` to `/repo`, runs the command with a
+  pipe for the plugin's audit events, kills every leftover process when the command ends, then
+  sends the allow-listed result files (`results.json`, `junit.xml`; regular, size-capped) and
+  the exit code as log lines carrying the secret. The host trusts only those lines, so code
+  under test cannot forge an exit code, a result file or an audit event by printing; the exit
+  code is also read from `docker wait`, since process 1 cannot be killed from inside. The log is
+  read as a capped stream: past 64 MB the run is killed as a flood.
 - **Lockdown (spec §7.2):** `--network none`, `--read-only` root, tmpfs `/tmp` (also `HOME`),
   `--cap-drop ALL`, `no-new-privileges`, PID/CPU/memory limits (no swap), host-enforced
   wall-clock timeout (kill, then remove), no Docker socket, explicit environment only,
   `PYTHONDONTWRITEBYTECODE=1`, `-p no:cacheprovider`. The container runs as the invoking host
-  user when that user is not root (so Linux bind mounts stay writable), otherwise as uid 1000.
+  user when that user is not root, otherwise as uid 1000; the tmpfs mounts are owned by it.
 - **Results:** pytest writes `--junitxml` and the harness plugin
   (`sandbox/plugin/tracerepro_pytest_plugin.py`, stdlib-only, mounted read-only) writes
   `results.json`: per test the pytest node id, phase and outcome, and per failure the exception

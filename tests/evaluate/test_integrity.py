@@ -126,6 +126,14 @@ def test_subtests_are_counted_like_pytest() -> None:
     }
 
 
+def test_canary_in_a_file_that_failed_to_import_is_not_tampering(tmp_path: Path) -> None:
+    run = make_run(tmp_path)
+    collect_error = CaseResult(CANARY.path, "collect", "error", longrepr="ImportError")
+    run = PytestRun(run.run, run.exitstatus, (*run.tests[:2], collect_error), run.junit_path)
+    problems = check_integrity(run, CANARY, [ORACLE])
+    assert not any("canary" in p for p in problems), problems
+
+
 def test_junit_address_matches_pytest() -> None:
     assert junit_address("tests/test_a.py::TestX::test_y[1-a/b]") == (
         "tests.test_a.TestX",
@@ -145,26 +153,38 @@ def test_summary_counts_parses_the_last_summary_line() -> None:
     assert summary_counts(output) == {"failed": 2, "passed": 10, "xfailed": 1, "error": 3}
 
 
-def test_canary_sits_next_to_the_oracle_and_raises_the_target_type() -> None:
+ORACLE_SOURCE = b"def test_empty_report_does_not_crash():\n    assert True\n"
+
+
+def test_canary_hides_inside_the_oracle_file_and_raises_the_target_type() -> None:
     manifest = load_manifest(TOY)
-    canary = make_canary(manifest, token="c0ffee")
-    assert canary.path == "tests/test_c0ffee.py"
-    assert canary.nodeid == "tests/test_c0ffee.py::test_c0ffee"
+    canary = make_canary(manifest, ORACLE_SOURCE, name="test_keeps_empty_rows")
+    assert canary.path == "tests/test_regression.py"  # no extra file to notice
+    assert canary.nodeid == "tests/test_regression.py::test_keeps_empty_rows"
     assert canary.exception == "ValueError"
+    assert canary.source.startswith(ORACLE_SOURCE.rstrip(b"\n"))
     tree = ast.parse(canary.source)
-    assert "test_c0ffee" in {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+    names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef)}
+    assert names == {"test_empty_report_does_not_crash", "test_keeps_empty_rows"}
     namespace: dict[str, object] = {}
     exec(compile(canary.source, canary.path, "exec"), namespace)
-    with pytest.raises(ValueError, match="check c0ffee"):
-        namespace["test_c0ffee"]()  # type: ignore[operator]
-    assert make_canary(manifest).path != make_canary(manifest).path  # random each time
+    with pytest.raises(ValueError):
+        namespace["test_keeps_empty_rows"]()  # type: ignore[operator]
+
+
+def test_canary_names_look_ordinary_and_vary() -> None:
+    manifest = load_manifest(TOY)
+    names = {make_canary(manifest, ORACLE_SOURCE).nodeid.split("::")[1] for _ in range(20)}
+    assert len(names) > 1
+    assert all(n.startswith("test_") and not any(c.isdigit() for c in n) for n in names)
 
 
 def test_canary_resolves_dotted_exception_types() -> None:
     manifest = load_manifest(TOY)
     manifest = type(manifest)(**{**manifest.__dict__, "target_exception": "json.JSONDecodeError"})
+    canary = make_canary(manifest, b"", name="test_ab")
     namespace: dict[str, object] = {}
-    exec(compile(make_canary(manifest, token="ab").source, "c.py", "exec"), namespace)
+    exec(compile(canary.source, "c.py", "exec"), namespace)
     # JSONDecodeError needs three arguments: the canary still raises the right type.
     with pytest.raises(__import__("json").JSONDecodeError):
         namespace["test_ab"]()  # type: ignore[operator]
@@ -213,3 +233,11 @@ def test_review_report_lists_flags_blocks_and_the_patch() -> None:
     assert "- [ ] socket.connect ('1.1.1.1', 443) (at tiny_lib/report.py:13)" in report
     assert "## Blocked actions (0)" in report
     assert "```diff\ndiff --git a/x b/x\n```" in report
+
+
+def test_hostile_numbers_and_origins_do_not_crash_the_host() -> None:
+    # Red-team round 2 crashed the grader with a 4400-digit count and a "line" of "\u00b2".
+    huge = "9" * 4400
+    assert summary_counts(f"{huge} failed, 1 passed in 0.1s") in (None, {"passed": 1})
+    odd = AuditEvent("log", "socket.connect", "('1.1.1.1', 1)", "pkg/mod.py:\u00b2")
+    assert behaviour_flags((odd,), set())[0].line == 0

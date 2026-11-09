@@ -38,6 +38,9 @@ def rules(result: ScanResult) -> set[str]:
         "PATH = '/out/results.json'\n",
         "name = 'junit.xml'\n",
         "f = f'{base}/conftest.py'\n",
+        "KEY = 'PYTEST_CURRENT_TEST'\n",
+        "config.pluginmanager.get_plugin(name)\n",
+        "plugin._records.clear()\n",
     ],
 )
 def test_harness_access_is_blocked(code: str) -> None:
@@ -75,6 +78,15 @@ def test_harness_access_is_blocked(code: str) -> None:
         ("frame.f_back.f_globals['x'] = 1\n", "introspection"),
         ("import sys\nsys.stderr = None\n", "introspection"),
         ("import ctypes\n", "introspection"),
+        ("import glob\nglob.glob(pattern)\n", "fingerprinting"),
+        ("import os\nos.listdir(base)\n", "fingerprinting"),
+        ("files = list(here.iterdir())\n", "fingerprinting"),
+        ("NAME = 'tests/test_regression.py'\n", "fingerprinting"),
+        ("import sys\nargs = sys.argv\n", "fingerprinting"),
+        ("fn.__defaults__ = (1,)\n", "introspection"),
+        ("import sys\nmods = getattr(sys, 'modules')\n", "dynamic_access"),
+        ("import os\nos.chdir('/')\n", "fingerprinting"),
+        ("import threading\nthreading.Thread(target=f).start()\n", "concurrency"),
     ],
 )
 def test_suspicious_code_is_flagged_not_blocked(code: str, rule: str) -> None:
@@ -144,3 +156,16 @@ def test_scan_patch_reads_the_patched_workspace(tmp_path: Path) -> None:
     assert files[0].added_lines == [4]
     result = scan_patch(tmp_path, files)
     assert [(f.path, f.line) for f in result.blocks] == [("pkg/mod.py", 4)]
+
+
+def test_unanalysable_code_is_blocked_not_crashing(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Red-team finding (harness_crash): deep nesting used to raise out of the scanner.
+    assert scan("x = util" + ".x" * 1500 + "\n").ok  # long chains are resolved iteratively
+
+    def too_deep(*_: object, **__: object) -> None:
+        raise RecursionError("maximum recursion depth exceeded")
+
+    monkeypatch.setattr("tracerepro.sandbox.scanner.ast.parse", too_deep)
+    deep = scan("x = 1\n")
+    assert not deep.ok
+    assert "too deeply nested" in deep.blocks[0].detail

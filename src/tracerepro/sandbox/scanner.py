@@ -41,7 +41,7 @@ BLOCK_NAMES = (
 )
 # Strings naming the harness or its result files. Docstrings are not checked.
 BLOCK_STRING = re.compile(
-    r"(?<![\w.])/out(?![\w])|results\.json|junit|tracerepro|conftest", re.IGNORECASE
+    r"(?<![\w.])/out(?![\w])|results\.json|junit|tracerepro|conftest|pytest", re.IGNORECASE
 )
 MODULE_MUTATORS = ("__setitem__", "__delitem__", "update", "pop", "setdefault", "clear")
 
@@ -82,15 +82,40 @@ FLAG_NAMES: tuple[tuple[str, tuple[str, ...]], ...] = (
         "inspect.currentframe", "inspect.getouterframes", "inspect.trace", "sys.modules",
         "os.dup", "os.dup2", "__builtins__", "globals",
     )),
+    # Looking around the test run: listing directories (the red team found the canary file
+    # this way), reading the command line. A library fix has no reason to.
+    ("fingerprinting", (
+        "os.listdir", "os.scandir", "os.walk", "os.fwalk", "glob", "sys.argv", "sys.orig_argv",
+        "os.getcwd", "os.getppid", "os.chdir", "os.fchdir",
+    )),
+    # Work that outlives the call: the red team rewrote results from a thread after pytest's
+    # session ended.
+    ("concurrency", (
+        "threading.Thread", "threading.Timer", "_thread", "concurrent.futures",
+        "os.register_at_fork",
+    )),
 )  # fmt: skip
+# pytest internals reached through attributes (red-team round 2 edited the recorder's records,
+# the JUnit writer and the terminal reporter's statistics in memory).
+HARNESS_ATTRS = {"pluginmanager", "terminalreporter", "node_reporters", "_records", "LogXML",
+                 "_tracerepro"}  # fmt: skip
+# Modules whose attributes, reached by name at runtime, would dodge the rules above.
+SENSITIVE_MODULES = {"sys", "os", "builtins", "gc", "importlib", "threading", "ctypes",
+                     "inspect", "io", "posix", "atexit", "socket", "subprocess"}  # fmt: skip
 # Attribute names flagged on any object (pathlib writes; frame and function internals).
 FLAG_ATTRS = {
     "filesystem_write": {"write_text", "write_bytes", "unlink", "rmdir", "symlink_to",
                          "hardlink_to", "chmod", "touch"},
     "introspection": {"f_back", "f_globals", "f_locals", "f_builtins", "tb_frame", "gi_frame",
-                      "cr_frame", "__globals__", "__code__", "__closure__", "__subclasses__"},
+                      "cr_frame", "__globals__", "__code__", "__closure__", "__subclasses__",
+                      "__defaults__", "__kwdefaults__", "cell_contents"},
+    "fingerprinting": {"iterdir", "glob", "rglob"},
 }  # fmt: skip
+# Strings that name test files or directories.
+TEST_PATH_STRING = re.compile(r"(?:^|/)tests?(?:/|$)|\btest_[\w*]*\.py\b|_test\.py\b")
+MAX_CHAIN = 64  # longer attribute chains are not real code; judged without recursion
 BUILTINS = {"eval", "exec", "compile", "__import__", "open", "chr", "setattr", "globals",
+            "getattr", "delattr", "hasattr", "vars",
             "__builtins__"}  # fmt: skip
 WRITE_MODE = re.compile(r"[wax+]")
 SECRET_STRING = re.compile(
@@ -167,6 +192,8 @@ class _Collector:
                 self.flag(HARNESS, line, f"names the harness: {value[:80]!r}")
         if SECRET_STRING.search(value):
             self.flag("secrets", line, f"string names a secret location: {value[:80]!r}")
+        if TEST_PATH_STRING.search(value):
+            self.flag("fingerprinting", line, f"string names test files: {value[:80]!r}")
         for host in URL_STRING.findall(value):
             if host.lower() not in LOCAL_HOSTS:
                 self.flag("network", line, f"URL to {host}")
@@ -202,15 +229,17 @@ def _imports(tree: ast.AST) -> dict[str, str]:
 
 def _resolve(node: ast.expr, table: dict[str, str]) -> str | None:
     """The dotted name an expression refers to, or None if it is not rooted in an import or a
-    builtin we care about."""
-    if isinstance(node, ast.Name):
-        if node.id in table:
-            return table[node.id]
-        return node.id if node.id in BUILTINS else None
-    if isinstance(node, ast.Attribute):
-        base = _resolve(node.value, table)
-        return f"{base}.{node.attr}" if base else None
-    return None
+    builtin we care about. Iterative: a 1500-deep chain once crashed the recursive version."""
+    attrs: list[str] = []
+    while isinstance(node, ast.Attribute):
+        attrs.append(node.attr)
+        node = node.value
+    if not isinstance(node, ast.Name):
+        return None
+    base = table.get(node.id) or (node.id if node.id in BUILTINS else None)
+    if base is None:
+        return None
+    return ".".join([base, *reversed(attrs[-MAX_CHAIN:])])
 
 
 def _docstrings(tree: ast.AST) -> set[int]:
@@ -250,6 +279,9 @@ def scan_source(path: str, source: str, added: Iterable[int]) -> ScanResult:
         return out.result()
     try:
         tree = ast.parse(source)
+    except (RecursionError, MemoryError):
+        out.block(min(lines), "too deeply nested to analyse")
+        return out.result()
     except (SyntaxError, ValueError) as exc:
         out.flag("unparsable", getattr(exc, "lineno", 0) or 0, f"cannot parse: {exc}")
         for number, text in enumerate(source.splitlines(), start=1):
@@ -287,6 +319,8 @@ def scan_source(path: str, source: str, added: Iterable[int]) -> ScanResult:
             for rule, attrs in FLAG_ATTRS.items():
                 if node.attr in attrs:
                     out.flag(rule, node.lineno, f"uses .{node.attr}")
+            if node.attr in HARNESS_ATTRS:
+                out.block(node.lineno, f"reaches pytest internals (.{node.attr})")
         elif isinstance(node, ast.Name) and on_added(node):
             dotted = _resolve(node, table)
             if dotted == "chr":
@@ -301,6 +335,10 @@ def scan_source(path: str, source: str, added: Iterable[int]) -> ScanResult:
                 target = _resolve(node.args[0], table)
                 if target and (target == "builtins" or _harness_module(target)):
                     out.block(node.lineno, f"setattr on {target}")
+            if func in ("getattr", "setattr", "delattr", "hasattr", "vars") and node.args:
+                target = _resolve(node.args[0], table) or ""
+                if target.split(".")[0] in SENSITIVE_MODULES:
+                    out.flag("dynamic_access", node.lineno, f"{func}() on {target}")
             elif func and isinstance(node.func, ast.Attribute):
                 owner = _resolve(node.func.value, table)
                 if owner == "sys.modules" and node.func.attr in MODULE_MUTATORS:
@@ -321,11 +359,17 @@ def scan_source(path: str, source: str, added: Iterable[int]) -> ScanResult:
     return out.result()
 
 
-def _judge_target(target: ast.expr, table: dict[str, str], out: _Collector) -> None:
-    if isinstance(target, ast.Tuple | ast.List):
-        for element in target.elts:
-            _judge_target(element, table, out)
-        return
+def _judge_target(root: ast.expr, table: dict[str, str], out: _Collector) -> None:
+    pending = [root]
+    while pending:
+        target = pending.pop()
+        if isinstance(target, ast.Tuple | ast.List):
+            pending.extend(target.elts)
+        else:
+            _judge_one_target(target, table, out)
+
+
+def _judge_one_target(target: ast.expr, table: dict[str, str], out: _Collector) -> None:
     line = target.lineno
     if isinstance(target, ast.Subscript):
         owner = _resolve(target.value, table)
@@ -353,7 +397,11 @@ def scan_patch(repo: Path, files: Sequence[FileDiff]) -> ScanResult:
         if not target.is_relative_to(root) or not target.is_file():
             continue  # the validator already rejects unsafe paths; nothing to read here
         source = target.read_bytes().decode("utf-8", errors="replace")
-        result = scan_source(diff.new_path, source, diff.added_lines)
+        try:
+            result = scan_source(diff.new_path, source, diff.added_lines)
+        except (RecursionError, MemoryError):  # fail closed: what cannot be read does not run
+            reason = "too deeply nested to analyse"
+            result = ScanResult(blocks=(Finding(HARNESS, diff.new_path, 0, reason),))
         blocks.extend(result.blocks)
         flags.extend(result.flags)
     return ScanResult(tuple(blocks), tuple(flags))

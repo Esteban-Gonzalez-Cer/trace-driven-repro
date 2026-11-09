@@ -50,6 +50,7 @@ class Rule(enum.StrEnum):
     DEPENDENCY_OR_CI = "dependency_or_ci"
     TOO_MANY_FILES = "too_many_files"
     TOO_MANY_LINES = "too_many_lines"
+    TOO_LARGE = "too_large"
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,8 @@ class Violation:
 class DiffLimits:
     max_files: int = 3
     max_lines: int = 40
+    # 40 lines can still be huge lines (red-team round 2): cap the patch's size in bytes too.
+    max_bytes: int = 64_000
 
 
 DEFAULT_LIMITS = DiffLimits()
@@ -245,6 +248,10 @@ def validate(diff: str | bytes, limits: DiffLimits = DEFAULT_LIMITS) -> Validati
             return Validation((), (Violation(Rule.BINARY, "", "patch is not valid UTF-8"),))
     if "\0" in diff:
         return Validation((), (Violation(Rule.BINARY, "", "patch contains NUL bytes"),))
+    size = len(diff.encode("utf-8"))
+    if size > limits.max_bytes:
+        message = f"{size} bytes > {limits.max_bytes}"
+        return Validation((), (Violation(Rule.TOO_LARGE, "", message),))
     try:
         files = parse_diff(diff)
     except DiffError as exc:
@@ -260,14 +267,17 @@ def validate(diff: str | bytes, limits: DiffLimits = DEFAULT_LIMITS) -> Validati
             elif mode not in REGULAR_MODES:
                 found.append(Violation(Rule.FILE_MODE, f.path, f"file mode {mode}"))
         for path in f.paths:
-            reason = _unsafe(path)
+            # Judged case-insensitively: on a case-insensitive disk (macOS) a new
+            # `Tests/__init__.py` lands in `tests/` (red-team round 2).
+            folded = path.casefold()
+            reason = _unsafe(folded)
             if reason:
                 found.append(Violation(Rule.UNSAFE_PATH, path, reason))
-            elif is_test_path(path):
+            elif is_test_path(folded):
                 found.append(Violation(Rule.TEST_FILE, path, "creates or modifies a test file"))
-            elif is_config_path(path):
+            elif is_config_path(folded):
                 found.append(Violation(Rule.CONFIG_FILE, path, "test or interpreter config"))
-            elif is_dependency_or_ci_path(path):
+            elif is_dependency_or_ci_path(folded):
                 found.append(Violation(Rule.DEPENDENCY_OR_CI, path, "dependency or CI file"))
     if len(files) > limits.max_files:
         found.append(Violation(Rule.TOO_MANY_FILES, "", f"{len(files)} files > {limits.max_files}"))

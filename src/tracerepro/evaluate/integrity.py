@@ -4,9 +4,10 @@ The patch under test runs in the same Python process as pytest and the harness p
 results file could in principle be rewritten from inside. These checks make a forgery have to
 be consistent across records the patch would each have to fake separately:
 
-- **Canary.** A test the harness writes, with a random name, that always raises the bug's target
-  exception. It must come back failed with that type. A forgery that marks every failure as
-  passed, or every failure of that type, is caught.
+- **Canary.** A test the harness appends to an oracle test file (one the agent never saw), with
+  a random ordinary-looking name, that always raises the bug's target exception. It must come
+  back failed with that type. A forgery that marks every failure as passed, or every failure of
+  that type, is caught.
 - **Exit code.** The container's exit code must equal the `exitstatus` the plugin recorded.
 - **JUnit XML.** pytest's own `junit.xml` must agree on pass / not-pass for every test that
   decides the verdict. It is untrusted XML: size-capped, and DTDs and entities are refused.
@@ -21,33 +22,39 @@ import secrets
 import xml.etree.ElementTree as ET
 from collections.abc import Sequence
 from dataclasses import dataclass
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 from tracerepro.dataset.manifest import Manifest
 from tracerepro.sandbox.runner import PytestRun
 
 MAX_JUNIT_BYTES = 20_000_000
 # A number directly followed by the word, so "21194 subtests passed" is not read as "passed".
-_SUMMARY_RE = re.compile(r"\b(\d+) (passed|failed|errors?|skipped|xfailed|xpassed|deselected)\b")
-_SUMMARY_LINE_RE = re.compile(r"^=*\s*(?:no tests ran|\d+ \w+.*) in [\d.]+s\b")
+_SUMMARY_RE = re.compile(
+    r"\b([0-9]{1,9}) (passed|failed|errors?|skipped|xfailed|xpassed|deselected)\b"
+)
+_SUMMARY_LINE_RE = re.compile(r"^=*\s*(?:no tests ran|[0-9]+ \w+.*) in [0-9.]+s\b")
 _RANK = {"passed": 0, "skipped": 1, "failed": 2, "error": 3}
 
 
 @dataclass(frozen=True)
 class Canary:
-    path: str  # repo-relative path of the test file
+    path: str  # repo-relative path of the test file it lives in (the first oracle test file)
     nodeid: str
     exception: str  # the type the plugin must record, e.g. "ValueError"
-    source: bytes
+    source: bytes  # the whole file: the oracle test file plus the canary at the end
 
 
-_CANARY_TEMPLATE = """\
-import builtins
-import importlib
+# Appended to an oracle test file the agent has never seen (it comes from the fix commit), with
+# an ordinary-looking name, so that code under test cannot tell it apart from a real fix test.
+_CANARY_TEMPLATE = """
 
 
-def _error_type(name):
-    parts = name.split(".")
+def {name}():
+    import builtins
+    import importlib
+
+    parts = {exception!r}.split(".")
+    error_type = getattr(builtins, parts[-1], None) if len(parts) == 1 else None
     for cut in range(len(parts) - 1, 0, -1):
         try:
             found = importlib.import_module(".".join(parts[:cut]))
@@ -55,32 +62,40 @@ def _error_type(name):
             continue
         for attr in parts[cut:]:
             found = getattr(found, attr)
-        return found
-    return getattr(builtins, name)
-
-
-def {name}():
-    error_type = _error_type({exception!r})
+        error_type = found
+        break
     try:
         error = error_type({message!r})
     except Exception:
         error = error_type.__new__(error_type)
     raise error
 """
+_VERBS = ("handles", "keeps", "rejects", "accepts", "returns", "preserves", "formats", "parses")
+_NOUNS = ("empty", "nested", "unicode", "default", "missing", "single", "mixed", "large",
+          "trailing", "unsorted", "repeated", "optional")  # fmt: skip
+_THINGS = ("input", "values", "items", "rows", "keys", "fields", "names", "options", "order")
 
 
-def make_canary(manifest: Manifest, token: str | None = None) -> Canary:
-    """A canary test next to the first oracle test file, named with a random token."""
+def _canary_name(taken: str) -> str:
+    rng = secrets.SystemRandom()
+    while True:
+        name = f"test_{rng.choice(_VERBS)}_{rng.choice(_NOUNS)}_{rng.choice(_THINGS)}"
+        if name not in taken:
+            return name
+
+
+def make_canary(manifest: Manifest, oracle_source: bytes, name: str | None = None) -> Canary:
+    """A canary appended to the first oracle test file, with a random ordinary test name."""
     if not manifest.oracle_tests or not manifest.target_exception:
         raise ValueError(f"{manifest.id}: manifest has no oracle tests or target exception")
-    token = token or secrets.token_hex(4)
-    directory = PurePosixPath(manifest.oracle_tests[0].split("::", 1)[0]).parent
-    path = str(directory / f"test_{token}.py")
-    name = f"test_{token}"
-    source = _CANARY_TEMPLATE.format(
-        name=name, exception=manifest.target_exception, message=f"check {token}"
+    path = manifest.oracle_tests[0].split("::", 1)[0]
+    text = oracle_source.decode("utf-8", errors="replace")
+    name = name or _canary_name(text)
+    snippet = _CANARY_TEMPLATE.format(
+        name=name, exception=manifest.target_exception, message="unexpected input"
     )
-    return Canary(path, f"{path}::{name}", manifest.target_exception, source.encode())
+    return Canary(path, f"{path}::{name}", manifest.target_exception,
+                  oracle_source.rstrip(b"\n") + snippet.encode())  # fmt: skip
 
 
 def junit_address(nodeid: str) -> tuple[str, str]:
@@ -160,7 +175,10 @@ def check_integrity(run: PytestRun, canary: Canary, decisive: Sequence[str]) -> 
 
     canary_outcome = outcomes.get(canary.nodeid)
     canary_failure = run.failures().get(canary.nodeid)
-    if canary_outcome != "failed" or canary_failure is None:
+    if canary_outcome is None and canary.path in run.collection_errors():
+        pass  # the file holding it did not import (e.g. the patch broke an import): no canary
+        # can run, and the oracle tests in that file fail too, so nothing is hidden
+    elif canary_outcome != "failed" or canary_failure is None:
         problems.append(f"canary test reported as {canary_outcome or 'missing'}, not failed")
     elif canary_failure.type != canary.exception:
         problems.append(f"canary failed with {canary_failure.type}, not {canary.exception}")
