@@ -110,8 +110,17 @@ pass and no baseline test to fail; otherwise `incorrect`. A run that does not fi
 `infra_error`, never a model failure. `gold_diff(manifest, repo)` gives the human fix restricted to
 source files, for known-answer tests.
 
+Amendment 4 adds result-integrity layers to `score_patch`: after applying the patch it runs the
+static scanner (`sandbox/scanner.py`; harness access → `scope_violation`), adds a canary test,
+and after the run checks the plugin's audit log and the consistency of the results file, the
+container exit code, `junit.xml` and the console summary (`evaluate/integrity.py`; any problem →
+`tampered`). A normal exit with no results is `incorrect`. Suspicious code and behaviour the gold
+patch's run did not show become `Verdict.flags`, rendered by `review_report` for the manual audit.
+See `SECURITY.md` (result integrity).
+
 Known-answer tests (`tests/evaluate/test_known_answer.py`) check, for the toy fixture and every
 `benchmark/manifests/*.yaml`, that the gold patch is correct, an empty patch is incorrect, and
 patches that edit an oracle test or add a skipping `conftest.py` are rejected. Real bugs carry the
-`realbugs` marker and run in the CI `known-answer` job. Red-team tests
-(`tests/evaluate/test_red_team.py`) cover an injection payload and malicious patches.
+`realbugs` marker and run in the CI `known-answer` job; they also require the gold patch to carry
+no flags. Red-team tests (`tests/evaluate/test_red_team.py`) cover an injection payload,
+malicious patches, and plain and disguised result forgery.

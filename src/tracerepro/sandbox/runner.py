@@ -14,6 +14,9 @@ result files. The container itself runs with:
 The only writable paths are `/repo`, `/out` and `/tmp`. The harness pytest plugin is mounted
 read-only. Everything written inside the container is untrusted (spec §7.3): result files are
 size-capped and schema-checked when read back.
+
+Audit events the plugin prints (`TRACEREPRO-AUDIT {json}`, Amendment 4) are taken from the whole
+container log, before the log is truncated for display.
 """
 
 from __future__ import annotations
@@ -46,6 +49,8 @@ JUNIT_FILE = "junit.xml"
 
 MAX_OUTPUT_CHARS = 200_000
 MAX_RESULTS_BYTES = 20_000_000
+AUDIT_PREFIX = "TRACEREPRO-AUDIT "
+MAX_AUDIT_EVENTS = 500
 
 BASE_ENV = {
     "HOME": "/tmp",
@@ -88,12 +93,29 @@ class Workspace:
 
 
 @dataclass(frozen=True)
+class AuditEvent:
+    kind: str  # "log", "block" or "truncated"
+    event: str  # the Python audit event, e.g. "socket.connect" or "open:write"
+    detail: str
+    origin: str = ""  # file:line of the code that triggered it
+
+    def __str__(self) -> str:
+        where = f" (at {self.origin})" if self.origin else ""
+        return f"{self.kind} {self.event} {self.detail}{where}".strip()
+
+
+@dataclass(frozen=True)
 class RunResult:
     exit_code: int | None  # None when the container was killed at the timeout
     output: str  # combined stdout and stderr, truncated to the last MAX_OUTPUT_CHARS
     duration_s: float
     timed_out: bool
     oom_killed: bool
+    audit: tuple[AuditEvent, ...] = ()
+
+    @property
+    def blocked(self) -> tuple[AuditEvent, ...]:
+        return tuple(e for e in self.audit if e.kind == "block")
 
 
 @dataclass(frozen=True)
@@ -116,6 +138,7 @@ class CaseResult:
     outcome: str  # passed, failed, error, skipped, xfailed, xpassed
     failure: FailureInfo | None = None
     longrepr: str | None = None
+    subtest: bool = False  # one subtest of the test (same node id), not the test itself
 
 
 @dataclass(frozen=True)
@@ -124,6 +147,7 @@ class PytestRun:
     exitstatus: int | None
     tests: tuple[CaseResult, ...] = field(default=())
     junit_path: Path | None = None
+    results_error: str | None = None  # the results file existed but was refused
 
     def outcomes(self) -> dict[str, str]:
         """Node id -> worst outcome across its phases (error > failed > others)."""
@@ -204,10 +228,32 @@ def remove_workspace(ws: Workspace) -> None:
     shutil.rmtree(ws.root, ignore_errors=True)
 
 
-def _logs(container: Container) -> str:
+def _logs(container: Container) -> tuple[str, tuple[AuditEvent, ...]]:
     raw = container.logs(stdout=True, stderr=True)
     text = raw.decode("utf-8", errors="replace") if isinstance(raw, bytes) else str(raw)
-    return text[-MAX_OUTPUT_CHARS:]
+    return text[-MAX_OUTPUT_CHARS:], parse_audit(text)
+
+
+def parse_audit(text: str) -> tuple[AuditEvent, ...]:
+    """Audit lines from a container log. Malformed lines are skipped (they are untrusted)."""
+    events: list[AuditEvent] = []
+    for line in text.splitlines():
+        start = line.find(AUDIT_PREFIX)
+        if start < 0:
+            continue
+        try:
+            data = json.loads(line[start + len(AUDIT_PREFIX) :])
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(data, dict):
+            continue
+        fields = [data.get(k) for k in ("kind", "event", "detail", "origin")]
+        strings = [f for f in fields if isinstance(f, str)]
+        if len(strings) == len(fields):
+            events.append(AuditEvent(*strings))
+            if len(events) >= MAX_AUDIT_EVENTS:
+                break
+    return tuple(events)
 
 
 def run_sandboxed(
@@ -259,7 +305,7 @@ def run_sandboxed(
         duration = time.monotonic() - start
         container.reload()
         oom_killed = bool(container.attrs["State"].get("OOMKilled"))
-        output = _logs(container)
+        output, audit = _logs(container)
     finally:
         container.remove(force=True)
     return RunResult(
@@ -268,6 +314,7 @@ def run_sandboxed(
         duration_s=duration,
         timed_out=timed_out,
         oom_killed=oom_killed,
+        audit=audit,
     )
 
 
@@ -305,12 +352,20 @@ def run_pytest(
     run = run_sandboxed(
         image, pytest_command(test_ids, extra_args=extra_args), ws, limits=limits, client=client
     )
-    exitstatus, tests = (None, ()) if not results.is_file() else parse_results(results)
+    exitstatus: int | None = None
+    tests: tuple[CaseResult, ...] = ()
+    error = None
+    if results.is_file() or results.is_symlink():
+        try:
+            exitstatus, tests = parse_results(results)
+        except (SandboxError, OSError) as exc:
+            error = str(exc)
     return PytestRun(
         run=run,
         exitstatus=exitstatus,
         tests=tests,
         junit_path=junit if junit.is_file() else None,
+        results_error=error,
     )
 
 
@@ -364,6 +419,7 @@ def parse_results(path: Path) -> tuple[int | None, tuple[CaseResult, ...]]:
                 outcome=_str(t, "outcome"),
                 failure=_parse_failure(t["failure"]) if "failure" in t else None,
                 longrepr=longrepr if isinstance(longrepr, str) else None,
+                subtest=t.get("subtest") is True,
             )
         )
     return exitstatus, tuple(records)

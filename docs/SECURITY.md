@@ -26,16 +26,51 @@ on every CI run:
   patch that tries to connect out, list environment variables, read `~/.ssh/id_rsa`, the Docker
   socket and a host file, and write to `/etc/cron.d` applies (it is "only" a source edit) but is
   contained: the network is unreachable, no host variable or file is visible, the write fails.
-- **Scored by behaviour, not intent.** Contained, that patch behaves like the gold fix and the
-  oracle scores it correct. Spotting intent is the manual audit's job (spec §7.5): every patch
-  judged correct is read by a person.
+- **Scored by behaviour, flagged for intent.** Contained, that patch behaves like the gold fix,
+  so it is scored correct, and it carries network, secrets and file-write flags plus behaviour
+  flags (`socket.connect` to 1.1.1.1, a write to `/etc/cron.d`) in its review report.
+- **Result forgery.** An `atexit` hook that rewrites `/out/results.json` is rejected before it
+  runs. The same hook disguised (`__import__("ate" + "xit")`, a path built from fragments) is
+  blocked at runtime and scored `tampered`, as is reaching the recorder through
+  `gc.get_objects()`.
 
-## Known limitation: in-process result forgery
+## Result integrity (Amendment 4)
 
-The code under test runs in the same process as pytest and the harness plugin, and `/out` is
-writable, so a malicious patch could in principle rewrite `results.json` or `junit.xml`. The
-container stops this from reaching the host, but not from lying about results. Mitigations:
-the patch validator (#12) rejects test and interpreter configuration changes, and every patch
-judged correct is audited by hand (spec §7.5), where an `atexit` hook rewriting `/out` is plain to
-see. `test_result_forgery_is_detected` demonstrates the attack (it is a strict `xfail`: if the
-harness ever starts detecting forgery, the test will say so).
+The code under test runs in the same Python process as pytest and the harness plugin, so no
+in-process check can be perfect: code that runs inside the referee can, with enough effort,
+interfere with the referee. The aim is to make tampering need several independent tricks at
+once, and to make each of them visible. Four layers:
+
+1. **Static scanner** (`sandbox/scanner.py`, host side, before anything runs). Reads only the
+   code the patch added. Blocks harness access (`atexit`, pytest internals, `sys.settrace`,
+   writes into `sys.modules` or `builtins`, strings naming `/out` or `results.json`) as a scope
+   violation. Flags network, processes, secrets, dynamic code, obfuscation, file writes and
+   introspection. No third-party scanner: fewer dependencies, smaller supply chain.
+2. **Audit hook** (in the harness plugin, installed before the library is imported; Python
+   cannot remove it). Blocks every access to `/out` except by the two result writers (checked by
+   the calling frame), and garbage-collector walks and `__code__` swaps from library code. Logs
+   network, process, ctypes and sensitive-file events to a copy of stderr taken at startup, so
+   pytest's capture cannot hide them and the Docker daemon keeps them.
+3. **Integrity checks** (`evaluate/integrity.py`, host side, after the run). A canary test with
+   a random name must fail with the bug's exception type; the container exit code, `junit.xml`
+   and the console summary must all agree with the results file. Any blocked action, refused
+   results file or disagreement → `tampered`.
+4. **Behaviour comparison and review report** (`evaluate/patch_oracle.py`). The run's audit
+   events are compared with the gold patch's run (cached per image); new behaviour is flagged.
+   `review_report` gives the §7.5 reviewer a checklist of every flag and blocked action.
+
+**Still possible, by design of in-process testing:**
+
+- writing to a result file through a file descriptor number guessed or inherited, without
+  opening it (`os.write` is not an audit event); the canary and the three-way check still have
+  to be beaten as well;
+- calling code with forged module globals (for example a function built with `types.FunctionType`
+  to look like pytest's JUnit writer); the scanner flags `types.FunctionType`, `exec` and
+  `__import__`;
+- closing or redirecting stderr (`os.dup2`) before acting, so audit lines are lost; flagged
+  statically;
+- disguises that beat both the scanner's rules and the runtime checks.
+
+Each of these needs deliberate, unusual code in a patch of at most 40 lines, which is exactly
+what the manual audit of every correct patch (spec §7.5) reads. The audit stays the last line
+of defence.

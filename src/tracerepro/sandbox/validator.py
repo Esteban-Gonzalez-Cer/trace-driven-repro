@@ -29,7 +29,7 @@ from tracerepro.sandbox.runner import Workspace
 REGULAR_MODES = frozenset({"100644", "100755"})
 SYMLINK_MODE = "120000"
 
-_HUNK_RE = re.compile(r"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
+_HUNK_RE = re.compile(r"^@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
 _HEADER_PREFIXES = (
     "index ",
     "similarity index ",
@@ -78,6 +78,7 @@ class FileDiff:
     added: int = 0
     removed: int = 0
     hunks: int = 0
+    added_lines: list[int] = field(default_factory=list)  # line numbers in the new file
 
     @property
     def paths(self) -> list[str]:
@@ -189,7 +190,8 @@ def _consume_hunk(lines: list[str], i: int, cur: FileDiff) -> int:
     if match is None:
         raise DiffError(f"malformed hunk header at line {i + 1}")
     old_left = int(match[1]) if match[1] is not None else 1
-    new_left = int(match[2]) if match[2] is not None else 1
+    new_line = int(match[2])
+    new_left = int(match[3]) if match[3] is not None else 1
     cur.hunks += 1
     i += 1
     while old_left > 0 or new_left > 0:
@@ -199,12 +201,15 @@ def _consume_hunk(lines: list[str], i: int, cur: FileDiff) -> int:
         tag = body[:1]
         if tag in (" ", ""):
             old_left, new_left = old_left - 1, new_left - 1
+            new_line += 1
         elif tag == "-":
             old_left -= 1
             cur.removed += 1
         elif tag == "+":
             new_left -= 1
             cur.added += 1
+            cur.added_lines.append(new_line)
+            new_line += 1
         elif tag != "\\":
             raise DiffError(f"unexpected hunk line {i + 1}: {body[:80]!r}")
         if old_left < 0 or new_left < 0:

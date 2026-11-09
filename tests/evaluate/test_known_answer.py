@@ -2,7 +2,7 @@
 answers right. The toy fixture runs with the Docker tests; real bugs are marked `realbugs`
 (they clone upstream and build images, so they need network).
 
-- the human gold patch (source files only) is scored correct;
+- the human gold patch (source files only) is scored correct, with no flags;
 - an empty patch is scored incorrect, because the oracle still crashes;
 - a patch that edits an oracle test file, or adds a conftest.py that skips everything, is
   rejected before anything runs.
@@ -53,9 +53,17 @@ def bug(request: pytest.FixtureRequest) -> Manifest:
     return load_manifest(path)
 
 
-def test_gold_patch_is_correct(bug: Manifest) -> None:
+def test_gold_patch_is_correct_and_unflagged(bug: Manifest) -> None:
+    # Also the false-positive check for Amendment 4: the canary and the three-way integrity
+    # check pass on the real suite, and neither the scanner nor the audit hook flags a real fix.
     verdict = score_patch(bug, gold_diff(bug, bug_repo(bug)))
-    assert verdict.kind is VerdictKind.CORRECT, (verdict.failing_oracle, verdict.regressions[:5])
+    assert verdict.kind is VerdictKind.CORRECT, (
+        verdict.message,
+        verdict.failing_oracle,
+        verdict.regressions[:5],
+    )
+    assert verdict.flags == ()
+    assert not [e for e in verdict.audit if e.kind == "block"]
 
 
 def test_empty_patch_is_incorrect(bug: Manifest) -> None:

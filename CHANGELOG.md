@@ -19,3 +19,4 @@ One line per merged task (plan §2, definition of done).
 - Five dev bugs validated by automated preflight (flask-6096, marshmallow-3004/3016/3082, more-itertools-1342); 25 candidates screened (#13).
 - Preflight removes the image of every candidate that does not pass (`--keep-images` to keep them).
 - Patch oracle with known-answer tests for every validated bug and red-team tests (injection payload, malicious patches); CI known-answer job (#14).
+- Amendment 4, result integrity: static patch scanner, runtime audit hook, canary test and three-way result check (new `tampered` verdict), behaviour flags against the gold run, and a review report for the manual audit.
