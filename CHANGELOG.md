@@ -14,3 +14,4 @@ One line per merged task (plan §2, definition of done).
 - Amendment 2: exclude crashes whose traceback has no library frame; define target_frame (#16).
 - Image builder: `make build-images` builds pinned `bug_env:{id}` images from manifests, with a freeze record (#10).
 - Container runner: locked-down `run_sandboxed`/`run_pytest` with throwaway workspaces and a harness pytest plugin that records exception type and frames per failure (#11).
+- Patch validator: host-side `validate`/`apply_patch` enforcing every spec §7.1 rule, with shared path classification (#12).

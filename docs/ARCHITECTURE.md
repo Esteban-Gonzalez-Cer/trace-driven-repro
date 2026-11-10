@@ -48,3 +48,21 @@ output (last 200k chars), duration, and whether it timed out or was OOM-killed.
   node ids match manifest ids directly, so no JUnit name mapping is needed.
 - **Trust:** result files are written inside the sandbox, so `parse_results` caps their size,
   refuses symlinks, and checks the schema.
+
+## Patch validator (`tracerepro.sandbox.validator`, Phase 1)
+
+`validate(diff, limits)` runs on the host before any patch executes (spec §7.1). It parses the
+git-style unified diff itself, following hunk line counts, and returns every violation with a
+rule name: `malformed`, `binary`, `unsafe_path` (absolute, `..`, backslash, `.git/`), `symlink`,
+`file_mode`, `test_file`, `config_file` (`conftest.py` at any depth, `pytest.ini`, `tox.ini`,
+`setup.cfg`, `sitecustomize.py`, `usercustomize.py`, `*.pth`), `dependency_or_ci`
+(`pyproject.toml`, `setup.py`, `requirements*.txt`, `.github/`), `too_many_files`,
+`too_many_lines` (defaults 3 files, 40 lines). Paths must carry `a/` and `b/` prefixes, so the
+checked paths are exactly what `git apply -p1` writes.
+
+`apply_patch(workspace, diff)` validates, then runs `git apply --check` and `git apply` in the
+workspace copy, with `GIT_CEILING_DIRECTORIES` set so an enclosing repository is never used.
+Results: `applied`, `rejected` (a Scope Violation) or `failed` (valid but does not apply).
+
+Path rules live in `tracerepro.sandbox.paths` and are shared with preflight and the evaluator
+(`is_test_path`, `is_docs_path`, `is_library_frame`).
