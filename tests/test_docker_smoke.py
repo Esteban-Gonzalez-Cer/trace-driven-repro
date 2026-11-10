@@ -1,24 +1,13 @@
 """Docker smoke tests: the sandbox base image runs, and --net=none really is offline."""
 
-import shutil
 import subprocess
 
-import pytest
+from ._docker import requires_docker
 
 IMAGE = "python:3.11-slim"
 
 
-def _docker_available() -> bool:
-    if shutil.which("docker") is None:
-        return False
-    probe = subprocess.run(["docker", "info"], capture_output=True, check=False, timeout=30)
-    return probe.returncode == 0
-
-
-pytestmark = [
-    pytest.mark.docker,
-    pytest.mark.skipif(not _docker_available(), reason="no Docker daemon"),
-]
+pytestmark = requires_docker
 
 
 def _run_offline(code: str) -> subprocess.CompletedProcess[str]:

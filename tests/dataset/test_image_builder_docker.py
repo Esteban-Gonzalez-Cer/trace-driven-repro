@@ -1,6 +1,5 @@
 """Acceptance tests for the image builder (plan §5.1) on the toy fixture."""
 
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -9,20 +8,10 @@ import pytest
 from tracerepro.dataset.image_builder import BuildRecord, build_image
 from tracerepro.dataset.manifest import load_manifest
 
+from .._docker import requires_docker
 from .test_manifest import TOY
 
-
-def _docker_available() -> bool:
-    if shutil.which("docker") is None:
-        return False
-    probe = subprocess.run(["docker", "info"], capture_output=True, check=False, timeout=30)
-    return probe.returncode == 0
-
-
-pytestmark = [
-    pytest.mark.docker,
-    pytest.mark.skipif(not _docker_available(), reason="no Docker daemon"),
-]
+pytestmark = requires_docker
 
 
 @pytest.fixture(scope="module")
