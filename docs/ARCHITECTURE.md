@@ -17,6 +17,8 @@ manifest:
    - non-root user 1000
    - `pip install --no-deps -r` the manifest's pinned `deps_lock`
    - an editable install of the project, then `pip check`, which proves the lock is complete
+     (with `SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0`, since the snapshot has no `.git` for
+     VCS-versioned projects)
 4. **Build:** with network on (Docker SDK).
 5. **Record:** `pip freeze --all` runs in an offline container, is checked against the lock, and
    is written with image and base-image ids to `work/builds/{id}/build.json`. Rebuilding with
@@ -93,3 +95,23 @@ Outputs: `benchmark/manifests/{id}.yaml` (deterministic YAML), `benchmark/locks/
 `benchmark/payloads/{id}.json`, an upserted `benchmark/screening_log.jsonl` row, and
 `work/preflight/{id}/report.json` with every run's outcome counts and durations. Re-running gives
 byte-identical manifests and payloads.
+
+A candidate that is excluded or fails has its `bug_env:{id}` image removed (with its untagged
+layers) so screening does not pile up images; `--keep-images` keeps them for debugging. Images
+rebuild from the candidate on demand.
+
+## Patch oracle (`tracerepro.evaluate.patch_oracle`, Phase 1)
+
+`score_patch(manifest, diff)` implements spec §7.3 and §7.4 for patches: validate on the host
+(violation → `scope_violation`), create a fresh workspace from `bug_env:{id}`, copy the fix
+commit's test files in from `c_fix`, re-apply the diff from the host (`apply_failed` if it does
+not apply), then run `oracle_tests` plus `baseline_pass_set`. `correct` needs every oracle test to
+pass and no baseline test to fail; otherwise `incorrect`. A run that does not finish is
+`infra_error`, never a model failure. `gold_diff(manifest, repo)` gives the human fix restricted to
+source files, for known-answer tests.
+
+Known-answer tests (`tests/evaluate/test_known_answer.py`) check, for the toy fixture and every
+`benchmark/manifests/*.yaml`, that the gold patch is correct, an empty patch is incorrect, and
+patches that edit an oracle test or add a skipping `conftest.py` are rejected. Real bugs carry the
+`realbugs` marker and run in the CI `known-answer` job. Red-team tests
+(`tests/evaluate/test_red_team.py`) cover an injection payload and malicious patches.
