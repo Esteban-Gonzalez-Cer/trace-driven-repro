@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "28369d45e59a3765b217651cafbd9f41",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "invalid literal for int() with base 10: ':1]:8080'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/flask/app.py",
+              "function": "run",
+              "lineno": 735,
+              "in_app": true,
+              "pre_context": [
+                "                host = \"127.0.0.1\"",
+                "",
+                "        if port or port == 0:",
+                "            port = int(port)",
+                "        elif sn_port:"
+              ],
+              "context_line": "            port = int(sn_port)",
+              "post_context": [
+                "        else:",
+                "            port = 5000",
+                "",
+                "        options.setdefault(\"use_reloader\", self.debug)",
+                "        options.setdefault(\"use_debugger\", self.debug)"
+              ],
+              "vars": {
+                "_": "':'",
+                "debug": "None",
+                "host": "'['",
+                "load_dotenv": "True",
+                "options": "{}",
+                "port": "None",
+                "self": "<Flask 'flask_test'>",
+                "server_name": "'[::1]:8080'",
+                "sn_host": "'['",
+                "sn_port": "':1]:8080'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

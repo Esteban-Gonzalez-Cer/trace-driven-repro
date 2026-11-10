@@ -73,3 +73,51 @@ def materialize(git_dir: Path, sha: str, dest: Path) -> None:
             ["-c", "core.autocrlf=false", *common, "checkout-index", "--all", "--force"],
             env=env,
         )
+
+
+def first_parent(git_dir: Path, sha: str) -> str:
+    """The first parent of `sha`: the buggy commit for both squash and merge-commit fixes."""
+    return _git(["--git-dir", str(git_dir), "rev-parse", f"{sha}^1"]).strip()
+
+
+def changed_files(git_dir: Path, a: str, b: str) -> dict[str, tuple[str, int, int]]:
+    """Path -> (status letter, lines added, lines removed) between two commits, without renames.
+
+    Binary files report -1 for both counts.
+    """
+    base = ["--git-dir", str(git_dir), "diff", "--no-renames", "--no-ext-diff"]
+    statuses = {}
+    for line in _git([*base, "--name-status", a, b]).splitlines():
+        status, _, path = line.partition("\t")
+        statuses[path] = status[:1]
+    result = {}
+    for line in _git([*base, "--numstat", a, b]).splitlines():
+        added, removed, path = line.split("\t", 2)
+        counts = (-1, -1) if added == "-" else (int(added), int(removed))
+        result[path] = (statuses.get(path, "M"), *counts)
+    return result
+
+
+def show_file(git_dir: Path, sha: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "--git-dir", str(git_dir), "show", f"{sha}:{path}"],
+        env={"PATH": os.environ.get("PATH", ""), "GIT_TERMINAL_PROMPT": "0"},
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RepoError(f"git show {sha}:{path} failed: {result.stderr.decode(errors='replace')}")
+    return result.stdout
+
+
+def diff(git_dir: Path, a: str, b: str, paths: list[str]) -> str:
+    """Unified diff of `paths` between two commits, in the format `git apply -p1` expects."""
+    return _git(
+        ["--git-dir", str(git_dir), "diff", "--no-renames", "--no-ext-diff", "--no-color",
+         "--full-index", a, b, "--", *paths]
+    )  # fmt: skip
+
+
+def clone_name(repo: str) -> str:
+    """Cache directory name for a manifest/candidate `repo` value."""
+    return repo.replace("/", "__").replace(":", "_")
