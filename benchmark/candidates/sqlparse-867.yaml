@@ -1,0 +1,13 @@
+id: sqlparse-867
+repo: andialbrecht/sqlparse
+c_fix: cd4c1b66cb0a148b40f742d435c527f27cf0a9fb
+python_version: "3.11"
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/867
+fix_date: 2026-07-25
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-07-25
+notes: >
+  function grouping with lowercase 'as' in CREATE TABLE AS SELECT.
+split: dev

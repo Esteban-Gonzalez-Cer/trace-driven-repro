@@ -1,0 +1,13 @@
+id: click-3582
+repo: pallets/click
+c_fix: 7a16b20e8a8a9bb57c7b4f6f15f60f6597478a49
+python_version: "3.11"
+issue_url: https://github.com/pallets/click/issues/2331
+fix_pr_url: https://github.com/pallets/click/pull/3582
+fix_date: 2026-06-14
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  version_option raises RuntimeError when the import name differs from the distribution name.
+split: dev

@@ -1,0 +1,13 @@
+id: sqlparse-865
+repo: andialbrecht/sqlparse
+c_fix: f66d12c245412f28c58f045b646eb53c0e691b8b
+python_version: "3.11"
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/865
+fix_date: 2026-07-25
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-07-25
+notes: >
+  get_real_name for names with more than two dotted parts.
+split: dev
