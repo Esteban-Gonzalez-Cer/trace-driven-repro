@@ -258,3 +258,13 @@ def test_apply_ignores_an_enclosing_git_repository(tmp_path: Path) -> None:
     result = apply_patch(ws, (TINY / "gold.patch").read_text())
     assert result.status is ApplyStatus.APPLIED, result.message
     assert "default=0" in (ws.repo / "tiny_lib" / "report.py").read_text()
+
+
+def test_test_paths_are_judged_case_insensitively() -> None:
+    # Red-team round 2: on a case-insensitive disk, Tests/__init__.py lands in tests/.
+    for path in ["Tests/__init__.py", "TESTS/helpers.py", "pkg/Conftest.py", "Setup.CFG"]:
+        assert rules(create(path)) & {Rule.TEST_FILE, Rule.CONFIG_FILE}, path
+
+
+def test_patch_size_in_bytes_is_capped() -> None:
+    assert rules(create("pkg/mod.py", "x = '" + "a" * 70_000 + "'")) == {Rule.TOO_LARGE}

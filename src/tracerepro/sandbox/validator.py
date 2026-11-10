@@ -29,7 +29,7 @@ from tracerepro.sandbox.runner import Workspace
 REGULAR_MODES = frozenset({"100644", "100755"})
 SYMLINK_MODE = "120000"
 
-_HUNK_RE = re.compile(r"^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
+_HUNK_RE = re.compile(r"^@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
 _HEADER_PREFIXES = (
     "index ",
     "similarity index ",
@@ -50,6 +50,7 @@ class Rule(enum.StrEnum):
     DEPENDENCY_OR_CI = "dependency_or_ci"
     TOO_MANY_FILES = "too_many_files"
     TOO_MANY_LINES = "too_many_lines"
+    TOO_LARGE = "too_large"
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,8 @@ class Violation:
 class DiffLimits:
     max_files: int = 3
     max_lines: int = 40
+    # 40 lines can still be huge lines (red-team round 2): cap the patch's size in bytes too.
+    max_bytes: int = 64_000
 
 
 DEFAULT_LIMITS = DiffLimits()
@@ -78,6 +81,7 @@ class FileDiff:
     added: int = 0
     removed: int = 0
     hunks: int = 0
+    added_lines: list[int] = field(default_factory=list)  # line numbers in the new file
 
     @property
     def paths(self) -> list[str]:
@@ -189,7 +193,8 @@ def _consume_hunk(lines: list[str], i: int, cur: FileDiff) -> int:
     if match is None:
         raise DiffError(f"malformed hunk header at line {i + 1}")
     old_left = int(match[1]) if match[1] is not None else 1
-    new_left = int(match[2]) if match[2] is not None else 1
+    new_line = int(match[2])
+    new_left = int(match[3]) if match[3] is not None else 1
     cur.hunks += 1
     i += 1
     while old_left > 0 or new_left > 0:
@@ -199,12 +204,15 @@ def _consume_hunk(lines: list[str], i: int, cur: FileDiff) -> int:
         tag = body[:1]
         if tag in (" ", ""):
             old_left, new_left = old_left - 1, new_left - 1
+            new_line += 1
         elif tag == "-":
             old_left -= 1
             cur.removed += 1
         elif tag == "+":
             new_left -= 1
             cur.added += 1
+            cur.added_lines.append(new_line)
+            new_line += 1
         elif tag != "\\":
             raise DiffError(f"unexpected hunk line {i + 1}: {body[:80]!r}")
         if old_left < 0 or new_left < 0:
@@ -240,6 +248,10 @@ def validate(diff: str | bytes, limits: DiffLimits = DEFAULT_LIMITS) -> Validati
             return Validation((), (Violation(Rule.BINARY, "", "patch is not valid UTF-8"),))
     if "\0" in diff:
         return Validation((), (Violation(Rule.BINARY, "", "patch contains NUL bytes"),))
+    size = len(diff.encode("utf-8"))
+    if size > limits.max_bytes:
+        message = f"{size} bytes > {limits.max_bytes}"
+        return Validation((), (Violation(Rule.TOO_LARGE, "", message),))
     try:
         files = parse_diff(diff)
     except DiffError as exc:
@@ -255,14 +267,17 @@ def validate(diff: str | bytes, limits: DiffLimits = DEFAULT_LIMITS) -> Validati
             elif mode not in REGULAR_MODES:
                 found.append(Violation(Rule.FILE_MODE, f.path, f"file mode {mode}"))
         for path in f.paths:
-            reason = _unsafe(path)
+            # Judged case-insensitively: on a case-insensitive disk (macOS) a new
+            # `Tests/__init__.py` lands in `tests/` (red-team round 2).
+            folded = path.casefold()
+            reason = _unsafe(folded)
             if reason:
                 found.append(Violation(Rule.UNSAFE_PATH, path, reason))
-            elif is_test_path(path):
+            elif is_test_path(folded):
                 found.append(Violation(Rule.TEST_FILE, path, "creates or modifies a test file"))
-            elif is_config_path(path):
+            elif is_config_path(folded):
                 found.append(Violation(Rule.CONFIG_FILE, path, "test or interpreter config"))
-            elif is_dependency_or_ci_path(path):
+            elif is_dependency_or_ci_path(folded):
                 found.append(Violation(Rule.DEPENDENCY_OR_CI, path, "dependency or CI file"))
     if len(files) > limits.max_files:
         found.append(Violation(Rule.TOO_MANY_FILES, "", f"{len(files)} files > {limits.max_files}"))
