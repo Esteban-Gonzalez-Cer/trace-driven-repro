@@ -28,6 +28,7 @@ OPTIONAL = (
     "fix_date",
     "target_exception",
     "target_frame",
+    "crash_kind",
     "payload_path",
     "oracle_tests",
     "excluded_fix_tests",
@@ -62,6 +63,7 @@ class Manifest:
     fix_date: str | None = None
     target_exception: str | None = None
     target_frame: TargetFrame | None = None
+    crash_kind: str | None = None  # python_failure or library_raise (DECISIONS.md)
     payload_path: str | None = None
     oracle_tests: tuple[str, ...] = ()
     excluded_fix_tests: tuple[dict[str, str], ...] = ()
@@ -136,6 +138,10 @@ def parse_manifest(data: Any, source_path: Path | None = None) -> Manifest:
     ):
         raise ManifestError("excluded_fix_tests entries must have exactly 'id' and 'reason'")
 
+    kind = data.get("crash_kind")
+    if kind is not None and kind not in ("python_failure", "library_raise"):
+        raise ManifestError("crash_kind must be 'python_failure' or 'library_raise'")
+
     fix_date = data.get("fix_date")
     if isinstance(fix_date, dt.date):
         fix_date = fix_date.isoformat()
@@ -155,6 +161,7 @@ def parse_manifest(data: Any, source_path: Path | None = None) -> Manifest:
         fix_date=fix_date,
         target_exception=data.get("target_exception"),
         target_frame=target_frame,
+        crash_kind=kind,
         payload_path=data.get("payload_path"),
         oracle_tests=_str_list(data, "oracle_tests"),
         excluded_fix_tests=tuple(

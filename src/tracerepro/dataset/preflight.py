@@ -153,6 +153,40 @@ def crash_target(failure: FailureInfo) -> tuple[Target | None, str]:
 _HUNK_NEW_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", re.MULTILINE)
 
 
+PYTHON_FAILURE = "python_failure"
+LIBRARY_RAISE = "library_raise"
+CRASH_KINDS = (PYTHON_FAILURE, LIBRARY_RAISE)
+
+
+def crash_kind(failure: FailureInfo, repo: Path) -> str:
+    """How the exception came about (DECISIONS.md, 2026-11-11):
+
+    - `library_raise`: the innermost frame of the traceback is in the library and its line is a
+      `raise` statement: the library rejected something on purpose (for example a
+      `ValidationError` for valid input);
+    - `python_failure`: anything else: Python or the standard library failed inside a library
+      call (`int()` on bad text, `max()` of nothing, a failing iterator).
+    """
+    if not failure.frames:
+        return PYTHON_FAILURE
+    file, _, line = failure.frames[-1]
+    if not is_library_frame(file):
+        return PYTHON_FAILURE  # raised deeper, in the standard library or a dependency
+    try:
+        tree = ast.parse((repo / file).read_text(encoding="utf-8"))
+    except (OSError, SyntaxError, UnicodeDecodeError, ValueError):
+        return PYTHON_FAILURE
+    statements = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.stmt) and node.lineno <= line <= (node.end_lineno or node.lineno)
+    ]
+    if not statements:
+        return PYTHON_FAILURE
+    innermost = min(statements, key=lambda n: (n.end_lineno or n.lineno) - n.lineno)
+    return LIBRARY_RAISE if isinstance(innermost, ast.Raise) else PYTHON_FAILURE
+
+
 def changed_lines(zero_context_diff: str) -> set[int]:
     """Line numbers in the new file touched by a `-U0` diff (deletions mark the next line)."""
     lines: set[int] = set()
@@ -463,6 +497,7 @@ class _Preflight:
             failure = run.failures().get(self.candidates[0])
             if failure is None:
                 raise _fail("payload run: the oracle did not fail on c_bug")
+            self.kind = crash_kind(failure, ws.repo)
             return build_payload(
                 self.cand.id, self.c_bug, self.cand.python_version, failure, ws.repo
             )
@@ -485,6 +520,7 @@ class _Preflight:
             fix_date=cand.fix_date,
             target_exception=self.target[0],
             target_frame=TargetFrame(self.target[1], self.target[2]),
+            crash_kind=self.kind,
             payload_path=_rel(payload_path),
             oracle_tests=tuple(self.candidates),
             excluded_fix_tests=tuple(self.excluded),

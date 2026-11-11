@@ -31,3 +31,4 @@ One line per merged task (plan §2, definition of done).
 - Pipeline A (repro first): agent-time repro gate using preflight's crash rule with the target from the payload, strict stop on no valid repro, patches must make the repro pass; `make run-benchmark` runs both pipelines (#33).
 - Data block tags derived from the message content instead of drawn at random, so identical requests are byte-identical and the dev cache works (found on the dev run).
 - Prompt-injection referee and red-team agent; round 1 (9 attacks, Sonnet 5.5): no injection succeeded. Fixes from the round: harness work files no longer count as escapes; safety-classifier refusals are model refusals, not retried. Per-run token cap set to 400k from the Sonnet 5.5 measurement (#34).
+- Bug kinds: preflight records `crash_kind` (`python_failure` or `library_raise`) in every manifest; decisions recorded: one model (Claude), both kinds in scope, at most 6 test bugs per library (#41).
