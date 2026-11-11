@@ -35,7 +35,13 @@ import yaml
 
 from tracerepro.agent.client import LLMClient, Provider, Settings
 from tracerepro.agent.errors import InfraFailure, PacingLimitReached, UsageLimitReached
-from tracerepro.agent.pipeline import AgentResult, Bug, PipelineConfig, run_pipeline_b
+from tracerepro.agent.pipeline import (
+    AgentResult,
+    Bug,
+    PipelineConfig,
+    run_pipeline_a,
+    run_pipeline_b,
+)
 from tracerepro.agent.prompts import CURRENT_VERSION
 from tracerepro.agent.providers.claude_cli import ClaudeCLI
 from tracerepro.agent.record import is_complete, trial_dir, write_record, write_verdict
@@ -46,7 +52,7 @@ from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, load_manifest
 
 RUNS_DIR = PROJECT_ROOT / "runs"
 WORK_DIR = PROJECT_ROOT / "work"
-PIPELINES: dict[str, Callable[..., AgentResult]] = {"B": run_pipeline_b}
+PIPELINES: dict[str, Callable[..., AgentResult]] = {"A": run_pipeline_a, "B": run_pipeline_b}
 EXIT_PAUSED = 3
 
 
@@ -61,6 +67,7 @@ class RunConfig:
     max_output_tokens: int = 16_000
     prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
+    max_repro_attempts: int = 2
     token_cap: int = 300_000
     context_budget: int = DEFAULT_BUDGET_CHARS
     cache: bool = True
@@ -77,6 +84,7 @@ class RunConfig:
             settings=self.settings,
             prompt_version=self.prompt_version,
             max_patch_attempts=self.max_patch_attempts,
+            max_repro_attempts=self.max_repro_attempts,
             token_cap=self.token_cap,
             context_budget=self.context_budget,
         )

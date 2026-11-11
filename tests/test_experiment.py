@@ -63,7 +63,7 @@ def toy_payload(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_the_dev_config_loads() -> None:
     dev = experiment.load_config(DEV)
-    assert dev.model == "claude-haiku-5-5" and dev.pipelines == ("B",)
+    assert dev.model == "claude-haiku-5-5" and dev.pipelines == ("A", "B")
     assert len(dev.manifests()) == 5 and dev.guard.max_calls_per_hour == 60
 
 

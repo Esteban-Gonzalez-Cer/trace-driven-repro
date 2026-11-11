@@ -4,9 +4,11 @@ Prompts live in `prompts/{name}_{version}.md`; every call logs the version and t
 sha256, so a result can always be traced to the exact text the model saw.
 
 Untrusted material (the crash payload, source code, test output, a generated repro test) goes
-into **data blocks**: a start tag and a matching end tag that carry a random suffix chosen per
-message, such as `<data-source-9f2c41aa>`. The suffix is re-drawn until it appears nowhere in
-the material, so the material cannot close its own block or open a fake one with the same tag.
+into **data blocks**: a start tag and a matching end tag that carry an 8-hex-digit suffix, such
+as `<data-source-9f2c41aa>`. The suffix is a hash of the whole message (`content_tokens`), so the
+material cannot predict it, and it is re-drawn if it appears anywhere in the material: the
+material cannot close its own block or open a fake one with the same tag. Being derived from
+the content, the same message always gets the same tags, so identical requests stay identical.
 The system prompt tells the model that block contents are data, never instructions.
 
 Delimiters are not a security boundary (spec §10): injected instructions may still sway the
@@ -17,7 +19,6 @@ from __future__ import annotations
 
 import hashlib
 import re
-import secrets
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,7 +29,8 @@ PROMPTS_DIR = PROJECT_ROOT / "prompts"
 SYSTEM = "system"
 PATCH = "patch"
 REPRO = "repro"
-_NAME_RE = re.compile(r"^[a-z]+$")
+REPRO_FEEDBACK = "repro_feedback"
+_NAME_RE = re.compile(r"^[a-z]+(_[a-z]+)?$")
 _VERSION_RE = re.compile(r"^v[0-9]+$")
 _LABEL_RE = re.compile(r"^[a-z][a-z-]{0,30}$")
 TAG_RE = re.compile(r"</?data-[a-z][a-z-]{0,30}-[0-9a-f]{8}>")
@@ -81,14 +83,31 @@ def _tag(label: str, content: str, taken: set[str], token: Callable[[], str]) ->
     raise RuntimeError("could not find a data block tag absent from the content")
 
 
+def content_tokens(material: str) -> Callable[[], str]:
+    """Tag suffixes derived from the material itself: sha256 of a counter and the whole
+    message, 8 hex digits each. The same message always gets the same tags, so identical
+    requests stay identical (the dev cache works) and runs are reproducible. Forging one would
+    need material that contains a hash of itself, which is infeasible; `_tag` still re-draws any
+    suffix that happens to appear in the material."""
+    counter = 0
+
+    def draw() -> str:
+        nonlocal counter
+        counter += 1
+        return hashlib.sha256(f"{counter}\0{material}".encode()).hexdigest()[:8]
+
+    return draw
+
+
 def build_message(
     instructions: str,
     blocks: Sequence[DataBlock],
     *,
-    token: Callable[[], str] = lambda: secrets.token_hex(4),
+    token: Callable[[], str] | None = None,
 ) -> Message:
-    """Instructions first, then each block as `<tag>` ... `</tag>` with a fresh random tag."""
-    everything = instructions + "".join(b.content for b in blocks)
+    """Instructions first, then each block as `<tag>` ... `</tag>` with its own tag."""
+    everything = instructions + "".join(f"\0{b.label}\0{b.content}" for b in blocks)
+    token = token or content_tokens(everything)
     taken: set[str] = set()
     parts = [instructions.rstrip("\n")]
     for block in blocks:
@@ -106,7 +125,7 @@ def patch_message(
     repro: str | None = None,
     repro_result: str | None = None,
     feedback: str | None = None,
-    token: Callable[[], str] = lambda: secrets.token_hex(4),
+    token: Callable[[], str] | None = None,
 ) -> Message:
     """The patch request: crash report, source, and optionally a repro test with its result
     (Pipeline A) and the test results of the previous attempt (feedback loop)."""
@@ -126,7 +145,7 @@ def repro_message(
     payload: str,
     context: str,
     feedback: str | None = None,
-    token: Callable[[], str] = lambda: secrets.token_hex(4),
+    token: Callable[[], str] | None = None,
 ) -> Message:
     blocks = [DataBlock("crash-report", payload), DataBlock("source", context)]
     if feedback is not None:

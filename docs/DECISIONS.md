@@ -93,6 +93,22 @@ the dev set, before any test-set bug is screened:
   no repository search; that would change the research question and need an amendment that
   "it would be nicer" does not justify.
 
+## 2026-11-11: Pipeline A details
+
+- **Gate target from the payload:** the exception type (module-qualified as the harness plugin
+  names it) and the innermost in-app frame of the payload. It equals the manifest's
+  `target_exception` and `target_frame` by construction (Amendment 2), but the agent stage never
+  reads the manifest's oracle fields.
+- **Same rule as preflight:** the gate calls `dataset.preflight.crash_target`, so a failure
+  raised in the test itself, or with no library frame, never counts as a repro.
+- **One conversation:** the patch request follows the repro exchange in the same conversation,
+  sending only the repro test and its failure (the context is already in the first turn).
+- **The repro must pass after the patch.** A patch that applies with no regression but leaves
+  the repro failing is a failed attempt (`repro_still_fails`); it can still be submitted if
+  nothing better exists, and the evaluator decides.
+- **Run status without a valid repro:** `no_repro` when the last test passed on the buggy code,
+  `invalid_repro` otherwise; each attempt keeps its own label for the taxonomy.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

@@ -144,9 +144,9 @@ of defence.
 The core assumption (spec §10) is that injected instructions in a crash message, a comment or
 a docstring **will sometimes work**. Defences, from weakest to strongest:
 
-1. **Data blocks.** All project material is wrapped in tags with a random suffix drawn per
-   message and re-drawn if it appears in the material, so the material cannot close its own
-   block. The system prompt says block contents are data and never instructions. **Delimiters
+1. **Data blocks.** All project material is wrapped in tags whose suffix is a hash of the whole
+   message, re-drawn if it appears in the material. To close its own block, the material would
+   have to contain a hash of itself, which is infeasible. The system prompt says block contents are data and never instructions. **Delimiters
    are not a security boundary:** they reduce confusion, nothing more.
 2. **Nothing worth stealing in the prompt.** Our prompts contain no paths, no harness internals
    and nothing about the oracle or hidden tests (checked by a test). A model talked into

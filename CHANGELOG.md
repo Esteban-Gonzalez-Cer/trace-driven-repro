@@ -28,3 +28,5 @@ One line per merged task (plan §2, definition of done).
 - Context assembler: trace files plus 1-hop imports ranked by use, tests excluded, 120k-character cap with a documented truncation rule (outline, drop, window, cut); deterministic (#30).
 - Pipeline B and the benchmark runner: agent-time workbench on the buggy code and visible tests, feedback loop, best-patch rule, trial folders, resumable `make run-benchmark` with separate evaluation (#32).
 - Context cap raised to 250,000 characters; prompts v2 (no more files will be shown, give the best fix); `declined` outcome; Amendment 5: Fault Localization Miss checked line by line, context coverage recorded per trial.
+- Pipeline A (repro first): agent-time repro gate using preflight's crash rule with the target from the payload, strict stop on no valid repro, patches must make the repro pass; `make run-benchmark` runs both pipelines (#33).
+- Data block tags derived from the message content instead of drawn at random, so identical requests are byte-identical and the dev cache works (found on the dev run).

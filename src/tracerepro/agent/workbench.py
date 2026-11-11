@@ -67,7 +67,12 @@ class Workbench(Protocol):
     def source_tree(self) -> Path: ...
 
     def try_patch(
-        self, diff: str, *, extra_files: Mapping[str, bytes] = ..., tests: Sequence[str] = ...
+        self,
+        diff: str,
+        *,
+        extra_files: Mapping[str, bytes] = ...,
+        tests: Sequence[str] = ...,
+        baseline: bool = ...,
     ) -> TrialRun: ...
 
 
@@ -149,7 +154,12 @@ class DockerWorkbench:
         *,
         extra_files: Mapping[str, bytes] | None = None,
         tests: Sequence[str] = (),
+        baseline: bool = True,
     ) -> TrialRun:
+        """Apply `diff` (may be empty) to a fresh copy, add `extra_files`, and run `tests` plus,
+        with `baseline`, the visible baseline."""
+        if not baseline and not tests:
+            raise ValueError("nothing to run: no tests and no baseline")
         self._count += 1
         ws = Workspace(self.root / f"try-{self._count}-{uuid.uuid4().hex[:8]}")
         ws.root.mkdir(parents=True)
@@ -161,7 +171,7 @@ class DockerWorkbench:
             applied = apply_patch(ws, diff)
             if applied.status is not ApplyStatus.APPLIED:
                 return TrialRun(applied=False, message=applied.message)
-            files, baseline = self.visible_baseline()
+            files, visible = self.visible_baseline() if baseline else ([], [])
             run = run_pytest(
                 self.manifest.image_tag,
                 [*files, *tests],
@@ -191,8 +201,8 @@ class DockerWorkbench:
         outcomes = run.outcomes()
         return TrialRun(
             applied=True,
-            regressions=regressions_of(run, baseline),
-            passed=sum(1 for t in baseline if outcomes.get(t) == "passed"),
+            regressions=regressions_of(run, visible),
+            passed=sum(1 for t in visible if outcomes.get(t) == "passed"),
             output_tail=output,
             duration_s=run.run.duration_s,
             run=run,

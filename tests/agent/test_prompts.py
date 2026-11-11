@@ -94,3 +94,11 @@ def test_leak_check_finds_our_own_text_in_a_reply() -> None:
     assert leak_check("tag", [system], tags=["data-source-9f9f9f9f"]) == []
     assert leak_check("a data-source-9f9f9f9f mention", [system], tags=["data-source-9f9f9f9f"])
     assert leak_check("The cause is an empty sequence passed to max().", [system]) == []
+
+
+def test_tags_are_derived_from_the_content() -> None:
+    # Found on the dev run: random tags made every request unique, so the dev cache never hit.
+    one = patch_message(load_prompt(PATCH), payload='{"a": 1}', context="code")
+    assert one == patch_message(load_prompt(PATCH), payload='{"a": 1}', context="code")
+    other = patch_message(load_prompt(PATCH), payload='{"a": 2}', context="code")
+    assert set(one.tags).isdisjoint(other.tags)

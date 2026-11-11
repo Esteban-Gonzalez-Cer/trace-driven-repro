@@ -11,8 +11,10 @@ final run (spec §6).
 **Message layout.** Our instructions come first, outside any block. The material follows in
 data blocks, in a fixed order: `crash-report` (the payload), `source` (the context), then for
 Pipeline A `repro-test` and `repro-result`, and on a retry `test-results`. Each block is
-wrapped in a start tag and end tag with a random 8-hex-digit suffix drawn per message (for
-example `<data-source-9f2c41aa>`), re-drawn until it appears nowhere in the material.
+wrapped in a start tag and end tag with an 8-hex-digit suffix (for example
+`<data-source-9f2c41aa>`): a sha256 hash of the whole message, re-drawn until it appears
+nowhere in the material. The same message always gets the same tags, so runs are reproducible
+and identical requests can be cached.
 
 **Repro contract.** Exactly one fenced Python code block (tagged `python`, `py` or untagged;
 other languages are ignored), holding the whole test file. The harness saves it in its own
@@ -113,3 +115,27 @@ test checks this), and a test checks that no oracle test id reaches the model.
 **Evaluation** happens afterwards, separately: the submitted diff is scored by the patch oracle
 in a fresh container (`verdict.json`), with the review report for the manual audit
 (`review.md`).
+
+## Pipeline A: repro first (plan §6.5, spec §6)
+
+1. **Ask for a repro test** (prompt `repro`): one pytest file reproducing the crash. The harness
+   places it at `repro/test_repro.py` in the workspace. It is never part of the patch, so the
+   validator's ban on test edits still holds for patches.
+2. **Agent-time gate:** the test runs alone on the buggy code. It passes the gate only if a test
+   in it fails with the crash report's exception type, raised from the crash report's innermost
+   library frame (file and function, not the line). This is preflight's own rule
+   (`crash_target`), and the target is read from the payload the agent was given, never from
+   the manifest or the oracle. Outcomes: `valid`; `no_repro` (the test passes on the buggy code);
+   `invalid_repro` (another exception or place, raised in the test itself, or the run did not
+   finish); `broken` (the file does not import or holds no test: Syntax or Import Error);
+   `declined` (no code block).
+3. **Retry once** (prompt `repro_feedback`): what happened, with the end of the output.
+4. **No valid repro after 2 replies:** the run stops (the strict rule) with status `no_repro` if
+   the last test passed on the buggy code, otherwise `invalid_repro`. No patch is asked for.
+5. **Patch stage**, in the same conversation: the patch prompt with the valid repro test and its
+   failure output in data blocks. Each patch runs with the repro test and the visible baseline.
+   It is clean only if the repro now passes and no baseline test regresses; otherwise the
+   feedback says which (`repro_still_fails` or regressions). At most 2 patch replies; the same
+   best-patch rule as Pipeline B.
+
+Both pipelines share the per-run token cap; Pipeline A's repro replies count against it.
