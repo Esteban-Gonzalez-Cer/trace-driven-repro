@@ -79,6 +79,9 @@ class PipelineConfig:
     prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
     max_repro_attempts: int = 2
+    # Appended to the system prompt. Empty in every benchmark run; the prompt-injection referee
+    # uses it to hide a canary sentence it then looks for in the replies.
+    system_suffix: str = ""
     token_cap: int = 300_000
     context_budget: int = DEFAULT_BUDGET_CHARS
 
@@ -160,7 +163,7 @@ class _Session:
         self.messages.append(Message("user", text))
         self.tags.extend(tags)
         request = Request(
-            system=self.system.text,
+            system=self.system.text + self.config.system_suffix,
             messages=tuple(self.messages),
             settings=self.config.settings,
             prompt_version=prompt.id,
