@@ -211,14 +211,17 @@ def crash_kind(failure: FailureInfo, repo: Path) -> str:
     innermost = min(statements, key=lambda n: (n.end_lineno or n.lineno) - n.lineno)
     if not isinstance(innermost, ast.Raise):
         return PYTHON_FAILURE
-    # `raise X(...)` is a deliberate rejection only if X is what was raised: an error while
-    # building the exception (starlette-3783: `raise ValueError(f"... {cast.__name__}")` fails
-    # with AttributeError) is Python failing. A bare `raise` or `raise exc` re-raises on purpose.
+    # `raise SomeError(...)` is a deliberate rejection only if SomeError is what was raised: an
+    # error while building the exception (starlette-3783: `raise ValueError(f"... {x.__name__}")`
+    # fails with AttributeError) is Python failing. Only a class-like name (capitalised) is
+    # compared: `raise self.make_error(...)` (marshmallow) or `raise self.parse_error(...)`
+    # (tomlkit) build the library's own error in a helper, and a bare `raise` or `raise exc`
+    # re-raises on purpose.
     exc = innermost.exc
     if isinstance(exc, ast.Call):
         func = exc.func
         name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
-        if name is not None and name != failure.type.rsplit(".", 1)[-1]:
+        if name and name[:1].isupper() and name != failure.type.rsplit(".", 1)[-1]:
             return PYTHON_FAILURE
     return LIBRARY_RAISE
 

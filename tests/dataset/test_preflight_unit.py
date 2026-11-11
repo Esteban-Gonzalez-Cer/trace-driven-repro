@@ -349,3 +349,16 @@ def test_an_error_while_building_the_exception_is_a_python_failure(tmp_path: Pat
     assert crash_kind(FailureInfo("ValueError", "x", frames), tmp_path) == "library_raise"
     builtin = FailureInfo("builtins.ValueError", "x", frames)  # module-qualified names too
     assert crash_kind(builtin, tmp_path) == "library_raise"
+
+
+def test_a_raise_through_an_error_helper_is_a_library_raise(tmp_path: Path) -> None:
+    # marshmallow `raise self.make_error("required")`, tomlkit `raise self.parse_error(...)`.
+    from tracerepro.dataset.preflight import crash_kind
+
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "f.py").write_text(
+        "class F:\n    def load(self):\n        raise self.make_error('required')\n"
+    )
+    frames = (("pkg/f.py", "load", 3),)
+    failure = FailureInfo("marshmallow.exceptions.ValidationError", "x", frames)
+    assert crash_kind(failure, tmp_path) == "library_raise"

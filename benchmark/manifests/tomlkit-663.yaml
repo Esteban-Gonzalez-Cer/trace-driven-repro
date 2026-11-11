@@ -10,7 +10,7 @@ target_exception: tomlkit.exceptions.ParseError
 target_frame:
   file: tomlkit/parser.py
   function: parse
-crash_kind: python_failure
+crash_kind: library_raise
 payload_path: benchmark/payloads/tomlkit-663.json
 oracle_tests:
 - tests/test_toml_document.py::test_out_of_order_table_after_indented_header[ [[a.b.c.d]]\n[a.b.c]\n-expected1]

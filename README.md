@@ -25,8 +25,9 @@ never included.
 
 ## Status
 
-Phase 2 (agent stage) complete: Pipelines A and B run end to end on the 5 dev bugs from one
-command, with per-run usage measured. No results yet: dev-set runs only tune the harness.
+Phase 3 complete (milestone M3, the freeze): 30 test bugs from 9 libraries, the full evaluator
+(patch and repro oracles, failure labels), a dress rehearsal on the dev set, and the analysis
+plan ([`docs/ANALYSIS_PLAN.md`](docs/ANALYSIS_PLAN.md)). No results yet: the final run comes next.
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)
 - Development plan: [`docs/spec/development-plan.pdf`](docs/spec/development-plan.pdf)

@@ -28,3 +28,8 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
 - **Test suites that need gc access.** The sandbox blocks every gc walk (red-team round 3), so
   bugs whose test suite cannot run without a tool that patches builtins through gc (older
   starlette commits and `blockbuster`) cannot be used.
+- **One model.** Only Claude Sonnet 5.5 is evaluated (the spec's minimum tier), so nothing can be
+  said about other models; see DECISIONS.md for why a second vendor was set aside.
+- **Contamination is only described.** Cohorts split at the model's stated training cutoff
+  (June 2026): 16 pre-cutoff and 14 post-cutoff bugs. Small groups, no test; a stated cutoff is
+  approximate.

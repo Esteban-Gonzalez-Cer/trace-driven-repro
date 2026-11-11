@@ -10,7 +10,7 @@ target_exception: tomlkit.exceptions.InvalidNumberError
 target_frame:
   file: tomlkit/parser.py
   function: _parse_value
-crash_kind: python_failure
+crash_kind: library_raise
 payload_path: benchmark/payloads/tomlkit-701.json
 oracle_tests:
 - tests/test_items.py::test_datetime_with_sub_minute_offset_renders_valid_toml[offset0]

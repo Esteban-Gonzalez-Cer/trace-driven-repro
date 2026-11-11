@@ -10,7 +10,7 @@ target_exception: marshmallow.exceptions.ValidationError
 target_frame:
   file: src/marshmallow/fields.py
   function: _validate_missing
-crash_kind: python_failure
+crash_kind: library_raise
 payload_path: benchmark/payloads/marshmallow-2994.json
 oracle_tests:
 - tests/test_deserialization.py::TestFieldDeserialization::test_enum_by_value_allow_none_default

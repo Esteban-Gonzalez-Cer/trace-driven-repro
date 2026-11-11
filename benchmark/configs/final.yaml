@@ -1,0 +1,51 @@
+# Final run (spec §5.7, §6; plan §8.1): the frozen test set, after the m3-freeze tag.
+# Settings identical to the dress rehearsal (dry-run.yaml); only the split and the bugs differ.
+name: final
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v2
+pipelines: [A, B]
+trials: 3
+split: test
+bugs:                      # the 30 frozen test bugs (split: test)
+  - benchmark/manifests/attrs-1529.yaml
+  - benchmark/manifests/click-3493.yaml
+  - benchmark/manifests/click-3739.yaml
+  - benchmark/manifests/click-3781.yaml
+  - benchmark/manifests/flask-5797.yaml
+  - benchmark/manifests/marshmallow-2874.yaml
+  - benchmark/manifests/marshmallow-2892.yaml
+  - benchmark/manifests/marshmallow-2901.yaml
+  - benchmark/manifests/marshmallow-2903.yaml
+  - benchmark/manifests/marshmallow-2928.yaml
+  - benchmark/manifests/marshmallow-2994.yaml
+  - benchmark/manifests/more-itertools-1088.yaml
+  - benchmark/manifests/more-itertools-1118.yaml
+  - benchmark/manifests/more-itertools-1182.yaml
+  - benchmark/manifests/more-itertools-1193.yaml
+  - benchmark/manifests/more-itertools-1294.yaml
+  - benchmark/manifests/more-itertools-1305.yaml
+  - benchmark/manifests/requests-7308.yaml
+  - benchmark/manifests/starlette-3139.yaml
+  - benchmark/manifests/starlette-3317.yaml
+  - benchmark/manifests/starlette-3619.yaml
+  - benchmark/manifests/starlette-3783.yaml
+  - benchmark/manifests/tomlkit-565.yaml
+  - benchmark/manifests/tomlkit-581.yaml
+  - benchmark/manifests/tomlkit-610.yaml
+  - benchmark/manifests/tomlkit-631.yaml
+  - benchmark/manifests/tomlkit-663.yaml
+  - benchmark/manifests/tomlkit-701.yaml
+  - benchmark/manifests/werkzeug-3078.yaml
+  - benchmark/manifests/werkzeug-3238.yaml
+max_patch_attempts: 2
+max_repro_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: false                # trials must be independent
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0

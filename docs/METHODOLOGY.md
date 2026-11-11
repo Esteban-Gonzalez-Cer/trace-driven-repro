@@ -1,6 +1,7 @@
 # Methodology
 
-TODO: Phase 3, frozen with the analysis plan at M3.
+How the benchmark works, step by step. The analysis itself is fixed in
+[`ANALYSIS_PLAN.md`](ANALYSIS_PLAN.md), frozen with the `m3-freeze` tag.
 
 ## Prompts and output contracts (plan §6.3)
 
