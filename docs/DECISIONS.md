@@ -109,6 +109,34 @@ the dev set, before any test-set bug is screened:
 - **Run status without a valid repro:** `no_repro` when the last test passed on the buggy code,
   `invalid_repro` otherwise; each attempt keeps its own label for the taxonomy.
 
+## 2026-11-11: Measured usage; per-run token cap and pacing (plan §6.6)
+
+Both pipelines on the 5 dev bugs with Claude Sonnet 5.5, cache off, one trial, no cap in the
+way (run `measure-e90962f5-v2-claude-sonnet-5-5-cli2.1.308`). Tokens count every input, output
+and cached token of every call; dollars are the CLI's list-price estimate (nothing is spent on
+the plan).
+
+| bug | A tokens | A calls | B tokens | B calls |
+|---|---|---|---|---|
+| flask-6096 | 137,679 | 2 | 68,360 | 1 |
+| marshmallow-3004 | 146,796 | 2 | 73,097 | 1 |
+| marshmallow-3016 | 30,577 | 2 | 15,245 | 1 |
+| marshmallow-3082 | 143,293 | 2 | 71,451 | 1 |
+| more-itertools-1342 | 269,425 | 3 | 88,891 | 1 |
+| **mean** | **145,554** (about $0.59) | 2.2 | **63,408** (about $0.26) | 1.0 |
+
+Agent time per run: about 23 s (A) and 14 s (B); grading takes longer than the agent.
+
+- **Per-run token cap: 400,000**, shared by both pipelines (spec §6 budget matching). Each call
+  re-sends the whole conversation, so a run costs about one context per call; Pipeline A's worst
+  case (2 repro and 2 patch calls) on the largest dev context is about 360,000. The cap never
+  cut a measured run short; it exists to stop a runaway one.
+- **Pacing** stays at 60 calls per hour, 400 per day, 2 s between calls. One model's full
+  experiment (30 bugs, 3 trials, 2 pipelines) is about 90 runs per pipeline, roughly 290 calls
+  and 19 million tokens (about $77 at list price): a day or two of plan usage.
+- **Spending limit:** none in money, since the plan is used. The guard and the cap are the
+  limits.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

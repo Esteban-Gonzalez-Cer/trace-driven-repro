@@ -105,7 +105,8 @@ Fault Localization Miss.
 4. At most 2 patch replies. The submitted patch is the last one that ran clean; if none did,
    the last one that applied; otherwise nothing is submitted (`no_patch`).
 
-Every token of every call counts against the run's cap (provisional 300,000 until measured).
+Every token of every call counts against the run's cap: 400,000 tokens, the same for both
+pipelines (set from the measurement in `DECISIONS.md`).
 When the cap is reached the run stops and submits its best patch so far.
 
 **What the agent never sees:** the fix commit, the oracle tests, or any evaluation result. The

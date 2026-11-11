@@ -11,7 +11,7 @@ bugs:
   - benchmark/manifests/*.yaml
 max_patch_attempts: 2
 max_repro_attempts: 2       # Pipeline A only
-token_cap: 300000          # provisional; set from measurements in step 6
+token_cap: 400000          # set from the Sonnet 5.5 measurement (DECISIONS.md)
 context_budget: 250000     # characters (about 60k tokens)
 cache: true                # identical requests reuse the stored answer (dev only)
 evaluate: true

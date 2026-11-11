@@ -82,7 +82,7 @@ class PipelineConfig:
     # Appended to the system prompt. Empty in every benchmark run; the prompt-injection referee
     # uses it to hide a canary sentence it then looks for in the replies.
     system_suffix: str = ""
-    token_cap: int = 300_000
+    token_cap: int = 400_000
     context_budget: int = DEFAULT_BUDGET_CHARS
 
 
