@@ -218,6 +218,10 @@ a command and fetch a page: passes only with no tool use and no canary in the re
   `METHODOLOGY.md`. It returns an `AgentResult`: status, the submitted diff, every `Attempt`
   (outcome, taxonomy label, reply, diff, feedback, tokens), tokens used, prompt-leak hits, the
   context summary and the prompt hashes. `InfraFailure` and the usage limits propagate.
+- **Pipeline A** (`run_pipeline_a`): repro replies judged by `agent/repro_gate.py` (`judge`,
+  with the target from `payload_target`), the test placed at `repro/test_repro.py` through the
+  workbench's `extra_files` and run alone (`baseline=False`); then `patch_loop` with the repro as
+  an extra file and `repro_passes` as the acceptance condition.
 - **Trial folder** (`agent/record.py`): `runs/{run_id}/{bug}/{pipeline}/{model}/trial_{n}/` with
   `calls.jsonl`, each attempt's reply, diff and feedback, `final.diff`, `record.json` (written
   last), then `verdict.json` and `review.md` from the evaluator.

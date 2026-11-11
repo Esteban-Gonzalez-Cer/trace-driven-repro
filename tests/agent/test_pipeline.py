@@ -71,15 +71,17 @@ class FakeBench:
         self.runs = list(runs)
         self.diffs: list[str] = []
         self.extra: list[Mapping[str, bytes]] = []
+        self.baselines: list[bool] = []
 
     def source_tree(self) -> Path:
         return self.tree
 
     def try_patch(
         self, diff: str, *, extra_files: Mapping[str, bytes] | None = None,
-        tests: Sequence[str] = (),
+        tests: Sequence[str] = (), baseline: bool = True,
     ) -> TrialRun:  # fmt: skip
         self.diffs.append(diff)
+        self.baselines.append(baseline)
         self.extra.append(dict(extra_files or {}))
         step = self.runs.pop(0)
         return step(diff) if callable(step) else step

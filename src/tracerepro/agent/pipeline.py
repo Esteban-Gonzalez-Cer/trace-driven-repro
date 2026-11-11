@@ -24,17 +24,25 @@ Both pipelines follow the same rules, so the comparison is fair:
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from tracerepro.agent.client import LLMClient, Message, Request, Settings
 from tracerepro.agent.edits import EditResult, apply_edits
 from tracerepro.agent.errors import TokenCapReached
-from tracerepro.agent.parse import SCOPE_VIOLATION, ContractFailure, Failure, parse_edits
+from tracerepro.agent.parse import (
+    SCOPE_VIOLATION,
+    ContractFailure,
+    Failure,
+    parse_edits,
+    parse_repro,
+)
 from tracerepro.agent.prompts import (
     CURRENT_VERSION,
     PATCH,
+    REPRO,
+    REPRO_FEEDBACK,
     SYSTEM,
     DataBlock,
     Prompt,
@@ -42,6 +50,17 @@ from tracerepro.agent.prompts import (
     leak_check,
     load_prompt,
     patch_message,
+    repro_message,
+)
+from tracerepro.agent.repro_gate import (
+    NO_REPRO,
+    REPRO_PATH,
+    VALID,
+    GateResult,
+    Target,
+    judge,
+    payload_target,
+    repro_passes,
 )
 from tracerepro.agent.usage_guard import TokenBudget
 from tracerepro.agent.workbench import TrialRun, Workbench
@@ -59,6 +78,7 @@ class PipelineConfig:
     settings: Settings
     prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
+    max_repro_attempts: int = 2
     token_cap: int = 300_000
     context_budget: int = DEFAULT_BUDGET_CHARS
 
@@ -230,7 +250,7 @@ def _feedback_text(attempt: Attempt, trial: TrialRun | None) -> str:
 def best_patch(attempts: Sequence[Attempt]) -> Attempt | None:
     """The last attempt that ran clean, else the last whose patch applied."""
     patches = [a for a in attempts if a.stage == "patch" and a.diff is not None]
-    for wanted in (("clean",), ("clean", "regressions", "no_results")):
+    for wanted in (("clean",), ("clean", "regressions", "no_results", "repro_still_fails")):
         found = [a for a in patches if a.outcome in wanted]
         if found:
             return found[-1]
@@ -245,7 +265,7 @@ def patch_loop(
     *,
     extra_files: dict[str, bytes] | None = None,
     tests: Sequence[str] = (),
-    accept: Any = None,
+    accept: Callable[[TrialRun], str | None] | None = None,
 ) -> None:
     """Ask for patches until one is accepted or the attempts run out. `accept(trial)` may add a
     condition (Pipeline A: the repro test must pass); it returns None or a reason to retry."""
@@ -308,4 +328,91 @@ def run_pipeline_b(
     }
     message = patch_message(patch_prompt, payload=bug.payload_text, context=context.render())
     patch_loop(session, result, bench, (message.text, list(message.tags)))
+    return _finish(session, result)
+
+
+def _repro_attempt(
+    n: int, reply: str, stop: str, tokens: int, bench: Workbench, target: Target
+) -> tuple[Attempt, GateResult | None, str | None]:
+    attempt = Attempt(n=n, stage="repro", outcome="", stop_reason=stop, reply=reply, tokens=tokens)
+    if stop in ("max_tokens", "refusal"):
+        attempt.outcome, attempt.label = MODEL_FAILURE, MODEL_FAILURE
+        attempt.detail = "the reply was cut off" if stop == "max_tokens" else "the model refused"
+        return attempt, None, None
+    test = parse_repro(reply)
+    if isinstance(test, ContractFailure):
+        declined = test.kind is Failure.NO_CODE_BLOCK
+        attempt.outcome = DECLINED if declined else "contract_failure"
+        attempt.label = DECLINED if declined else test.label
+        attempt.detail = str(test)
+        return attempt, None, None
+    trial = bench.try_patch("", extra_files={REPRO_PATH: test.encode()}, tests=[REPRO_PATH],
+                            baseline=False)  # fmt: skip
+    gate = judge(trial, target)
+    attempt.outcome, attempt.label, attempt.detail = gate.verdict, gate.label, gate.detail
+    return attempt, gate, test
+
+
+def _repro_feedback(attempt: Attempt, gate: GateResult | None) -> str:
+    if gate is not None:
+        return gate.report
+    if attempt.outcome == DECLINED:
+        return "Your reply contained no Python code block, so nothing was run."
+    return f"Your reply could not be used: {attempt.detail}"
+
+
+def run_pipeline_a(
+    bug: Bug, client: LLMClient, bench: Workbench, config: PipelineConfig
+) -> AgentResult:
+    """Pipeline A (repro first, plan §6.5): a repro test that passes the gate (up to
+    `max_repro_attempts` replies), then patches that must make it pass without regressions. No
+    valid repro means the run stops: `no_repro` or `invalid_repro` (the strict rule, spec §6)."""
+    session = _Session(client, config)
+    context = context_for(bug, bench, config)
+    version = config.prompt_version
+    repro_prompt, retry_prompt = load_prompt(REPRO, version), load_prompt(REPRO_FEEDBACK, version)
+    patch_prompt = load_prompt(PATCH, version)
+    result = AgentResult(pipeline="A", status="", context=context.summary())
+    result.prompts = {
+        p.id: p.sha256
+        for p in (session.system, repro_prompt, retry_prompt, patch_prompt,
+                  load_prompt(FEEDBACK, version))
+    }  # fmt: skip
+    target = payload_target(bug.payload)
+    message = repro_message(repro_prompt, payload=bug.payload_text, context=context.render())
+    text, tags, prompt = message.text, list(message.tags), repro_prompt
+    gate: GateResult | None = None
+    for n in range(1, config.max_repro_attempts + 1):
+        try:
+            reply, stop, tokens = session.ask(prompt, text, tags)
+        except TokenCapReached:
+            result.stopped_by = "token_cap"
+            break
+        attempt, judged, test = _repro_attempt(n, reply, stop, tokens, bench, target)
+        result.attempts.append(attempt)
+        if judged is not None and judged.verdict == VALID and test is not None:
+            gate, result.repro = judged, test
+            break
+        if n < config.max_repro_attempts:
+            attempt.feedback = _repro_feedback(attempt, judged)
+            follow = build_message(retry_prompt.text, [DataBlock("repro-result", attempt.feedback)])
+            text, tags, prompt = follow.text, list(follow.tags), retry_prompt
+    if gate is None or result.repro is None:
+        last = result.attempts[-1].outcome if result.attempts else ""
+        result.status = "no_repro" if last == NO_REPRO else "invalid_repro"
+        return _finish(session, result)
+    # Patch stage: the valid repro and its failure go in the same conversation.
+    ask = build_message(
+        patch_prompt.text,
+        [DataBlock("repro-test", result.repro), DataBlock("repro-result", gate.report)],
+    )
+    patch_loop(
+        session,
+        result,
+        bench,
+        (ask.text, list(ask.tags)),
+        extra_files={REPRO_PATH: result.repro.encode()},
+        tests=[REPRO_PATH],
+        accept=repro_passes,
+    )
     return _finish(session, result)

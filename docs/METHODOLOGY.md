@@ -113,3 +113,27 @@ test checks this), and a test checks that no oracle test id reaches the model.
 **Evaluation** happens afterwards, separately: the submitted diff is scored by the patch oracle
 in a fresh container (`verdict.json`), with the review report for the manual audit
 (`review.md`).
+
+## Pipeline A: repro first (plan §6.5, spec §6)
+
+1. **Ask for a repro test** (prompt `repro`): one pytest file reproducing the crash. The harness
+   places it at `repro/test_repro.py` in the workspace. It is never part of the patch, so the
+   validator's ban on test edits still holds for patches.
+2. **Agent-time gate:** the test runs alone on the buggy code. It passes the gate only if a test
+   in it fails with the crash report's exception type, raised from the crash report's innermost
+   library frame (file and function, not the line). This is preflight's own rule
+   (`crash_target`), and the target is read from the payload the agent was given, never from
+   the manifest or the oracle. Outcomes: `valid`; `no_repro` (the test passes on the buggy code);
+   `invalid_repro` (another exception or place, raised in the test itself, or the run did not
+   finish); `broken` (the file does not import or holds no test: Syntax or Import Error);
+   `declined` (no code block).
+3. **Retry once** (prompt `repro_feedback`): what happened, with the end of the output.
+4. **No valid repro after 2 replies:** the run stops (the strict rule) with status `no_repro` if
+   the last test passed on the buggy code, otherwise `invalid_repro`. No patch is asked for.
+5. **Patch stage**, in the same conversation: the patch prompt with the valid repro test and its
+   failure output in data blocks. Each patch runs with the repro test and the visible baseline.
+   It is clean only if the repro now passes and no baseline test regresses; otherwise the
+   feedback says which (`repro_still_fails` or regressions). At most 2 patch replies; the same
+   best-patch rule as Pipeline B.
+
+Both pipelines share the per-run token cap; Pipeline A's repro replies count against it.
