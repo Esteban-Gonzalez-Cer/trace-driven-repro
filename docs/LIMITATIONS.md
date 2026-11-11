@@ -16,3 +16,7 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
   equals the fix commit except for test and documentation files (Amendment 3).
 - **Results are written inside the sandbox** and could in principle be forged in-process by a
   malicious patch; see `SECURITY.md`.
+- **Model access through Claude Code.** Calls go through the Claude CLI in script mode with tools
+  off, not the bare API: the CLI adds its own small prompt overhead, temperature cannot be set,
+  and its version is part of the setup (logged with every call). Results describe the model as
+  served this way.
