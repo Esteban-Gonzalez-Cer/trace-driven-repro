@@ -41,7 +41,7 @@ import json
 import re
 import shutil
 import sys
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -54,7 +54,13 @@ from tracerepro.dataset import screening
 from tracerepro.dataset.candidate import Candidate, CandidateError, load_candidate, make_lock
 from tracerepro.dataset.image_builder import DEFAULT_WORK_DIR, BuildFailed, build_image
 from tracerepro.dataset.lockfile import LockError
-from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, TargetFrame, dump_manifest
+from tracerepro.dataset.manifest import (
+    PROJECT_ROOT,
+    Manifest,
+    TargetFrame,
+    dump_manifest,
+    load_manifest,
+)
 from tracerepro.dataset.repo import (
     changed_files,
     clone_name,
@@ -151,6 +157,25 @@ def crash_target(failure: FailureInfo) -> tuple[Target | None, str]:
 
 
 _HUNK_NEW_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", re.MULTILINE)
+
+
+def split_changes(paths: Iterable[str]) -> tuple[list[str], list[str], list[str], list[str]]:
+    """Criterion 3's split of a fix's changed files: (tests, docs, deny-listed, source). Docs are
+    dropped under Amendment 3; any deny-listed non-test file excludes the bug; everything else
+    is source and counts toward the size limit."""
+    changed = sorted(set(paths))
+    tests = [p for p in changed if is_test_path(p)]
+    docs = [p for p in changed if p not in tests and is_docs_path(p)]
+    denied = [
+        p for p in changed
+        if p not in tests and p not in docs and (is_config_path(p) or is_dependency_or_ci_path(p))
+    ]  # fmt: skip
+    source = [p for p in changed if p not in tests and p not in docs and p not in denied]
+    return tests, docs, denied, source
+
+
+def is_test_module(path: str) -> bool:
+    return _is_test_module(path)
 
 
 PYTHON_FAILURE = "python_failure"
@@ -313,14 +338,7 @@ class _Preflight:
         )
         self.c_bug = first_parent(self.git_dir, cand.c_fix)
         changed = changed_files(self.git_dir, self.c_bug, cand.c_fix)
-        tests = sorted(p for p in changed if is_test_path(p))
-        docs = sorted(p for p in changed if p not in tests and is_docs_path(p))
-        denied = sorted(
-            p for p in changed
-            if p not in tests and p not in docs
-            and (is_config_path(p) or is_dependency_or_ci_path(p))
-        )  # fmt: skip
-        source = sorted(set(changed) - set(tests) - set(docs) - set(denied))
+        tests, docs, denied, source = split_changes(changed)
         self.source = source
         self.gold_files_full = sorted(set(source) | set(denied))
         lines = sum(changed[p][1] + changed[p][2] for p in source)
@@ -591,6 +609,63 @@ def _count(outcomes: dict[str, str]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+CAP_PER_LIBRARY = 6  # DECISIONS.md, 2026-11-11
+TEST_TARGET = 30  # spec §5.7
+
+
+def test_bugs_per_repo(manifests: Path | None = None) -> dict[str, int]:
+    """Validated test-set bugs per repository (manifests whose notes say `[split: test]`)."""
+    counts: dict[str, int] = {}
+    for path in sorted((manifests or PROJECT_ROOT / "benchmark" / "manifests").glob("*.yaml")):
+        m = load_manifest(path)
+        if "[split: test]" in m.notes:
+            counts[m.repo] = counts.get(m.repo, 0) + 1
+    return counts
+
+
+class Batch:
+    """Running totals for one preflight batch: the per-library cap, the stop rule, a summary."""
+
+    def __init__(self, test_counts: dict[str, int]) -> None:
+        self.test_counts = dict(test_counts)
+        self.rows: list[tuple[str, str, str, str, str | None]] = []
+
+    def skip(self, cand: Candidate, cap: int, stop_at: int) -> str:
+        if cand.split != "test":
+            return ""
+        if sum(self.test_counts.values()) >= stop_at:
+            return f"the test set already has {stop_at} bugs (stop rule)"
+        if self.test_counts.get(cand.repo, 0) >= cap:
+            return f"{cand.repo} already has {cap} test bugs (per-library cap)"
+        return ""
+
+    def add(self, cand: Candidate, decision: str, reason: str, kind: str | None) -> None:
+        self.rows.append((cand.id, cand.repo, decision, reason, kind))
+        if decision == "preflight_pass" and cand.split == "test":
+            self.test_counts[cand.repo] = self.test_counts.get(cand.repo, 0) + 1
+
+    def summary(self) -> str:
+        decisions: dict[str, int] = {}
+        reasons: dict[str, int] = {}
+        kinds: dict[str, int] = {}
+        for _, _, decision, reason, kind in self.rows:
+            decisions[decision] = decisions.get(decision, 0) + 1
+            if decision != "preflight_pass":
+                short = reason.split(":")[0].split(" (")[0][:60]
+                reasons[short] = reasons.get(short, 0) + 1
+            elif kind:
+                kinds[kind] = kinds.get(kind, 0) + 1
+        lines = [
+            f"batch: {len(self.rows)} screened, {json.dumps(decisions, sort_keys=True)}",
+            f"kinds of passing bugs: {json.dumps(kinds, sort_keys=True)}",
+            "exclusion reasons: "
+            + json.dumps(dict(sorted(reasons.items(), key=lambda kv: -kv[1])), sort_keys=False),
+            f"test set per library: {json.dumps(self.test_counts, sort_keys=True)}"
+            f" (total {sum(self.test_counts.values())})",
+        ]
+        return "\n".join(lines)
+
+
 def preflight(
     cand: Candidate,
     *,
@@ -642,25 +717,35 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--keep-images", action="store_true", help="keep the images of candidates that do not pass"
     )
+    parser.add_argument("--cap-per-library", type=int, default=CAP_PER_LIBRARY,
+                        help="skip a library's test candidates once it has this many")  # fmt: skip
+    parser.add_argument("--stop-at", type=int, default=TEST_TARGET,
+                        help="stop once the test set has this many bugs")  # fmt: skip
     args = parser.parse_args(argv)
     paths = args.candidates or sorted((PROJECT_ROOT / "benchmark" / "candidates").glob("*.yaml"))
     if not paths:
         print("no candidates", file=sys.stderr)
         return 1
     failures = 0
+    batch = Batch(test_bugs_per_repo())
     for path in paths:
+        cand = load_candidate(path)
+        skip = batch.skip(cand, args.cap_per_library, args.stop_at)
+        if skip:
+            print(f"{'skipped':15} {cand.id}: {skip}")
+            continue
         try:
-            result = preflight(
-                load_candidate(path),
-                work_dir=args.work_dir,
-                runs=args.runs,
-                keep_image=args.keep_images,
-            )
+            result = preflight(cand, work_dir=args.work_dir, runs=args.runs,
+                               keep_image=args.keep_images)  # fmt: skip
         except Exception as exc:
             failures += 1
+            batch.add(cand, "error", f"{type(exc).__name__}: {exc}", None)
             print(f"ERROR {path}: {type(exc).__name__}: {exc}", file=sys.stderr)
             continue
+        kind = result.manifest.crash_kind if result.manifest else None
+        batch.add(cand, result.decision, result.reason, kind)
         print(f"{result.decision:15} {result.id}: {result.reason}")
+    print(batch.summary())
     return 1 if failures else 0
 
 

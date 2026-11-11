@@ -1,0 +1,67 @@
+# How to pin each pool library's test environment (spec §5.1), used by
+# `python -m tracerepro.dataset.find_candidates` to write candidate files.
+# `compile` strategies get `exclude_newer` set to each fix's own date, so a re-run resolves
+# the same versions. Profiles come from candidates that already built, or from the library's
+# committed uv.lock and dependency groups (checked 2026-11-11). A profile is environment setup
+# only: changing one never loosens a selection criterion or a preflight check.
+click:
+  repo: pallets/click
+  deps: {strategy: uv-lock, groups: [tests]}
+requests:
+  repo: psf/requests
+  deps:
+    strategy: compile
+    inputs: [pyproject.toml]
+    extra:
+      - PySocks>=1.5.6,!=1.5.7
+      - pytest-httpbin==2.1.0
+      - httpbin~=0.10.0
+      - pytest-cov
+      - pytest-mock
+      - pytest>=3
+      - trustme
+      - pytest-timeout
+  pytest_args: [--timeout=120]
+flask:
+  repo: pallets/flask
+  deps: {strategy: uv-lock, groups: [tests]}
+jinja2:
+  repo: pallets/jinja
+  deps: {strategy: uv-lock, groups: [tests]}
+attrs:
+  repo: python-attrs/attrs
+  deps: {strategy: uv-lock, groups: [tests]}
+marshmallow:
+  repo: marshmallow-code/marshmallow
+  deps: {strategy: uv-lock, groups: [tests]}
+rich:
+  repo: Textualize/rich
+  deps: {strategy: uv-lock, groups: [dev]}
+werkzeug:
+  repo: pallets/werkzeug
+  deps: {strategy: uv-lock, groups: [tests]}
+starlette:
+  repo: Kludex/starlette
+  deps: {strategy: uv-lock, groups: [dev]}
+httpx:
+  repo: encode/httpx
+  deps: {strategy: compile, inputs: [requirements.txt]}
+typer:
+  repo: fastapi/typer
+  deps: {strategy: uv-lock, groups: [tests]}
+sqlparse:
+  repo: andialbrecht/sqlparse
+  deps: {strategy: compile, extra: [pytest]}
+# Backups (spec §5.1), used if the yield is low.
+tomlkit:
+  repo: python-poetry/tomlkit
+  deps: {strategy: uv-lock, groups: [dev]}
+itsdangerous:
+  repo: pallets/itsdangerous
+  deps: {strategy: uv-lock, groups: [tests]}
+markupsafe:
+  repo: pallets/markupsafe
+  deps: {strategy: uv-lock, groups: [tests]}
+more-itertools:
+  repo: more-itertools/more-itertools
+  deps: {strategy: compile, extra: [pytest]}

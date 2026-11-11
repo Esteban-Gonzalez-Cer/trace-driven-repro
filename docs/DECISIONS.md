@@ -184,6 +184,16 @@ feature, such as logging in.
 - **Test-set balance:** at most 6 test bugs per library, so that no library dominates (3 of the
   5 dev bugs are marshmallow).
 
+## 2026-11-11: Screening order by crash words
+
+Candidate pull requests are found mechanically (`find_candidates`), and those whose title or
+description mentions an exception, a traceback or a crash are screened first. Mechanical
+screening of every merged pull request would mostly test feature work: the first 25 candidates
+had a 20% yield even when picked by hand, and each failing candidate costs an image build. The
+order changes which candidates are screened first, never whether a screened candidate passes,
+and every screened candidate is logged. Possible effect, noted for LIMITATIONS.md: the test set
+leans toward bugs whose fixes were described as crashes.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
