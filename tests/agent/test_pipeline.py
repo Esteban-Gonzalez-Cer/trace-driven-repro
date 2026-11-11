@@ -246,3 +246,16 @@ def test_best_patch_prefers_clean_then_last_applied() -> None:
     a4 = Attempt(4, "patch", "regressions", diff="d4")
     assert best_patch([a1, a3, a4]) is a3
     assert best_patch([a2]) is None
+
+
+def test_an_identical_rerun_is_answered_from_the_cache(tmp_path: Path) -> None:
+    settings = Settings("claude-haiku-5-5", "low", 4000)
+    first = FakeProvider.replying([GOLD])
+    client = LLMClient(first, log_path=tmp_path / "1.jsonl", cache_dir=tmp_path / "cache")
+    run_pipeline_b(Bug("t", payload()), client, FakeBench(tmp_path / "a", [CLEAN]),
+                   PipelineConfig(settings=settings))  # fmt: skip
+    again = FakeProvider.replying([])
+    client = LLMClient(again, log_path=tmp_path / "2.jsonl", cache_dir=tmp_path / "cache")
+    result = run_pipeline_b(Bug("t", payload()), client, FakeBench(tmp_path / "b", [CLEAN]),
+                            PipelineConfig(settings=settings))  # fmt: skip
+    assert again.requests == [] and result.status == "submitted"

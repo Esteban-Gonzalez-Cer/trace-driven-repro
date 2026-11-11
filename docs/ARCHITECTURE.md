@@ -140,7 +140,7 @@ malicious patches, and plain and disguised result forgery.
 
 - `load_prompt(name, version)` reads `prompts/{name}_{version}.md` and gives its sha256.
   `patch_message` and `repro_message` build the user message: the prompt text, then data blocks
-  with random per-message tags (`build_message`). `leak_check(reply, prompts, tags)` lists what
+  whose tags are hashed from the message content (`build_message`, `content_tokens`). `leak_check(reply, prompts, tags)` lists what
   of our own text a reply repeats.
 - `parse_repro(reply)` returns the test file from the single Python code block;
   `parse_edits(reply)` returns the `Edit(path, search, replace)` blocks. Both return a

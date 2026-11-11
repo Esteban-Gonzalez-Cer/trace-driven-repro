@@ -11,8 +11,10 @@ final run (spec §6).
 **Message layout.** Our instructions come first, outside any block. The material follows in
 data blocks, in a fixed order: `crash-report` (the payload), `source` (the context), then for
 Pipeline A `repro-test` and `repro-result`, and on a retry `test-results`. Each block is
-wrapped in a start tag and end tag with a random 8-hex-digit suffix drawn per message (for
-example `<data-source-9f2c41aa>`), re-drawn until it appears nowhere in the material.
+wrapped in a start tag and end tag with an 8-hex-digit suffix (for example
+`<data-source-9f2c41aa>`): a sha256 hash of the whole message, re-drawn until it appears
+nowhere in the material. The same message always gets the same tags, so runs are reproducible
+and identical requests can be cached.
 
 **Repro contract.** Exactly one fenced Python code block (tagged `python`, `py` or untagged;
 other languages are ignored), holding the whole test file. The harness saves it in its own
