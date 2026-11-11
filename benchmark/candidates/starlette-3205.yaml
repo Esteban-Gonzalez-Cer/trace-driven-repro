@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 12; source ['starlette/_exception_handler.py'] (2 lines).
+id: starlette-3205
+repo: Kludex/starlette
+c_fix: 1a01a023dcaa9bf209aaadd188838c88ab0444c5
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3205
+fix_date: '2026-10-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Clear exc.__traceback__ after handled exceptions to prevent memory leak
+split: test

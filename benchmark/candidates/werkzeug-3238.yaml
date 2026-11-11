@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 8; source ['src/werkzeug/routing/converters.py', 'src/werkzeug/routing/matcher.py'] (11 lines).
+id: werkzeug-3238
+repo: pallets/werkzeug
+c_fix: 3474ff43371fdb7d9c129d9a13021fda38812f2d
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3238
+fix_date: '2026-08-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: int URL 404s when longer than max_int_str_digits
+split: test

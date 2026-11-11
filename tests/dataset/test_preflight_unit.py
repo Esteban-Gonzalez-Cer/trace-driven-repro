@@ -313,3 +313,24 @@ def test_manifest_crash_kind_is_validated() -> None:
     assert parse_manifest({**data, "crash_kind": "library_raise"}).crash_kind == "library_raise"
     with pytest.raises(Exception, match="crash_kind"):
         parse_manifest({**data, "crash_kind": "crash"})
+
+
+def test_lock_fallback_inputs_follow_the_projects_own_scheme(tmp_path: Path) -> None:
+    from tracerepro.dataset.candidate import CandidateError, _fallback_inputs
+
+    project = '[project]\nname = "p"\nversion = "1"\n'
+    (tmp_path / "pyproject.toml").write_text(project + '[dependency-groups]\ntests = ["pytest"]\n')
+    assert _fallback_inputs(tmp_path, ("tests",)) == [
+        "pyproject.toml", "--group", "pyproject.toml:tests"
+    ]  # fmt: skip
+    extras = '[project.optional-dependencies]\ntests = ["pytest"]\n'
+    (tmp_path / "pyproject.toml").write_text(project + extras)
+    assert _fallback_inputs(tmp_path, ("tests",)) == ["pyproject.toml", "--extra", "tests"]
+    (tmp_path / "pyproject.toml").write_text(project)
+    (tmp_path / "requirements-tests.txt").write_text("-e .\npytest\n-r requirements.txt\n")
+    inputs = _fallback_inputs(tmp_path, ("tests",))
+    assert inputs[0] == "pyproject.toml"
+    assert (tmp_path / inputs[1]).read_text() == "pytest\n"
+    (tmp_path / "pyproject.toml").write_text('[tool.poetry]\nname = "p"\n')
+    with pytest.raises(CandidateError, match="no \\[project\\] table"):
+        _fallback_inputs(tmp_path, ("dev",))

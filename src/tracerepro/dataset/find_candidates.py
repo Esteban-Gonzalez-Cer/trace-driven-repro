@@ -118,20 +118,38 @@ def keep(raw: dict[str, Any]) -> str:
     return ""
 
 
+WINDOW_DAYS = 30  # one `gh` call per month: asking for a year's files at once times out
+
+
+def windows(since: str, until: dt.date | None = None) -> list[tuple[str, str]]:
+    """[start, end] date windows of WINDOW_DAYS from `since` to today, newest first."""
+    start, end = dt.date.fromisoformat(since), until or dt.date.today()
+    found = []
+    while start <= end:
+        stop = min(start + dt.timedelta(days=WINDOW_DAYS - 1), end)
+        found.append((start.isoformat(), stop.isoformat()))
+        start = stop + dt.timedelta(days=1)
+    return found[::-1]
+
+
 def list_merged(
     repo: str, since: str, limit: int, run: Runner = subprocess.run
 ) -> list[dict[str, Any]]:
-    result = run(
-        ["gh", "pr", "list", "-R", repo, "--state", "merged", "--search", f"merged:>={since}",
-         "--limit", str(limit), "--json", FIELDS],
-        capture_output=True, text=True, check=False, timeout=180,
-    )  # fmt: skip
-    if result.returncode != 0:
-        raise RuntimeError(f"gh pr list {repo} failed: {result.stderr.strip()[:300]}")
-    data = json.loads(result.stdout)
-    if not isinstance(data, list):
-        raise RuntimeError(f"gh pr list {repo}: unexpected output")
-    return data
+    """Merged pull requests since `since`, newest first, at most `limit` per month window."""
+    found: list[dict[str, Any]] = []
+    for start, stop in windows(since):
+        result = run(
+            ["gh", "pr", "list", "-R", repo, "--state", "merged",
+             "--search", f"merged:{start}..{stop}", "--limit", str(limit), "--json", FIELDS],
+            capture_output=True, text=True, check=False, timeout=300,
+        )  # fmt: skip
+        if result.returncode != 0:
+            raise RuntimeError(f"gh pr list {repo} failed: {result.stderr.strip()[:300]}")
+        data = json.loads(result.stdout)
+        if not isinstance(data, list):
+            raise RuntimeError(f"gh pr list {repo}: unexpected output")
+        found += data
+    return found
 
 
 def known_ids() -> tuple[set[str], set[str]]:
@@ -206,7 +224,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("libraries", nargs="+", help="library names from screening_profiles.yaml")
     year_ago = (dt.date.today() - dt.timedelta(days=365)).isoformat()
     parser.add_argument("--since", default=year_ago, help="merged on or after (ISO date)")
-    parser.add_argument("--limit", type=int, default=200, help="pull requests read per library")
+    parser.add_argument("--limit", type=int, default=60,
+                        help="pull requests read per library and month")  # fmt: skip
     parser.add_argument("--per-library", type=int, default=10, help="candidates written each")
     parser.add_argument("--write", action="store_true", help="write candidate files")
     args = parser.parse_args(argv)

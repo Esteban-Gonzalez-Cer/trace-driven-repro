@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 5; source ['src/werkzeug/debug/__init__.py'] (5 lines).
+id: werkzeug-3078
+repo: pallets/werkzeug
+c_fix: b48878cf16dfca3c89ac58aca47ab1ecfcb71354
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3078
+fix_date: '2026-01-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: initialize `_pin` in debugger
+split: test

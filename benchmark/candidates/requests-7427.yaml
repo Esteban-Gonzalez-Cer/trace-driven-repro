@@ -1,0 +1,26 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/requests/utils.py'] (6 lines).
+id: requests-7427
+repo: psf/requests
+c_fix: a4f9a5999bdb9bf2d6e7c8aa973b28cacb17134f
+python_version: '3.11'
+fix_pr_url: https://github.com/psf/requests/pull/7427
+fix_date: '2026-05-11'
+deps:
+  strategy: compile
+  inputs:
+  - pyproject.toml
+  extra:
+  - PySocks>=1.5.6,!=1.5.7
+  - pytest-httpbin==2.1.0
+  - httpbin~=0.10.0
+  - pytest-cov
+  - pytest-mock
+  - pytest>=3
+  - trustme
+  - pytest-timeout
+  exclude_newer: '2026-05-11'
+pytest_args:
+- --timeout=120
+notes: Port bpo-39057 to Requests
+split: test

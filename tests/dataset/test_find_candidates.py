@@ -14,6 +14,7 @@ from tracerepro.dataset.find_candidates import (
     find,
     keep,
     load_profiles,
+    windows,
 )
 from tracerepro.dataset.preflight import Batch, split_changes
 
@@ -68,8 +69,11 @@ def test_crash_hint_orders_but_does_not_filter() -> None:
 def run_with(prs: list[dict[str, Any]]) -> Any:
     def run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         assert argv[:3] == ["gh", "pr", "list"] and "--state" in argv
-        assert "merged:>=2025-11-11" in argv
-        return subprocess.CompletedProcess(argv, 0, json.dumps(prs), "")
+        window = argv[argv.index("--search") + 1]
+        # Only the newest window returns the pull requests, so nothing is counted twice.
+        newest = windows("2025-11-11")[0]
+        found = prs if window == f"merged:{newest[0]}..{newest[1]}" else []
+        return subprocess.CompletedProcess(argv, 0, json.dumps(found), "")
 
     return run
 
@@ -126,3 +130,14 @@ def test_batch_cap_stop_rule_and_summary() -> None:
     summary = batch.summary()
     assert '"preflight_pass": 1' in summary and '"Criterion 1": 1' in summary
     assert '"python_failure": 1' in summary and "(total 8)" in summary
+
+
+def test_windows_cover_the_range_without_gaps() -> None:
+    import datetime as dt
+    import itertools
+
+    found = windows("2026-01-01", until=dt.date(2026, 3, 15))
+    assert found[0][1] == "2026-03-15" and found[-1][0] == "2026-01-01"
+    ordered = sorted(found)
+    for (_, end), (start, _) in itertools.pairwise(ordered):
+        assert dt.date.fromisoformat(start) == dt.date.fromisoformat(end) + dt.timedelta(days=1)

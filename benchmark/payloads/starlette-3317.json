@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "e49a9c7697d69ec15c6d5229cfe111f1",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "string index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/datastructures.py",
+              "function": "replace",
+              "lineno": 126,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "            if hostname is None:",
+                "                netloc = self.netloc",
+                "                _, _, hostname = netloc.rpartition(\"@\")",
+                ""
+              ],
+              "context_line": "                if hostname[-1] != \"]\":",
+              "post_context": [
+                "                    hostname = hostname.rsplit(\":\", 1)[0]",
+                "",
+                "            netloc = hostname",
+                "            if port is not None:",
+                "                netloc += f\":{port}\""
+              ],
+              "vars": {
+                "_": "''",
+                "hostname": "''",
+                "kwargs": "{}",
+                "netloc": "''",
+                "password": "None",
+                "port": "8080",
+                "self": "URL('/path?a=1')",
+                "username": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

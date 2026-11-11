@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 16; source ['typer/main.py'] (4 lines).
+id: typer-1299
+repo: fastapi/typer
+c_fix: de159dc581544f369990390b9c583a18431d28ef
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1299
+fix_date: '2025-11-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Add support for standard tracebacks via the env `TYPER_STANDARD_TRACEBACK`
+split: test

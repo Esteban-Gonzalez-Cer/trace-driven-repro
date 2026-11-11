@@ -194,6 +194,24 @@ order changes which candidates are screened first, never whether a screened cand
 and every screened candidate is logged. Possible effect, noted for LIMITATIONS.md: the test set
 leans toward bugs whose fixes were described as crashes.
 
+## 2026-11-11: Environment fixes found in the first screening batch
+
+Tooling fixes, applied to every candidate; none changes a selection criterion or a check.
+Candidates that failed only because of them were screened again.
+
+- **Real version instead of `0.0.0`.** Images install the project with the version of the newest
+  release tag reachable from `c_bug` (`repo.tag_version`; `0.0.0` only if there is none). With
+  `0.0.0`, `pip check` failed when a test dependency needs a minimum version of the project
+  itself (attrs-1571: hypothesis needs attrs>=22.2).
+- **Commits older than the project's `uv.lock`.** The `uv-lock` profile then resolves the same
+  test dependencies from how the project declared them at that commit (`candidate.
+  _fallback_inputs`): dependency groups, else optional-dependency extras of the same name,
+  else a test requirements file, always capped at the fix date. Poetry-era projects (rich
+  before its move to `[project]`) cannot be resolved this way and stay Criterion 2 exclusions.
+- **Dev configs list the dev bugs explicitly**, and a run refuses any manifest outside its
+  config's `split` (`RunConfig.split`, default `dev`). Before this, the dev configs selected
+  every manifest and would have run the model on test bugs once they existed.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

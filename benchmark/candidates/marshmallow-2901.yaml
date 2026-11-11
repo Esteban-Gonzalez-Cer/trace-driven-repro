@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['src/marshmallow/fields.py'] (14 lines).
+id: marshmallow-2901
+repo: marshmallow-code/marshmallow
+c_fix: 070dde08bad456e743a0d2e1842c142a799a9568
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2901
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix Constant field with required=True raising ValueError
+split: test

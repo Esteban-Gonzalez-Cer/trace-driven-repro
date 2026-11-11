@@ -7,8 +7,12 @@ max_output_tokens: 16000
 prompt_version: v2
 pipelines: [A, B]
 trials: 1
-bugs:
-  - benchmark/manifests/*.yaml
+bugs:                      # the dev set only (split: dev); never test bugs before the freeze
+  - benchmark/manifests/flask-6096.yaml
+  - benchmark/manifests/marshmallow-3004.yaml
+  - benchmark/manifests/marshmallow-3016.yaml
+  - benchmark/manifests/marshmallow-3082.yaml
+  - benchmark/manifests/more-itertools-1342.yaml
 max_patch_attempts: 2
 max_repro_attempts: 2       # Pipeline A only
 token_cap: 400000          # set from the Sonnet 5.5 measurement (DECISIONS.md)

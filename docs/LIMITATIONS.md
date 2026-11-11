@@ -20,3 +20,8 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
   off, not the bare API: the CLI adds its own small prompt overhead, temperature cannot be set,
   and its version is part of the setup (logged with every call). Results describe the model as
   served this way.
+- **Environments that cannot be pinned.** Candidates whose test dependencies cannot be pinned
+  reproducibly at the buggy commit are excluded (criterion 2), for example projects still on
+  Poetry's old format; the screening log records each case.
+- **Screening order.** Candidates whose fix descriptions mention an exception or a crash are
+  screened first (DECISIONS.md), so the test set may lean toward bugs described that way.

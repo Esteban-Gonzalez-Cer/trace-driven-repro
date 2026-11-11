@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/attr/validators.py', 'src/attr/validators.pyi'] (33 lines).
+id: attrs-1571
+repo: python-attrs/attrs
+c_fix: 5aa76a4450c311d87eda43946ec0ecd743572649
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1571
+fix_date: '2026-08-01'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add `ne` validator
+split: test
