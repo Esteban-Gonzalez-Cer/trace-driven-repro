@@ -120,15 +120,18 @@ def cand(cid: str, repo: str, split: str = "test") -> Any:
 
 
 def test_batch_cap_stop_rule_and_summary() -> None:
-    batch = Batch({"pallets/click": 5, "psf/requests": 2})
+    known = {f"click-{i}": "pallets/click" for i in range(10, 15)}
+    batch = Batch(known | {"req-1": "psf/requests", "req-2": "psf/requests"})
+    batch.add(cand("click-10", "pallets/click"), "preflight_pass", "ok", None)  # re-screened
+    assert batch.test_counts["pallets/click"] == 5
     assert batch.skip(cand("click-1", "pallets/click"), cap=6, stop_at=30) == ""
     batch.add(cand("click-1", "pallets/click"), "preflight_pass", "ok", "python_failure")
     assert "per-library cap" in batch.skip(cand("click-2", "pallets/click"), cap=6, stop_at=30)
     assert batch.skip(cand("click-3", "pallets/click", "dev"), cap=6, stop_at=30) == ""
     assert "stop rule" in batch.skip(cand("req-9", "psf/requests"), cap=6, stop_at=8)
-    batch.add(cand("req-1", "psf/requests"), "excluded", "Criterion 1: no crash (x)", None)
+    batch.add(cand("req-3", "psf/requests"), "excluded", "Criterion 1: no crash (x)", None)
     summary = batch.summary()
-    assert '"preflight_pass": 1' in summary and '"Criterion 1": 1' in summary
+    assert '"preflight_pass": 2' in summary and '"Criterion 1": 1' in summary
     assert '"python_failure": 1' in summary and "(total 8)" in summary
 
 

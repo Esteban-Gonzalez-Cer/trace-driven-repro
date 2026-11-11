@@ -51,7 +51,8 @@ output (last 200k chars), duration, and whether it timed out or was OOM-killed.
 - **Lockdown (spec §7.2):** `--network none`, `--read-only` root, tmpfs `/tmp` (also `HOME`),
   `--cap-drop ALL`, `no-new-privileges`, PID/CPU/memory limits (no swap), host-enforced
   wall-clock timeout (kill, then remove), no Docker socket, explicit environment only,
-  `PYTHONDONTWRITEBYTECODE=1`, `-p no:cacheprovider`. The container runs as the invoking host
+  `PYTHONDONTWRITEBYTECODE=1`, `-p no:cacheprovider`, `-p no:unraisableexception` (a warning
+  fired at garbage collection must not fail whichever test is running). The container runs as the invoking host
   user when that user is not root, otherwise as uid 1000; the tmpfs mounts are owned by it.
 - **Results:** pytest writes `--junitxml` and the harness plugin
   (`sandbox/plugin/tracerepro_pytest_plugin.py`, stdlib-only, mounted read-only) writes

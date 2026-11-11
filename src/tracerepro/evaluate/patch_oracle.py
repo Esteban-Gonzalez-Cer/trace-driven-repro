@@ -49,6 +49,7 @@ from tracerepro.evaluate.integrity import (
 from tracerepro.sandbox.paths import is_test_path
 from tracerepro.sandbox.runner import (
     JUNIT_FILE,
+    NO_UNRAISABLE,
     OUT_MOUNT,
     AuditEvent,
     Limits,
@@ -317,6 +318,7 @@ def _plain_run_once(
             "pytest",
             "-p",
             "no:cacheprovider",
+            *NO_UNRAISABLE,
             "-q",
             f"--junitxml={OUT_MOUNT}/{JUNIT_FILE}",
             *manifest.oracle_tests,

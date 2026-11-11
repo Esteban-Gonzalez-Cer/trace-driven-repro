@@ -12,7 +12,8 @@ afterwards. The container itself runs with:
 - a non-root user, all capabilities dropped, `no-new-privileges`;
 - PID, CPU and memory limits, and a hard wall-clock timeout enforced from the host;
 - an explicit environment: nothing from the host is passed through;
-- `PYTHONDONTWRITEBYTECODE=1`, and `-p no:cacheprovider` for pytest runs.
+- `PYTHONDONTWRITEBYTECODE=1`, and `-p no:cacheprovider -p no:unraisableexception` for
+  pytest runs.
 
 When the command ends, a small wrapper prints `TRACEREPRO-DONE <exit code>` and keeps the
 container alive; the host then copies `/out` out of the running container (regular files only,
@@ -430,6 +431,13 @@ def run_sandboxed(
     )
 
 
+# pytest's unraisable-exception plugin turns warnings raised when Python garbage-collects an
+# object (an unclosed file, say) into a failure of whichever test happens to be running then.
+# A crashing oracle test can leak such objects (click-3739's bug leaves temp files open), so an
+# unrelated baseline test would fail at random. Every pytest run in the harness switches it off.
+NO_UNRAISABLE = ("-p", "no:unraisableexception")
+
+
 def pytest_command(test_ids: Sequence[str], *, extra_args: Sequence[str] = ()) -> list[str]:
     """argv for a pytest run that writes JUnit XML and plugin JSON to /out."""
     return [
@@ -438,6 +446,7 @@ def pytest_command(test_ids: Sequence[str], *, extra_args: Sequence[str] = ()) -
         "pytest",
         "-p",
         "no:cacheprovider",
+        *NO_UNRAISABLE,
         "-p",
         PLUGIN_NAME,
         f"--tracerepro-json={OUT_MOUNT}/{RESULTS_FILE}",
