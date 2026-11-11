@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/rich_utils.py'] (10 lines).
+id: typer-1405
+repo: fastapi/typer
+c_fix: ac3efd562079c6640b92b931a826ab4b2027369d
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1405
+fix_date: '2026-08-03'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Make `epilog` formatting consistent with other parts of the help string
+split: test

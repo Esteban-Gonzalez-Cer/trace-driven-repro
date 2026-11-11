@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "51ab04dd27900d7f7a0102f94aa25f37",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "AttributeError",
+        "module": "builtins",
+        "value": "'functools.partial' object has no attribute '__name__'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/config.py",
+              "function": "__call__",
+              "lineno": 92,
+              "in_app": true,
+              "pre_context": [
+                "        self,",
+                "        key: str,",
+                "        cast: Callable[[Any], Any] | None = None,",
+                "        default: Any = undefined,",
+                "    ) -> Any:"
+              ],
+              "context_line": "        return self.get(key, cast, default)",
+              "post_context": [
+                "",
+                "    def get(",
+                "        self,",
+                "        key: str,",
+                "        cast: Callable[[Any], Any] | None = None,"
+              ],
+              "vars": {
+                "cast": "functools.partial(<class 'int'>, base=16)",
+                "default": "<class 'starlette.config.undefined'>",
+                "key": "'INVALID'",
+                "self": "<starlette.config.Config object at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/config.py",
+              "function": "get",
+              "lineno": 103,
+              "in_app": true,
+              "pre_context": [
+                "        default: Any = undefined,",
+                "    ) -> Any:",
+                "        key = self.env_prefix + key",
+                "        if key in self.environ:",
+                "            value = self.environ[key]"
+              ],
+              "context_line": "            return self._perform_cast(key, value, cast)",
+              "post_context": [
+                "        if key in self.file_values:",
+                "            value = self.file_values[key]",
+                "            return self._perform_cast(key, value, cast)",
+                "        if default is not undefined:",
+                "            return self._perform_cast(key, default, cast)"
+              ],
+              "vars": {
+                "cast": "functools.partial(<class 'int'>, base=16)",
+                "default": "<class 'starlette.config.undefined'>",
+                "key": "'INVALID'",
+                "self": "<starlette.config.Config object at 0x…>",
+                "value": "'not-hex'"
+              }
+            },
+            {
+              "filename": "starlette/config.py",
+              "function": "_perform_cast",
+              "lineno": 142,
+              "in_app": true,
+              "pre_context": [
+                "                raise ValueError(f\"Config '{key}' has value '{value}'. Not a valid bool.\")",
+                "            return mapping[value]",
+                "        try:",
+                "            return cast(value)",
+                "        except (TypeError, ValueError):"
+              ],
+              "context_line": "            raise ValueError(f\"Config '{key}' has value '{value}'. Not a valid {cast.__name__}.\")",
+              "post_context": [],
+              "vars": {
+                "cast": "functools.partial(<class 'int'>, base=16)",
+                "key": "'INVALID'",
+                "self": "<starlette.config.Config object at 0x…>",
+                "value": "'not-hex'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

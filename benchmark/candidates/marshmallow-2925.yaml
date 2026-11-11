@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['src/marshmallow/fields.py'] (23 lines).
+id: marshmallow-2925
+repo: marshmallow-code/marshmallow
+c_fix: fea5428567960f15be0c9a3a4b99c0d9bb63848c
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2925
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Make Number and Mapping abstract base classes
+split: test

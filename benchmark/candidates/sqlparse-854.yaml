@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['AUTHORS', 'sqlparse/keywords.py'] (2 lines).
+id: sqlparse-854
+repo: andialbrecht/sqlparse
+c_fix: ac3b9e0b25627feb42a7053074b6549df81dcfaf
+python_version: '3.11'
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/854
+fix_date: '2026-07-25'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-07-25'
+notes: Recognize MATERIALIZED as a keyword (issue752)
+split: test

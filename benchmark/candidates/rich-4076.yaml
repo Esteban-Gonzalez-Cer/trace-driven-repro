@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/ansi.py'] (6 lines).
+id: rich-4076
+repo: Textualize/rich
+c_fix: 58ac15120fe254886c10d6253667733c83604cb4
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/4076
+fix_date: '2026-04-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: preserve newlines
+split: test

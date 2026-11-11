@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (6 lines).
+id: attrs-1606
+repo: python-attrs/attrs
+c_fix: f53fc5440d7f86aac4328aec7a563eb48634177f
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1606
+fix_date: '2026-08-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Stop evolve dunders from being modified
+split: test

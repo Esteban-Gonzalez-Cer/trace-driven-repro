@@ -58,6 +58,9 @@ class Deps:
     extra: tuple[str, ...] = ()  # compile: additional requirement specifiers
     exclude_newer: str | None = None  # compile: ISO date
     path: str | None = None  # file: lock path relative to this project
+    # Packages left out of the lock (uv-lock and compile), for optional test tooling that the
+    # sandbox forbids (starlette's blockbuster patches builtins through gc).
+    drop: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -122,6 +125,7 @@ def parse_candidate(data: Any, source_path: Path | None = None) -> Candidate:
         extra=_strs(raw, "extra"),
         exclude_newer=exclude_newer,
         path=raw.get("path"),
+        drop=_strs(raw, "drop"),
     )
     if deps.strategy == "uv-lock" and not deps.groups:
         raise CandidateError("uv-lock needs at least one dependency group")
@@ -221,6 +225,7 @@ def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
         load_lock(lock)
         return lock
     dest.parent.mkdir(parents=True, exist_ok=True)
+    drops = [arg for name in cand.deps.drop for arg in ("--no-emit-package", name)]
     with tempfile.TemporaryDirectory() as tmp:
         tree = Path(tmp) / "tree"
         materialize(git_dir, c_bug, tree)
@@ -235,7 +240,7 @@ def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
             _uv(
                 ["pip", "compile", *inputs, "--universal",
                  "--python-version", cand.python_version, "--exclude-newer", str(cap),
-                 "--no-header", "--no-annotate", "--no-emit-package", "setuptools",
+                 "--no-header", "--no-annotate", "--no-emit-package", "setuptools", *drops,
                  "-o", str(dest)],
                 cwd=tree,
             )  # fmt: skip
@@ -244,6 +249,7 @@ def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
             _uv(
                 ["export", "--frozen", "--no-emit-project", "--no-default-groups", *groups,
                  "--no-hashes", "--no-header", "--no-annotate", "--python", cand.python_version,
+                 *drops,
                  "-o", str(dest)],
                 cwd=tree,
             )  # fmt: skip
@@ -255,7 +261,7 @@ def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
                 ["pip", "compile", *inputs, *([str(extra)] if cand.deps.extra else []),
                  "--universal", "--python-version", cand.python_version,
                  "--exclude-newer", str(cand.deps.exclude_newer), "--no-header", "--no-annotate",
-                 "--no-emit-package", "setuptools", "-o", str(dest)],
+                 "--no-emit-package", "setuptools", *drops, "-o", str(dest)],
                 cwd=tree,
             )  # fmt: skip
     load_lock(dest)  # rejects editable, URL or unpinned lines

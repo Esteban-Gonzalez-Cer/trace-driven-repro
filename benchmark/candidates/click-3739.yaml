@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['src/click/_termui_impl.py'] (2 lines).
+id: click-3739
+repo: pallets/click
+c_fix: 8b44edfff7d9a6c895fa804148c16b3a0bc9efb5
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3739
+fix_date: '2026-08-14'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Changed `tempfile.NamedTemporaryFile` mode to `w`
+split: test

@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['starlette/config.py'] (3 lines).
+id: starlette-3783
+repo: Kludex/starlette
+c_fix: 271c277da0ff64e2048a4d46ecc812b9d61db5f6
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3783
+fix_date: '2026-11-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Support casts without `__name__` in `Config` error message
+split: test

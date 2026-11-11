@@ -334,3 +334,18 @@ def test_lock_fallback_inputs_follow_the_projects_own_scheme(tmp_path: Path) -> 
     (tmp_path / "pyproject.toml").write_text('[tool.poetry]\nname = "p"\n')
     with pytest.raises(CandidateError, match="no \\[project\\] table"):
         _fallback_inputs(tmp_path, ("dev",))
+
+
+def test_an_error_while_building_the_exception_is_a_python_failure(tmp_path: Path) -> None:
+    # starlette-3783: `raise ValueError(f"... {cast.__name__}")` fails with AttributeError.
+    from tracerepro.dataset.preflight import crash_kind
+
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "msg.py").write_text(
+        'def message(cast):\n    raise ValueError(f"not a valid {cast.__name__}")\n'
+    )
+    frames = (("pkg/msg.py", "message", 2),)
+    assert crash_kind(FailureInfo("AttributeError", "x", frames), tmp_path) == "python_failure"
+    assert crash_kind(FailureInfo("ValueError", "x", frames), tmp_path) == "library_raise"
+    builtin = FailureInfo("builtins.ValueError", "x", frames)  # module-qualified names too
+    assert crash_kind(builtin, tmp_path) == "library_raise"
