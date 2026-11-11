@@ -10,6 +10,7 @@ valid reason.
 | 2 | 2026-11-01 | §5.2 (new criterion 6), §5.5 (`target_frame`), §7.4 condition 2 | (b) Infeasibility found by running click-3805: the crash traceback contains no frame inside the library, so `target_frame` is undefined and the agent's context would contain no source files | Such bugs are excluded at curation; "library frame" is defined precisely. Details below |
 | 3 | 2026-11-02 | §5.2 criterion 3, §5.5 (`gold_files_full`) | (b) Infeasibility found while automating preflight (#13): most pallets fixes also edit a changelog (`CHANGES.rst`), so "touches only source files" read literally would exclude nearly every candidate | Changelog and documentation files are dropped from the gold diff and not counted toward the size limit. Details below |
 | 4 | 2026-11-08 | §7.1 (new rule), §7.3, §7.4 (new verdict `tampered`), §7.5 | (a) A harness bug found by the Phase 1 red-team test: a patch runs in the same process as the test recorder and could rewrite its results, and a patch with harmful side effects was scored correct with nothing to point the reviewer at it | Patches that reach for the test harness are scope violations; runs whose results cannot be trusted are `tampered`; suspicious code and behaviour are flagged for the manual audit. Details below |
+| 5 | 2026-11-11 | §8 category 5 (Fault Localization Miss) | (b) Infeasibility found by running Pipeline B on the dev set: on marshmallow-3082 the file the maintainers fixed was in the context only as an outline, so a file-level check calls it "provided" although the code to change was never shown | Category 5 is checked line by line: the context covers the fix only if every line the crash part of the gold diff changes was shown. Details below |
 
 ## Amendment 1: Mixed fixes (crash-only oracle)
 
@@ -194,3 +195,38 @@ code it grades, and the §7.5 audit needs to know where to look.
   (`tampered`). The malicious-but-working patch is still `correct`, now with network, secrets,
   file-write and behaviour flags for the reviewer.
 - What remains possible is documented in `docs/SECURITY.md` (result integrity).
+
+## Amendment 5: Fault Localization Miss, checked line by line
+
+**Found by:** the first real Pipeline B run on the dev set (PR #38). On marshmallow-3082 the crash
+is raised in `schema.py`, but the bug is in the `Pluck` class in `fields.py`. With a
+120,000-character cap, `fields.py` was in the context only as an outline (signatures, no
+bodies). The model said it could not see `Pluck`'s code and gave no fix.
+
+**The problem:** spec §8 defines category 5 as "gold diff touches files outside the provided
+context (computed automatically from `gold_files`)". Read at file level, `fields.py` *was* in
+the context, so the failure would not be a Fault Localization Miss; it would fall through to a
+later category (it was first recorded as a malformed reply). That mislabels a context problem
+as a model problem and biases H2, which asks exactly how often failures come from missing
+context. The truncation rule (plan §6.2) makes partly shown files normal, so the file-level
+reading cannot tell the cases apart.
+
+**The rule** (applies to every bug and both pipelines):
+
+1. The agent's context records, per file, the line ranges it showed (`shown_lines`).
+2. After the run, outside the agent stage, the crash part of the gold diff (`gold_files`,
+   Amendment 1) is compared with those ranges. A removed or replaced line must have been
+   shown; for an inserted line, the line just before the insertion point must have been shown.
+3. The context **covers the fix** only if every such line was shown. If not, a failed run is a
+   **Fault Localization Miss**, whether the file was missing, dropped, outlined or windowed.
+4. Coverage is recorded for every trial (`verdict.json`, `context_coverage`), correct or not, and
+   the write-up reports how often the context did not cover the fix.
+
+**Impact:**
+
+- Category 5 follows the spec's intent (the code to fix was not available to the agent) instead
+  of a file name.
+- The agent never sees this check: it runs in the evaluation step, which the agent package does
+  not import.
+- With the context cap raised to 250,000 characters (`DECISIONS.md`), the context covers the fix
+  for all 5 dev bugs; at 120,000 it did not for marshmallow-3082.

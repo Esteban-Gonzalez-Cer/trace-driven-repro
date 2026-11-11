@@ -13,9 +13,9 @@ Both pipelines follow the same rules, so the comparison is fair:
 - **Budget:** one token cap per run, counting every token of every call. When it is reached the
   run stops and submits its best patch: the last one that ran clean, else the last one that
   applied.
-- **Failed attempts:** a reply cut off or refused, a broken output contract, a patch the
-  validator rejects, one that does not apply, or one that breaks visible tests. Each costs an
-  attempt and is recorded with its taxonomy label.
+- **Failed attempts:** a reply cut off or refused, a reply with no fix in it (`declined`), a
+  broken output contract, a patch the validator rejects, one that does not apply, or one that
+  breaks visible tests. Each costs an attempt and is recorded with its label.
 - **Not the model's fault:** `InfraFailure`, `UsageLimitReached` and `PacingLimitReached`
   propagate to the runner, which reruns or resumes the trial; they are never recorded as a
   model result.
@@ -31,8 +31,9 @@ from typing import Any
 from tracerepro.agent.client import LLMClient, Message, Request, Settings
 from tracerepro.agent.edits import EditResult, apply_edits
 from tracerepro.agent.errors import TokenCapReached
-from tracerepro.agent.parse import SCOPE_VIOLATION, ContractFailure, parse_edits
+from tracerepro.agent.parse import SCOPE_VIOLATION, ContractFailure, Failure, parse_edits
 from tracerepro.agent.prompts import (
+    CURRENT_VERSION,
     PATCH,
     SYSTEM,
     DataBlock,
@@ -50,14 +51,15 @@ from tracerepro.sandbox.validator import validate
 FEEDBACK = "feedback"
 REGRESSION_FAILURE = "regression_failure"
 MODEL_FAILURE = "model_failure"
+DECLINED = "declined"  # a readable reply with no fix in it
 
 
 @dataclass(frozen=True)
 class PipelineConfig:
     settings: Settings
-    prompt_version: str = "v1"
+    prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
-    token_cap: int = 150_000
+    token_cap: int = 300_000
     context_budget: int = DEFAULT_BUDGET_CHARS
 
 
@@ -167,6 +169,12 @@ def _patch_attempt(
         attempt.detail = "the reply was cut off" if stop == "max_tokens" else "the model refused"
         return attempt, None
     edits = parse_edits(reply)
+    if isinstance(edits, ContractFailure) and edits.kind is Failure.NO_EDIT_BLOCK:
+        # A readable reply with no fix at all: the model declined (for example because code it
+        # wanted was not shown). Still a failed attempt, but not a broken output format.
+        attempt.outcome, attempt.label = DECLINED, DECLINED
+        attempt.detail = "the reply contains no edit block"
+        return attempt, None
     if isinstance(edits, ContractFailure):
         attempt.outcome, attempt.label, attempt.detail = "contract_failure", edits.label, str(edits)
         return attempt, None
@@ -211,6 +219,11 @@ def _feedback_text(attempt: Attempt, trial: TrialRun | None) -> str:
         return f"Your reply could not be used: {attempt.detail}. Keep the answer short."
     if attempt.outcome == SCOPE_VIOLATION:
         return f"The patch was rejected before running: {attempt.detail}"
+    if attempt.outcome == DECLINED:
+        return (
+            "Your reply contained no edit block, so nothing was tried. No more files can be shown; "
+            "give your best fix from the code you have."
+        )
     return f"Your reply could not be used: {attempt.detail}"
 
 

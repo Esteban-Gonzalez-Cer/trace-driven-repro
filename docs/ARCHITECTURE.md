@@ -152,11 +152,12 @@ malicious patches, and plain and disguised result forgery.
   `ContractFailure`. Contracts and labels are in `METHODOLOGY.md`.
 ## Context assembler (`tracerepro.context.assembler`, Phase 2)
 
-`assemble(payload, tree, budget=120_000)` returns a `Context`: the selected files
+`assemble(payload, tree, budget=250_000)` returns a `Context`: the selected files
 (`ContextFile`: path, role `trace` or `import`, the numbered lines shown, and shape `whole`,
 `outline`, `window` or `cut`), the truncation stage reached, and the files dropped. `render()`
-gives the text shown to the agent; `file_list()` the files it was shown (used for the Fault
-Localization Miss label). Selection, ordering and the truncation rule are in `METHODOLOGY.md`.
+gives the text shown to the agent; `file_list()` the files it was shown, and `shown_lines()` the
+exact line ranges, kept in the trial record for the Fault Localization Miss check
+(`tracerepro.evaluate.coverage.context_coverage`, Amendment 5, run at evaluation time). Selection, ordering and the truncation rule are in `METHODOLOGY.md`.
 
 - Frame paths come from the payload and are treated as untrusted: only relative paths to `.py`
   files that are library frames, not tests, with no `..`, that resolve inside the tree and are

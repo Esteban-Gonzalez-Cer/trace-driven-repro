@@ -42,7 +42,7 @@ from typing import Any
 
 from tracerepro.sandbox.paths import is_library_frame, is_test_path
 
-DEFAULT_BUDGET_CHARS = 120_000
+DEFAULT_BUDGET_CHARS = 250_000
 # (lines on each side of a frame, keep the file outline too), tried in order
 WINDOWS = ((40, True), (15, True), (15, False))
 STAGES = ("full", "outline", "drop", "window", "cut")
@@ -95,8 +95,23 @@ class Context:
         """Files the agent was shown (for the Fault Localization Miss label)."""
         return tuple(f.path for f in self.files)
 
+    def shown_lines(self) -> dict[str, list[list[int]]]:
+        """Per file, the line ranges the agent was shown, as [first, last] pairs. Used after the
+        run to check whether the lines the maintainers changed were visible."""
+        shown: dict[str, list[list[int]]] = {}
+        for f in self.files:
+            ranges: list[list[int]] = []
+            for number, _ in f.lines:
+                if ranges and ranges[-1][1] == number - 1:
+                    ranges[-1][1] = number
+                else:
+                    ranges.append([number, number])
+            shown[f.path] = ranges
+        return shown
+
     def summary(self) -> dict[str, Any]:
         return {
+            "shown_lines": self.shown_lines(),
             "files": [f"{f.path} ({f.role}, {f.shape})" for f in self.files],
             "dropped": list(self.dropped),
             "stage": self.stage,

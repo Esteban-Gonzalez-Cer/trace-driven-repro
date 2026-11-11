@@ -60,8 +60,8 @@ buggy code, never at the fix.
 **Format.** Each file starts with `=== file: <path> (<role>[, <shape> of <N> lines])`
 and shows its lines with their real line numbers; skipped lines are shown as `...`.
 
-**Cap and truncation rule.** The rendered context is capped at 120,000 characters (about 30,000
-tokens). The cap is in characters so every model gets byte-identical context whatever its
+**Cap and truncation rule.** The rendered context is capped at 250,000 characters (about 60,000
+tokens; raised from 120,000, see `DECISIONS.md`). The cap is in characters so every model gets byte-identical context whatever its
 tokenizer; real token counts are logged from each reply. Over the cap, these stages apply in
 order, stopping as soon as the context fits:
 
@@ -75,11 +75,17 @@ order, stopping as soon as the context fits:
    is still too big, the outline goes. Dropped imported files are then added back as above.
 4. *cut:* the last lines are cut at the cap.
 
-The stage reached and the files dropped are logged per bug. On the 5 dev bugs: marshmallow-3016
-fits whole (35k characters); flask-6096, marshmallow-3004 and marshmallow-3082 reach *drop*
-(115k to 120k, 1 to 5 imported files dropped); more-itertools-1342 reaches *window* (its trace
-file has 5,654 lines). In every case the file the maintainers fixed is in the context (for
-marshmallow-3082 as an outline).
+The stage reached, the files dropped and the exact line ranges shown are logged per trial. On
+the 5 dev bugs: marshmallow-3004, -3016 and -3082 fit whole (35k to 195k characters);
+flask-6096 reaches *outline* (191k); more-itertools-1342 reaches *drop* (216k: its 5,654-line
+trace file whole, its one import dropped). The lines the maintainers changed for the crash are
+shown in all five.
+
+**Did the context cover the fix?** (Amendment 5.) After the run, the crash part of the gold diff
+is compared with the line ranges shown. The context covers the fix only if every line the fix
+changes was shown (for an insertion, the line before it). Recorded for every trial in
+`verdict.json` (`context_coverage`); a failed run whose context did not cover the fix is a
+Fault Localization Miss.
 
 ## Pipeline B and the feedback loop (plan §6.4)
 
@@ -92,10 +98,12 @@ marshmallow-3082 as an outline).
    `test-results` data block, using the `feedback_v1` prompt: the failing test names (at most
    30) and the last 60 lines of the run; or why the reply could not be used; or why the
    validator rejected the patch. Then ask for a revised patch, applied to the original files.
+   A readable reply with no edit block is recorded as `declined` (the model gave no fix), not
+   as a malformed reply; the feedback reminds it that no more files can be shown.
 4. At most 2 patch replies. The submitted patch is the last one that ran clean; if none did,
    the last one that applied; otherwise nothing is submitted (`no_patch`).
 
-Every token of every call counts against the run's cap (provisional 150,000 until measured).
+Every token of every call counts against the run's cap (provisional 300,000 until measured).
 When the cap is reached the run stops and submits its best patch so far.
 
 **What the agent never sees:** the fix commit, the oracle tests, or any evaluation result. The

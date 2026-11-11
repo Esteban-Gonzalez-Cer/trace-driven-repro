@@ -120,10 +120,10 @@ def test_a_clean_first_patch_is_submitted(tmp_path: Path) -> None:
     assert "default=0" in (result.final_diff or "") and bench.diffs == [result.final_diff]
     (request,) = provider.requests
     assert request.system == load_prompt(SYSTEM).text
-    assert request.prompt_version == "patch_v1" and len(request.prompt_hash) == 64
+    assert request.prompt_version == "patch_v2" and len(request.prompt_hash) == 64
     text = request.messages[0].content
     assert "<data-crash-report-" in text and "=== file: tiny_lib/report.py (trace)" in text
-    assert set(result.prompts) == {"system_v1", "patch_v1", "feedback_v1"}
+    assert set(result.prompts) == {"system_v2", "patch_v2", "feedback_v2"}
     assert result.context["files"][0] == "tiny_lib/report.py (trace, whole)"
     assert result.tokens_used > 0 and result.prompt_leaks == []
 
@@ -134,7 +134,7 @@ def test_regressions_are_fed_back_and_the_second_patch_wins(tmp_path: Path) -> N
     assert result.attempts[0].label == "regression_failure" and result.final_from == 2
     second = provider.requests[1]
     assert [m.role for m in second.messages] == ["user", "assistant", "user"]
-    assert second.prompt_version == "feedback_v1"
+    assert second.prompt_version == "feedback_v2"
     feedback = second.messages[2].content
     assert "<data-test-results-" in feedback
     assert "tests/test_report.py::test_missing_name_is_question_mark" in feedback
@@ -142,12 +142,32 @@ def test_regressions_are_fed_back_and_the_second_patch_wins(tmp_path: Path) -> N
     assert result.attempts[0].feedback is not None
 
 
+MALFORMED = "FILE: tiny_lib/report.py\n<<<<<<< SEARCH\n    return max(\n"  # never closed
+
+
 def test_malformed_output_costs_an_attempt(tmp_path: Path) -> None:
-    result, provider, bench = run(tmp_path, ["Use default=0 in max().", GOLD], [CLEAN])
+    result, provider, bench = run(tmp_path, [MALFORMED, GOLD], [CLEAN])
     first = result.attempts[0]
     assert first.outcome == "contract_failure" and first.label == "syntax_or_import_error"
     assert "could not be used" in provider.requests[1].messages[2].content
     assert len(bench.diffs) == 1 and result.status == "submitted"
+
+
+def test_a_reply_with_no_fix_is_declined_not_malformed(tmp_path: Path) -> None:
+    refusal = "I cannot see the body of Pluck, so I am not providing edit blocks."
+    result, provider, bench = run(tmp_path, [refusal, GOLD], [CLEAN])
+    first = result.attempts[0]
+    assert first.outcome == "declined" and first.label == "declined"
+    feedback = provider.requests[1].messages[2].content
+    assert "No more files can be shown" in feedback and "best fix" in feedback
+    assert result.status == "submitted" and len(bench.diffs) == 1
+
+
+def test_the_context_records_the_lines_shown(tmp_path: Path) -> None:
+    result, _, _ = run(tmp_path, [GOLD], [CLEAN])
+    shown = result.context["shown_lines"]
+    assert shown["tiny_lib/report.py"] == [[1, 25]]  # the whole file
+    assert set(shown) == {"tiny_lib/report.py", "tiny_lib/util.py"}
 
 
 def test_test_edits_are_scope_violations_and_never_run(tmp_path: Path) -> None:

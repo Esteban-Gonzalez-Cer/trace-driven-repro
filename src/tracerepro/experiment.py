@@ -36,10 +36,12 @@ import yaml
 from tracerepro.agent.client import LLMClient, Provider, Settings
 from tracerepro.agent.errors import InfraFailure, PacingLimitReached, UsageLimitReached
 from tracerepro.agent.pipeline import AgentResult, Bug, PipelineConfig, run_pipeline_b
+from tracerepro.agent.prompts import CURRENT_VERSION
 from tracerepro.agent.providers.claude_cli import ClaudeCLI
 from tracerepro.agent.record import is_complete, trial_dir, write_record, write_verdict
 from tracerepro.agent.usage_guard import GuardLimits, UsageGuard
 from tracerepro.agent.workbench import DockerWorkbench, Workbench
+from tracerepro.context.assembler import DEFAULT_BUDGET_CHARS
 from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, load_manifest
 
 RUNS_DIR = PROJECT_ROOT / "runs"
@@ -57,10 +59,10 @@ class RunConfig:
     trials: int = 1
     effort: str = "medium"
     max_output_tokens: int = 16_000
-    prompt_version: str = "v1"
+    prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
-    token_cap: int = 150_000
-    context_budget: int = 120_000
+    token_cap: int = 300_000
+    context_budget: int = DEFAULT_BUDGET_CHARS
     cache: bool = True
     evaluate: bool = True
     guard: GuardLimits = field(default_factory=GuardLimits)
@@ -132,12 +134,20 @@ def bug_of(manifest: Manifest) -> Bug:
 def evaluate(manifest: Manifest, result: AgentResult) -> tuple[dict[str, Any], str | None]:
     """Score the submitted diff in a fresh container (imported here: the agent stage never
     imports the evaluator)."""
-    from tracerepro.evaluate.patch_oracle import review_report, score_patch
+    from tracerepro.dataset.repo import diff
+    from tracerepro.evaluate.coverage import context_coverage
+    from tracerepro.evaluate.patch_oracle import bug_repo, review_report, score_patch
 
+    # Whether the agent was shown the lines the maintainers changed for the crash (Amendment 5;
+    # `gold_files` is the crash-only part of the fix, Amendment 1).
+    crash_fix = diff(bug_repo(manifest), manifest.c_bug, manifest.c_fix, list(manifest.gold_files))
+    coverage = context_coverage(crash_fix, result.context.get("shown_lines", {}))
     if result.final_diff is None:
-        return {"kind": result.status, "message": "no patch was submitted"}, None
+        message = "no patch was submitted"
+        return {"kind": result.status, "message": message, "context_coverage": coverage}, None
     verdict = score_patch(manifest, result.final_diff)
     data = {
+        "context_coverage": coverage,
         "kind": str(verdict.kind),
         "message": verdict.message,
         "failing_oracle": list(verdict.failing_oracle),

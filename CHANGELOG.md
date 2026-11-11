@@ -27,3 +27,4 @@ One line per merged task (plan §2, definition of done).
 - Prompts v1 and output contracts: versioned prompt files, data blocks with random per-message tags, strict repro and search-and-replace edit parsing, edits turned into a git diff for the validator, leak check (#31).
 - Context assembler: trace files plus 1-hop imports ranked by use, tests excluded, 120k-character cap with a documented truncation rule (outline, drop, window, cut); deterministic (#30).
 - Pipeline B and the benchmark runner: agent-time workbench on the buggy code and visible tests, feedback loop, best-patch rule, trial folders, resumable `make run-benchmark` with separate evaluation (#32).
+- Context cap raised to 250,000 characters; prompts v2 (no more files will be shown, give the best fix); `declined` outcome; Amendment 5: Fault Localization Miss checked line by line, context coverage recorded per trial.

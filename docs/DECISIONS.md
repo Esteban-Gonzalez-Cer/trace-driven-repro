@@ -28,8 +28,9 @@ Public from day one, at `github.com/Esteban-Gonzalez-Cer/trace-driven-repro`.
 
 ## 2026-11-10: Context cap in characters, imports ranked by use
 
-- The context cap (plan §6.2) is 120,000 **characters**, not tokens, so a second model would get
-  byte-identical context whatever its tokenizer. Token counts are logged per call.
+- The context cap (plan §6.2) is measured in **characters**, not tokens, so a second model would
+  get byte-identical context whatever its tokenizer. Token counts are logged per call. The cap
+  started at 120,000 characters and was raised to 250,000 on 2026-11-11 (see below).
 - Imported files are ordered, and dropped over budget, by how often the trace files use the
   names they import from each file. An alphabetical order was tried first; on marshmallow-3082
   it dropped `fields.py`, the file the maintainers fixed, for no principled reason. Use counts
@@ -69,6 +70,28 @@ Public from day one, at `github.com/Esteban-Gonzalez-Cer/trace-driven-repro`.
 - The submitted patch is the last one that ran clean on the visible tests, else the last one
   that applied. A patch that broke visible tests is still submitted when nothing better exists:
   the evaluator, not the agent, decides whether it is correct.
+
+## 2026-11-11: Context cap raised to 250,000 characters; prompts v2
+
+Found on the first dev run (PR #38): at 120,000 characters marshmallow-3082's fix lay in a file
+shown only as an outline, and the model declined to guess. Decided with the project owner, on
+the dev set, before any test-set bug is screened:
+
+- **Cap: 250,000 characters** (about 60,000 tokens). Measured on the dev bugs: three fit whole
+  (marshmallow-3004, -3016, -3082); flask-6096 keeps its trace file whole and outlines its
+  imports; more-itertools-1342 keeps its 5,654-line trace file whole and drops its one import.
+  The context covers the crash fix for all five (at 120,000: four of five).
+- **Cost:** up to about twice the input tokens per call. Spec §9 estimated 10k to 30k tokens of
+  context per call; that was an estimate, not a frozen value. The per-run token cap is raised
+  provisionally from 150,000 to 300,000 to match, until step 6 measures real runs.
+- **Prompts v2:** the system prompt now says that no more files will ever be shown, that some
+  files may be shown only in part, and that the model should reason from what it has and still
+  give its best answer; the retry prompt repeats it. v1 is kept for the earlier run's records.
+- A readable reply with no fix in it is recorded as `declined`, not as a malformed reply.
+- Fault Localization Miss is now checked line by line (Amendment 5).
+- Not chosen: letting the model ask for more files. Spec §6 gives the agent static context with
+  no repository search; that would change the research question and need an amendment that
+  "it would be nicer" does not justify.
 
 ## Open (spec §16)
 

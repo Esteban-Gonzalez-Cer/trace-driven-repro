@@ -84,7 +84,7 @@ def test_bad_configs_are_refused(tmp_path: Path) -> None:
 
 def test_run_id_names_the_whole_setup() -> None:
     rid = experiment.run_id(config(), "abc12345", "2.1.308")
-    assert rid == "t-abc12345-v1-claude-haiku-5-5-cli2.1.308"
+    assert rid == "t-abc12345-v2-claude-haiku-5-5-cli2.1.308"
 
 
 def test_a_run_writes_the_trial_folder_and_resumes(
@@ -98,7 +98,7 @@ def test_a_run_writes_the_trial_folder_and_resumes(
         bench_factory=bench, evaluator=fake_evaluator, commit="abc12345",
     )  # fmt: skip
     assert code == 0
-    folder = runs / "t-abc12345-v1-claude-haiku-5-5-cli0" / "marshmallow-3016" / "B"
+    folder = runs / "t-abc12345-v2-claude-haiku-5-5-cli0" / "marshmallow-3016" / "B"
     folder = folder / "claude-haiku-5-5" / "trial_1"
     names = sorted(p.name for p in folder.iterdir())
     assert names == [
@@ -108,7 +108,7 @@ def test_a_run_writes_the_trial_folder_and_resumes(
     record = json.loads((folder / "record.json").read_text())
     assert record["result"]["status"] == "submitted" and record["meta"]["trial"] == 1
     assert json.loads((folder / "verdict.json").read_text()) == {"kind": "correct"}
-    assert (runs / "t-abc12345-v1-claude-haiku-5-5-cli0" / "run.json").is_file()
+    assert (runs / "t-abc12345-v2-claude-haiku-5-5-cli0" / "run.json").is_file()
     # Run again: the finished trial is skipped, no model call is made.
     again = FakeProvider.replying([])
     assert experiment.run(
@@ -146,7 +146,7 @@ def test_a_plan_limit_pauses_the_run_and_sets_the_trial_aside(
         runs_dir=runs, bench_factory=Bench(tmp_path), evaluator=fake_evaluator, commit="c",
     )  # fmt: skip
     assert code == experiment.EXIT_PAUSED
-    trials = runs / "t-c-v1-claude-haiku-5-5-cli0" / "marshmallow-3016" / "B" / "claude-haiku-5-5"
+    trials = runs / "t-c-v2-claude-haiku-5-5-cli0" / "marshmallow-3016" / "B" / "claude-haiku-5-5"
     (aside,) = list(trials.iterdir())
     assert aside.name.startswith("trial_1.aborted-") and (aside / "calls.jsonl").is_file()
     assert not (aside / "record.json").exists()

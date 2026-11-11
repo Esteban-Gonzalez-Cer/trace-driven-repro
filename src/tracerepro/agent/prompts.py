@@ -32,6 +32,7 @@ _NAME_RE = re.compile(r"^[a-z]+$")
 _VERSION_RE = re.compile(r"^v[0-9]+$")
 _LABEL_RE = re.compile(r"^[a-z][a-z-]{0,30}$")
 TAG_RE = re.compile(r"</?data-[a-z][a-z-]{0,30}-[0-9a-f]{8}>")
+CURRENT_VERSION = "v2"
 LEAK_MIN_CHARS = 40  # prompt lines at least this long are distinctive enough to detect a leak
 
 
@@ -50,7 +51,7 @@ class Prompt:
         return f"{self.name}_{self.version}"
 
 
-def load_prompt(name: str, version: str = "v1", directory: Path = PROMPTS_DIR) -> Prompt:
+def load_prompt(name: str, version: str = CURRENT_VERSION, directory: Path = PROMPTS_DIR) -> Prompt:
     if not _NAME_RE.match(name) or not _VERSION_RE.match(version):
         raise ValueError(f"bad prompt name or version: {name!r} {version!r}")
     return Prompt(name, version, (directory / f"{name}_{version}.md").read_text(encoding="utf-8"))
