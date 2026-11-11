@@ -14,9 +14,18 @@ compute: **A** (repro-first) and **B** (direct patch).
 This is not a novel technology. The contribution is a careful, small-N study with a dual oracle
 that checks repro fidelity, a tested containment layer, and honest statistics.
 
+## Synthetic payloads
+
+The crash payloads in `benchmark/payloads/` are **synthetic**. Each is built by running the
+maintainers' regression test on the buggy commit inside the sandbox and formatting the resulting
+traceback, exception message, source context and truncated local variables in a Sentry-like JSON
+shape. They are not real production crash reports. Test-code frames are dropped so the held-out
+oracle test never reaches the agent, and issue text, commit messages and PR descriptions are
+never included.
+
 ## Status
 
-Phase 0 (setup). No results yet.
+Phase 1 (harness). No results yet.
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)
 - Development plan: [`docs/spec/development-plan.pdf`](docs/spec/development-plan.pdf)

@@ -1,0 +1,13 @@
+id: more-itertools-1270
+repo: more-itertools/more-itertools
+c_fix: cd47ab22e88241688ddc45f0c9e925ea3f50329d
+python_version: "3.11"
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1270
+fix_date: 2026-09-10
+deps:
+  strategy: compile
+  extra: [pytest]
+  exclude_newer: 2026-09-10
+notes: >
+  constrained_batches with non-positive item limits.
+split: dev

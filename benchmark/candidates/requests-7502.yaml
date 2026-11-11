@@ -1,0 +1,29 @@
+id: requests-7502
+repo: psf/requests
+c_fix: 6f205ff422bccd5e4c4fc0b64c5f3e7df5181db6
+python_version: "3.11"
+issue_url: null
+fix_pr_url: https://github.com/psf/requests/pull/7502
+fix_date: 2026-06-08
+deps:
+  # No uv.lock upstream: the project's dependencies plus its "test" dependency group (minus the
+  # requests[socks] self-reference, replaced by PySocks), resolved as of the fix date.
+  strategy: compile
+  inputs: [pyproject.toml]
+  extra:
+    - PySocks>=1.5.6,!=1.5.7
+    - pytest-httpbin==2.1.0
+    - httpbin~=0.10.0
+    - pytest-cov
+    - pytest-mock
+    - pytest>=3
+    - trustme
+    - pytest-timeout
+  exclude_newer: 2026-06-08
+# A per-test timeout turns a rare hang in the TLS tests into an ordinary (flaky) failure
+# instead of killing the whole run.
+pytest_args: [--timeout=120]
+notes: >
+  _encode_files misses __getattr__-proxied file objects such as NamedTemporaryFile.
+  pytest-httpbin serves on loopback, which works under --network none.
+split: dev

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "0c82387656115a2ca1c1f5cd19dfdba2",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Step for islice() must be a positive integer or None.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "chunked_even",
+              "lineno": 4648,
+              "in_app": true,
+              "pre_context": [
+                "    # some back to fill any underfilled chunks",
+                "    min_buffer = (n - 1) * (n - 2)",
+                "    buffer = list(islice(iterator, min_buffer))",
+                "",
+                "    # Append items until we have a completed chunk"
+              ],
+              "context_line": "    for _ in islice(map(buffer.append, iterator), n, None, n):",
+              "post_context": [
+                "        yield buffer[:n]",
+                "        del buffer[:n]",
+                "",
+                "    # Check if any chunks need addition processing",
+                "    if not buffer:"
+              ],
+              "vars": {
+                "buffer": "['A', 'B']",
+                "iterable": "'ABC'",
+                "iterator": "<str_ascii_iterator object at 0x…>",
+                "min_buffer": "2",
+                "n": "0"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

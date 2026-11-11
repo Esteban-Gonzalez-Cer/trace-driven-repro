@@ -1,0 +1,12 @@
+id: marshmallow-3004
+repo: marshmallow-code/marshmallow
+c_fix: 7dff08fcb7fb40d2772728bb8d8a76b5beff3200
+python_version: "3.11"
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/3004
+fix_date: 2026-08-21
+deps:
+  strategy: uv-lock
+  groups: [tests]
+notes: >
+  TimeDelta raises ValueError instead of ValidationError for NaN.
+split: dev

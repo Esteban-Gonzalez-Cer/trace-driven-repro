@@ -135,3 +135,10 @@ def test_create_workspace_refuses_non_empty_root(tmp_path: Path) -> None:
     (tmp_path / "leftover").write_text("x")
     with pytest.raises(SandboxError):
         create_workspace(tmp_path)
+
+
+def test_parse_results_refuses_huge_integers(tmp_path: Path) -> None:
+    path = tmp_path / "results.json"
+    path.write_text('{"schema": 1, "exitstatus": ' + "9" * 5000 + ', "tests": []}')
+    with pytest.raises(SandboxError):
+        parse_results(path)

@@ -27,13 +27,14 @@ import docker.errors
 
 from tracerepro.dataset.lockfile import Pin, load_lock, normalize_name
 from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, load_manifest
-from tracerepro.dataset.repo import ensure_clone, materialize
+from tracerepro.dataset.repo import clone_name, ensure_clone, materialize
 
 RUNNER_UID = 1000
 # Present in the python:*-slim base image rather than installed from the lock.
 BASE_PACKAGES = frozenset({"pip", "setuptools", "wheel"})
 DEFAULT_WORK_DIR = PROJECT_ROOT / "work"
 LOCK_NAME = "requirements.lock.txt"
+PRETEND_VERSION = "0.0.0"
 
 
 class BuildFailed(RuntimeError):
@@ -74,7 +75,10 @@ def render_dockerfile(manifest: Manifest) -> str:
         "COPY repo/ /repo/",
         "WORKDIR /repo",
         # --no-deps: everything comes from the lock; pip check proves the lock is complete.
-        "RUN pip install --no-deps -e /repo && pip check",
+        # The snapshot has no .git, so VCS-versioned projects (setuptools-scm, hatch-vcs) get a
+        # placeholder version instead of failing to build.
+        f"RUN SETUPTOOLS_SCM_PRETEND_VERSION={PRETEND_VERSION} pip install --no-deps -e /repo "
+        "&& pip check",
         f"USER {RUNNER_UID}",
     ]
     return "\n".join(lines) + "\n"
@@ -89,7 +93,7 @@ def prepare_context(manifest: Manifest, work_dir: Path) -> Path:
     git_dir = ensure_clone(
         manifest.repo_location(),
         work_dir / "repos",
-        manifest.repo.replace("/", "__").replace(":", "_"),
+        clone_name(manifest.repo),
         [manifest.c_bug, manifest.c_fix],
     )
     context = work_dir / "builds" / manifest.id / "context"
@@ -105,7 +109,11 @@ def prepare_context(manifest: Manifest, work_dir: Path) -> Path:
 
 def check_freeze(freeze: list[str], pins: list[Pin]) -> None:
     """Every installed package must come from the lock (exact version) or the base image."""
-    locked = {p.key: p.version for p in pins}
+    # A universal lock may pin one package at different versions under exclusive markers
+    # (e.g. one for Python < 3.12, one for >= 3.12); any of them is acceptable.
+    locked: dict[str, set[str]] = {}
+    for p in pins:
+        locked.setdefault(p.key, set()).add(p.version)
     problems = []
     for line in freeze:
         name, _, version = line.partition("==")
@@ -114,8 +122,9 @@ def check_freeze(freeze: list[str], pins: list[Pin]) -> None:
             continue
         if key not in locked:
             problems.append(f"{line} is installed but not in the lock")
-        elif locked[key] != version:
-            problems.append(f"{line} is installed but the lock pins {locked[key]}")
+        elif version not in locked[key]:
+            pinned = ", ".join(sorted(locked[key]))
+            problems.append(f"{line} is installed but the lock pins {pinned}")
     unconditional = {p.key for p in pins if p.marker is None}
     installed = {normalize_name(line.partition("==")[0]) for line in freeze}
     problems += [f"{k} is pinned but not installed" for k in sorted(unconditional - installed)]
