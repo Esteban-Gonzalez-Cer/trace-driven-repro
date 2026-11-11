@@ -9,7 +9,7 @@ help:
 	@echo "build-images  build bug_env:{id} images (MANIFESTS=..., BUILD_FLAGS=--no-cache)"
 	@echo "validate-gold run gold-patch preflight (CANDIDATES=...); writes manifests and payloads"
 	@echo "llm-smoke     real Claude CLI checks: ping, hands-off, max-tokens (uses plan; MODEL=...)"
-	@echo "run-benchmark run Pipelines A and B                       (Phase 2)"
+	@echo "run-benchmark run the agent pipelines and score them (CONFIG=..., uses plan + Docker)"
 	@echo "analyze       regenerate tables and figures from logs     (Phase 5)"
 
 setup:
@@ -47,8 +47,10 @@ validate-gold:
 llm-smoke:
 	uv run python -m tracerepro.agent.smoke $(if $(MODEL),--model $(MODEL))
 
+# Uses the Claude plan and Docker. CONFIG defaults to the dev-set run.
+CONFIG ?= benchmark/configs/dev.yaml
 run-benchmark:
-	@echo "run-benchmark: not implemented yet (Phase 2)"; exit 2
+	uv run python -m tracerepro.experiment $(CONFIG)
 
 analyze:
 	@echo "analyze: not implemented yet (Phase 5)"; exit 2

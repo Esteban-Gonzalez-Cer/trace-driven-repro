@@ -81,4 +81,27 @@ fits whole (35k characters); flask-6096, marshmallow-3004 and marshmallow-3082 r
 file has 5,654 lines). In every case the file the maintainers fixed is in the context (for
 marshmallow-3082 as an outline).
 
+## Pipeline B and the feedback loop (plan §6.4)
 
+1. Ask for a patch with the crash report and the context.
+2. Turn the reply into a diff (output contracts above), check it with the validator, and try it
+   on the buggy code against the **visible** baseline tests: the manifest's baseline tests that
+   live in test files present at `c_bug`. A regression is a baseline test that did not pass,
+   or whose test file no longer collects.
+3. If anything went wrong and an attempt remains, send back what happened inside a
+   `test-results` data block, using the `feedback_v1` prompt: the failing test names (at most
+   30) and the last 60 lines of the run; or why the reply could not be used; or why the
+   validator rejected the patch. Then ask for a revised patch, applied to the original files.
+4. At most 2 patch replies. The submitted patch is the last one that ran clean; if none did,
+   the last one that applied; otherwise nothing is submitted (`no_patch`).
+
+Every token of every call counts against the run's cap (provisional 150,000 until measured).
+When the cap is reached the run stops and submits its best patch so far.
+
+**What the agent never sees:** the fix commit, the oracle tests, or any evaluation result. The
+workbench is built from the `c_bug` image, the agent package never imports the evaluator (a
+test checks this), and a test checks that no oracle test id reaches the model.
+
+**Evaluation** happens afterwards, separately: the submitted diff is scored by the patch oracle
+in a fresh container (`verdict.json`), with the review report for the manual audit
+(`review.md`).

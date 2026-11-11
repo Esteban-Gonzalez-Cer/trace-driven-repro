@@ -60,6 +60,16 @@ Public from day one, at `github.com/Esteban-Gonzalez-Cer/trace-driven-repro`.
 - **Spending:** none on the API. Plan usage is limited by the usage guard (calls per hour and
   per day, a pause between calls) and by the per-run token cap.
 
+## 2026-11-11: Feedback after any failed attempt; which patch is submitted
+
+- The plan (§6.4) describes feedback when tests regress. A reply can also fail earlier: cut off,
+  unreadable, rejected by the validator, or not applying. Each of these costs one attempt and is
+  also followed by feedback saying what went wrong, so no attempt is wasted silently. The same
+  rule holds for both pipelines.
+- The submitted patch is the last one that ran clean on the visible tests, else the last one
+  that applied. A patch that broke visible tests is still submitted when nothing better exists:
+  the evaluator, not the agent, decides whether it is correct.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
