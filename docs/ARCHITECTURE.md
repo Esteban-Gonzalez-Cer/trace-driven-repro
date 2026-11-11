@@ -152,11 +152,12 @@ malicious patches, and plain and disguised result forgery.
   `ContractFailure`. Contracts and labels are in `METHODOLOGY.md`.
 ## Context assembler (`tracerepro.context.assembler`, Phase 2)
 
-`assemble(payload, tree, budget=120_000)` returns a `Context`: the selected files
+`assemble(payload, tree, budget=250_000)` returns a `Context`: the selected files
 (`ContextFile`: path, role `trace` or `import`, the numbered lines shown, and shape `whole`,
 `outline`, `window` or `cut`), the truncation stage reached, and the files dropped. `render()`
-gives the text shown to the agent; `file_list()` the files it was shown (used for the Fault
-Localization Miss label). Selection, ordering and the truncation rule are in `METHODOLOGY.md`.
+gives the text shown to the agent; `file_list()` the files it was shown, and `shown_lines()` the
+exact line ranges, kept in the trial record for the Fault Localization Miss check
+(`tracerepro.evaluate.coverage.context_coverage`, Amendment 5, run at evaluation time). Selection, ordering and the truncation rule are in `METHODOLOGY.md`.
 
 - Frame paths come from the payload and are treated as untrusted: only relative paths to `.py`
   files that are library frames, not tests, with no `..`, that resolve inside the tree and are
@@ -204,3 +205,26 @@ exactly the requested model; anything else is an `InfraFailure`.
 overhead), `hands-off` (a canary file in the working folder and a prompt asking to read it, run
 a command and fetch a page: passes only with no tool use and no canary in the reply) and
 `max-tokens` (a long answer under a tiny limit must come back as `max_tokens`).
+
+## Pipelines and the benchmark runner (`tracerepro.agent.pipeline`, `tracerepro.experiment`, Phase 2)
+
+- **Workbench** (`agent/workbench.py`): `DockerWorkbench(manifest, root)` copies the image's
+  `/repo` once (the `c_bug` tree, used for the context and the edits), then for each attempt
+  copies it again, applies the diff with `apply_patch`, adds any extra files (Pipeline A's
+  repro test) and runs the visible baseline with `run_pytest` in the usual locked-down sandbox.
+  It returns a `TrialRun`: applied or not, regressions, the last 60 lines of output. Everything
+  is removed on exit.
+- **Pipeline B** (`run_pipeline_b(bug, client, bench, config)`): the attempt loop described in
+  `METHODOLOGY.md`. It returns an `AgentResult`: status, the submitted diff, every `Attempt`
+  (outcome, taxonomy label, reply, diff, feedback, tokens), tokens used, prompt-leak hits, the
+  context summary and the prompt hashes. `InfraFailure` and the usage limits propagate.
+- **Trial folder** (`agent/record.py`): `runs/{run_id}/{bug}/{pipeline}/{model}/trial_{n}/` with
+  `calls.jsonl`, each attempt's reply, diff and feedback, `final.diff`, `record.json` (written
+  last), then `verdict.json` and `review.md` from the evaluator.
+- **Runner** (`python -m tracerepro.experiment CONFIG`, `make run-benchmark`): reads a run
+  config (`benchmark/configs/*.yaml`: model, effort, prompt version, pipelines, trials, bugs,
+  token cap, context budget, cache, usage guard), builds the run id
+  (`{name}-{commit}-{prompt version}-{model}-cli{version}`), runs each trial on a fresh
+  workbench, then scores the submitted diff with `score_patch`. Finished trials are skipped; a
+  trial interrupted by an infrastructure failure or a usage limit is moved to
+  `trial_{n}.aborted-{time}` and rerun next time; a usage limit stops the run (exit code 3).
