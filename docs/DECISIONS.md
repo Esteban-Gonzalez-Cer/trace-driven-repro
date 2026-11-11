@@ -227,6 +227,21 @@ Candidates that failed only because of them were screened again.
   `raise ValueError(f"... {cast.__name__}")` fails with `AttributeError`) is a
   `python_failure`. A bare `raise` or `raise exc` still counts as deliberate.
 
+## 2026-11-11: pytest's unraisable-exception plugin is switched off
+
+Found by the CI known-answer job after batch 2: with an empty patch, click-3739's oracle tests
+crash and leave temporary files open (the bug itself). Python closes them later, at a random
+moment, and pytest's unraisable-exception plugin turned the resulting `ResourceWarning` into a
+failure of whatever test was running then (click treats warnings as errors). An unrelated
+baseline test (`test_basic_defaults[42-type1-42-int]`) failed in the grader's run, where the
+oracle tests run first, but never in preflight's stability runs, where they run last.
+
+Every pytest run of the harness (preflight, the agent's workbench, the grader, the plain
+re-check, the repro oracle) now passes `-p no:unraisableexception`, so a warning fired during
+garbage collection cannot fail an unrelated test. A harness bug fix (spec §15 (a)): verdicts of
+a correct patch never depended on it, but labels (Regression Failure) and the agent's feedback
+could. All 12 real bugs were re-run through preflight with the new command.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
