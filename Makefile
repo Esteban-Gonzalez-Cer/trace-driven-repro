@@ -1,4 +1,4 @@
-.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold run-benchmark analyze
+.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold llm-smoke run-benchmark analyze
 
 help:
 	@echo "setup         install dev environment and pre-commit hooks"
@@ -8,6 +8,7 @@ help:
 	@echo "test          full pytest suite (docker tests skip without a daemon)"
 	@echo "build-images  build bug_env:{id} images (MANIFESTS=..., BUILD_FLAGS=--no-cache)"
 	@echo "validate-gold run gold-patch preflight (CANDIDATES=...); writes manifests and payloads"
+	@echo "llm-smoke     real Claude CLI checks: ping, hands-off, max-tokens (uses plan; MODEL=...)"
 	@echo "run-benchmark run Pipelines A and B                       (Phase 2)"
 	@echo "analyze       regenerate tables and figures from logs     (Phase 5)"
 
@@ -41,6 +42,10 @@ build-images:
 # CANDIDATES defaults to every benchmark/candidates/*.yaml.
 validate-gold:
 	uv run python -m tracerepro.dataset.preflight $(CANDIDATES)
+
+# Uses a little of the Claude plan. Never run in CI.
+llm-smoke:
+	uv run python -m tracerepro.agent.smoke $(if $(MODEL),--model $(MODEL))
 
 run-benchmark:
 	@echo "run-benchmark: not implemented yet (Phase 2)"; exit 2
