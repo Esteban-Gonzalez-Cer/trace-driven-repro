@@ -10,6 +10,7 @@ target_exception: marshmallow.exceptions.ValidationError
 target_frame:
   file: src/marshmallow/schema.py
   function: _do_load
+crash_kind: library_raise
 payload_path: benchmark/payloads/marshmallow-3082.json
 oracle_tests:
 - tests/test_fields.py::TestPluckFiekd::test_pluck_empty_data_key[False]

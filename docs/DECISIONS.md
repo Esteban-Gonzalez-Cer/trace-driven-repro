@@ -144,9 +144,48 @@ flagged this message") instead of a `refusal` stop reason. It is classified as a
 failed attempt, never retried, never an infrastructure failure (which would make the runner set
 the trial aside and rerun it indefinitely). Found by the prompt-injection round.
 
+## 2026-11-11: One model (Claude); Codex tested and set aside
+
+Decided by the project owner. The study uses one model, Claude Sonnet 5.5 through the Claude
+plan (the spec's minimum tier, §2). A second vendor was considered only if it could also run on
+a subscription plan, so OpenAI's Codex CLI (0.167.0-alpha, bundled with the ChatGPT app, signed
+in with the owner's ChatGPT account) was tested with six small calls from an empty folder:
+
+- It runs in script mode (`codex exec --json`), reports token usage, and the model can be chosen.
+- With its defaults, asked to, it read a decoy file in its folder (the secret came back in the
+  reply), ran `ls`, and browsed a web page, all in its "read-only" sandbox.
+- The shell and web search can be switched off; image viewing, patch writing, image generation,
+  helper agents and a code runner cannot. Its built-in instructions (about 13,800 tokens per
+  call) cannot be replaced (`base_instructions` is ignored), only added to.
+
+Containment would be weaker than for Claude (tools would run before a reply could be refused),
+and the comparison would mix the model with Codex's own agent instructions. Revisit if a later
+release can switch off every tool and replace its instructions, or with an API key.
+
+## 2026-11-11: Bugs in scope, and their kind
+
+Decided by the project owner: what matters is a bug that surfaces as an exception with a stack
+trace, whether or not the application keeps running. A backend exception that is caught and
+logged still leaves a traceback (exactly what an error tracker captures) and can still break a
+feature, such as logging in.
+
+- **In scope:** every bug whose regression test fails with an uncaught exception from library
+  code, as selection criterion 1 already says. This keeps marshmallow-3016 and -3082, whose
+  library raises its own `ValidationError` for valid input. No amendment is needed.
+- **Out of scope:** bugs with no exception at all (silently wrong output): there is no trace for
+  the agent to start from.
+- **Kind, recorded per bug** (`crash_kind` in the manifest, set by preflight from the innermost
+  frame of the oracle failure): `library_raise` when that frame is in the library and its line
+  is a `raise` statement (the library rejected something on purpose); `python_failure`
+  otherwise (Python or the standard library failed inside a library call). Dev set: flask-6096,
+  marshmallow-3004, more-itertools-1342 are `python_failure`; marshmallow-3016 and -3082 are
+  `library_raise`.
+- **Reporting:** results are also given per kind, descriptively (the groups are small).
+- **Test-set balance:** at most 6 test bugs per library, so that no library dominates (3 of the
+  5 dev bugs are marshmallow).
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
 - Where the write-up is published.
 - Final repository list after early screening.
-- Second vendor, if any.

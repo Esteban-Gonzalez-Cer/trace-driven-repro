@@ -259,3 +259,57 @@ def test_image_removal_problems_are_reported_not_raised(tmp_path: Path) -> None:
     assert "image_removed" not in report
     _, report = run_stopped_after_build(tmp_path, FakeClient(docker.errors.APIError("in use")))
     assert report["image_removal_error"] == "in use"
+
+
+# --- crash kind (DECISIONS.md, 2026-11-11) -----------------------------------------------------
+
+KIND_SOURCE = """\
+def parse(text):
+    return int(text)
+
+
+def check(value):
+    if value is None:
+        raise ValueError(
+            "value is required"
+        )
+    return value
+
+
+def reraise(exc):
+    raise exc
+"""
+
+
+def _kind(tmp_path: Path, frames: tuple[tuple[str, str, int], ...]) -> str:
+    from tracerepro.dataset.preflight import crash_kind
+
+    (tmp_path / "pkg").mkdir(exist_ok=True)
+    (tmp_path / "pkg" / "mod.py").write_text(KIND_SOURCE)
+    return crash_kind(FailureInfo("ValueError", "boom", frames), tmp_path)
+
+
+def test_a_failing_call_is_a_python_failure(tmp_path: Path) -> None:
+    frames = (("tests/test_x.py", "test", 3), ("pkg/mod.py", "parse", 2))
+    assert _kind(tmp_path, frames) == "python_failure"
+
+
+def test_a_raise_statement_is_a_library_raise(tmp_path: Path) -> None:
+    frames = (("tests/test_x.py", "test", 3), ("pkg/mod.py", "check", 7))
+    assert _kind(tmp_path, frames) == "library_raise"
+    multi_line = (("pkg/mod.py", "check", 8),)  # a line inside the multi-line raise
+    assert _kind(tmp_path, multi_line) == "library_raise"
+    assert _kind(tmp_path, (("pkg/mod.py", "reraise", 14),)) == "library_raise"
+
+
+def test_an_exception_from_deeper_code_is_a_python_failure(tmp_path: Path) -> None:
+    frames = (("pkg/mod.py", "parse", 2), ("/usr/lib/python3.11/enum.py", "__call__", 700))
+    assert _kind(tmp_path, frames) == "python_failure"
+    assert _kind(tmp_path, ()) == "python_failure"
+
+
+def test_manifest_crash_kind_is_validated() -> None:
+    data = yaml.safe_load(TOY.read_text())
+    assert parse_manifest({**data, "crash_kind": "library_raise"}).crash_kind == "library_raise"
+    with pytest.raises(Exception, match="crash_kind"):
+        parse_manifest({**data, "crash_kind": "crash"})
