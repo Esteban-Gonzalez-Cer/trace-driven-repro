@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 6; source ['src/click/types.py'] (15 lines).
+id: click-3211
+repo: pallets/click
+c_fix: fc6c7c47edd6110b6bd5a1a5297b2035214b0cd1
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3211
+fix_date: '2026-05-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: '`FuncParamType` should use `ValueError` message in `self.fail()`'
+split: test

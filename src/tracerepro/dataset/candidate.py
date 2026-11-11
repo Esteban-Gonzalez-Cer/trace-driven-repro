@@ -6,7 +6,9 @@ everything else (c_bug, oracle tests, baseline, gold files, payload) mechanicall
 Dependency strategies (`deps.strategy`):
 
 - `uv-lock`: the repo has a committed `uv.lock` (pallets projects). Exported with
-  `uv export --frozen --no-emit-project --no-default-groups --group G ... --no-hashes`.
+  `uv export --frozen --no-emit-project --no-default-groups --group G ... --no-hashes`. When the
+  commit predates the project's `uv.lock`, the same groups are resolved from `pyproject.toml`
+  with `uv pip compile`, capped at the fix date.
 - `compile`: resolve requirement inputs at c_bug (requirements files, `pyproject.toml`, extra
   pins) with `uv pip compile --universal`, capped at `exclude_newer` (normally the fix date) so a
   re-run resolves the same versions.
@@ -19,6 +21,7 @@ import datetime as dt
 import shutil
 import subprocess
 import tempfile
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -170,6 +173,46 @@ def _uv(args: list[str], cwd: Path) -> None:
         raise CandidateError(f"uv {args[0]} failed: {result.stderr.strip()[-2000:]}")
 
 
+REQUIREMENT_FILES = ("requirements-tests.txt", "requirements-test.txt", "requirements/tests.txt",
+                     "requirements/test.txt", "test-requirements.txt")  # fmt: skip
+
+
+def _fallback_inputs(tree: Path, groups: tuple[str, ...]) -> list[str]:
+    """`uv pip compile` inputs for a commit without uv.lock, in this order: the project's
+    dependency groups in pyproject.toml; else optional-dependency extras of the same names;
+    else a test requirements file (editable and self-referencing lines removed). The project's
+    own dependencies come from pyproject.toml in every case."""
+    pyproject = tree / "pyproject.toml"
+    if not pyproject.is_file():
+        raise CandidateError("no uv.lock and no pyproject.toml at c_bug")
+    try:
+        data = tomllib.loads(pyproject.read_text())
+    except (tomllib.TOMLDecodeError, UnicodeDecodeError) as exc:
+        raise CandidateError(f"pyproject.toml does not parse: {exc}") from exc
+    if "project" not in data:
+        raise CandidateError("no uv.lock, and pyproject.toml has no [project] table")
+    declared = data.get("dependency-groups") or {}
+    if groups and all(g in declared for g in groups):
+        return ["pyproject.toml", *(a for g in groups for a in ("--group", f"pyproject.toml:{g}"))]
+    extras = data["project"].get("optional-dependencies") or {}
+    if groups and all(g in extras for g in groups):
+        return ["pyproject.toml", *(a for g in groups for a in ("--extra", g))]
+    for name in REQUIREMENT_FILES:
+        path = tree / name
+        if path.is_file():
+            kept = [
+                line for line in path.read_text().splitlines()
+                if not line.strip().startswith(("-e", ".", "-r requirements.txt"))
+            ]  # fmt: skip
+            clean = path.with_name(f".tracerepro-{path.name}")
+            clean.write_text("\n".join(kept) + "\n")
+            return ["pyproject.toml", str(clean.relative_to(tree))]
+    raise CandidateError(
+        f"no uv.lock at c_bug, and no dependency group, extra or test requirements file for "
+        f"{list(groups)}"
+    )
+
+
 def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
     """Write the pinned requirements for `c_bug` to `dest` (or return the `file` lock)."""
     if cand.deps.strategy == "file":
@@ -181,7 +224,22 @@ def make_lock(cand: Candidate, git_dir: Path, c_bug: str, dest: Path) -> Path:
     with tempfile.TemporaryDirectory() as tmp:
         tree = Path(tmp) / "tree"
         materialize(git_dir, c_bug, tree)
-        if cand.deps.strategy == "uv-lock":
+        if cand.deps.strategy == "uv-lock" and not (tree / "uv.lock").is_file():
+            # The project added uv.lock after this commit: resolve the same test dependencies
+            # from how the project declared them then, capped at the fix date so a re-run gets
+            # the same pins.
+            cap = cand.fix_date or cand.deps.exclude_newer
+            if not cap:
+                raise CandidateError("no uv.lock at c_bug and no fix_date to cap a resolution")
+            inputs = _fallback_inputs(tree, cand.deps.groups)
+            _uv(
+                ["pip", "compile", *inputs, "--universal",
+                 "--python-version", cand.python_version, "--exclude-newer", str(cap),
+                 "--no-header", "--no-annotate", "--no-emit-package", "setuptools",
+                 "-o", str(dest)],
+                cwd=tree,
+            )  # fmt: skip
+        elif cand.deps.strategy == "uv-lock":
             groups = [arg for g in cand.deps.groups for arg in ("--group", g)]
             _uv(
                 ["export", "--frozen", "--no-emit-project", "--no-default-groups", *groups,

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "03b50e5e1808518ad381147fc30df26e",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "'load_default' must not be set for required fields.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "__init__",
+              "lineno": 2079,
+              "in_app": true,
+              "pre_context": [
+                "    _CHECK_ATTRIBUTE = False",
+                "",
+                "    def __init__(self, constant: _ContantT, **kwargs: Unpack[_BaseFieldKwargs]):",
+                "        kwargs[\"load_default\"] = constant",
+                "        kwargs[\"dump_default\"] = constant"
+              ],
+              "context_line": "        super().__init__(**kwargs)",
+              "post_context": [
+                "        self.constant = constant",
+                "",
+                "    def _serialize(self, value, *args, **kwargs) -> _ContantT:",
+                "        return self.constant",
+                ""
+              ],
+              "vars": {
+                "constant": "42",
+                "kwargs": "{'dump_default': 42, 'load_default': 42, 'required': True}",
+                "self": "<Constant instance at 0x…>"
+              }
+            },
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "__init__",
+              "lineno": 217,
+              "in_app": true,
+              "pre_context": [
+                "        # None should be considered valid by default",
+                "        self.allow_none = load_default is None if allow_none is None else allow_none",
+                "        self.load_only = load_only",
+                "        self.dump_only = dump_only",
+                "        if required is True and load_default is not missing_:"
+              ],
+              "context_line": "            raise ValueError(\"'load_default' must not be set for required fields.\")",
+              "post_context": [
+                "        self.required = required",
+                "",
+                "        metadata = metadata or {}",
+                "        self.metadata = metadata",
+                "        # Collect default error message from self and parent classes"
+              ],
+              "vars": {
+                "allow_none": "None",
+                "attribute": "None",
+                "data_key": "None",
+                "dump_default": "42",
+                "dump_only": "False",
+                "error_messages": "None",
+                "load_default": "42",
+                "load_only": "False",
+                "metadata": "None",
+                "required": "True",
+                "self": "<Constant instance at 0x…>",
+                "validate": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

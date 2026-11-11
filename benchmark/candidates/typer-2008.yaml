@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['scripts/prepare_release.py'] (10 lines).
+id: typer-2008
+repo: fastapi/typer
+c_fix: 9e958ea0dffe3967995e587a3d1be69d9cecf09e
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/2008
+fix_date: '2026-11-09'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🔧 Add an agent skills note to GitHub releases
+split: test

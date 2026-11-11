@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from tracerepro import experiment
 from tracerepro.agent.errors import InfraFailure, UsageLimitReached
@@ -168,3 +169,19 @@ def test_an_infra_failure_is_set_aside_and_never_scored(
         commit="c",
     )  # fmt: skip
     assert code == 1 and scored == []
+
+
+def test_a_dev_config_never_reaches_a_test_bug(tmp_path: Path) -> None:
+    # Found in Phase 3: the dev configs selected every manifest, test bugs included.
+    manifests = tmp_path / "benchmark" / "manifests"
+    manifests.mkdir(parents=True)
+    source = (PROJECT_ROOT / "benchmark" / "manifests" / "flask-6096.yaml").read_text()
+    (manifests / "flask-6096.yaml").write_text(source)
+    data = yaml.safe_load(source)
+    data |= {"id": "flask-9999", "image_tag": "bug_env:flask-9999",
+             "notes": data["notes"] + " [split: test]"}  # fmt: skip
+    (manifests / "flask-9999.yaml").write_text(yaml.safe_dump(data))
+    every = config(bugs=("benchmark/manifests/*.yaml",))
+    with pytest.raises(ValueError, match="not in the dev split"):
+        every.manifests(root=tmp_path)
+    assert len(config(bugs=("benchmark/manifests/flask-6096.yaml",)).manifests(tmp_path)) == 1

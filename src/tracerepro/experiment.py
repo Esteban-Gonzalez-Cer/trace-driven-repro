@@ -73,6 +73,7 @@ class RunConfig:
     cache: bool = True
     evaluate: bool = True
     guard: GuardLimits = field(default_factory=GuardLimits)
+    split: str = "dev"  # "test" only for the final run, after the freeze
 
     @property
     def settings(self) -> Settings:
@@ -90,13 +91,24 @@ class RunConfig:
         )
 
     def manifests(self, root: Path = PROJECT_ROOT) -> list[Path]:
+        """The config's manifests. Every one must belong to the config's `split`: no model may
+        see a test-set bug through a dev config (spec §5.7: selection is blind to the models)."""
         paths: list[Path] = []
         for pattern in self.bugs:
             found = sorted(Path(p) for p in glob.glob(str(root / pattern)))
             if not found:
                 raise ValueError(f"no manifest matches {pattern!r}")
             paths += [p for p in found if p not in paths]
+        wrong = [p.stem for p in paths if manifest_split(load_manifest(p)) != self.split]
+        if wrong:
+            raise ValueError(f"not in the {self.split} split: {wrong}")
         return paths
+
+
+def manifest_split(manifest: Manifest) -> str:
+    """The split preflight recorded in the manifest's notes (`[split: test]`); dev otherwise
+    (the toy fixture and manifests written before splits existed)."""
+    return "test" if "[split: test]" in manifest.notes else "dev"
 
 
 def load_config(path: Path) -> RunConfig:
@@ -116,6 +128,8 @@ def load_config(path: Path) -> RunConfig:
     if bad:
         raise ValueError(f"{path}: unknown pipelines {sorted(bad)}")
     config.settings  # validates effort and output limit  # noqa: B018
+    if config.split not in ("dev", "test"):
+        raise ValueError(f"{path}: split must be 'dev' or 'test'")
     return config
 
 

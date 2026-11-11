@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 5; source ['src/marshmallow/fields.py'] (5 lines).
+id: marshmallow-2902
+repo: marshmallow-code/marshmallow
+c_fix: 024b5d09e9f026f0f96d220e243be69346687ce0
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2902
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix Enum field by-name lookup to only return actual members
+split: test

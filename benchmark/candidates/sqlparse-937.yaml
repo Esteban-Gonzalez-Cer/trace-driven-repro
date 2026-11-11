@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['sqlparse/filters/output.py'] (8 lines).
+id: sqlparse-937
+repo: andialbrecht/sqlparse
+c_fix: 91149dffdf691945dc5e20d9c9623390d9b96ffb
+python_version: '3.11'
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/937
+fix_date: '2026-11-01'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-11-01'
+notes: Escape dollar signs in PHP output (CVE-2026-112307)
+split: test

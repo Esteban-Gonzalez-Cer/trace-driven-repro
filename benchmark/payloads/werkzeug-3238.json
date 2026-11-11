@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "18c3ca3436b69e5c6ee892c017fd6d03",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Exceeds the limit (4300 digits) for integer string conversion: value has 4301 digits; use sys.set_int_max_str_digits() to increase the limit",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/routing/map.py",
+              "function": "match",
+              "lineno": 605,
+              "in_app": true,
+              "pre_context": [
+                "            domain_part = self.subdomain",
+                "",
+                "        path_part = f\"/{path_info.lstrip('/')}\" if path_info else \"\"",
+                "",
+                "        try:"
+              ],
+              "context_line": "            result = self.map._matcher.match(domain_part, path_part, method, websocket)",
+              "post_context": [
+                "        except RequestPath as e:",
+                "            # safe = https://url.spec.whatwg.org/#url-path-segment-string",
+                "            new_path = quote(e.path_info, safe=\"!$&'()*+,/:;=@\")",
+                "            raise RequestRedirect(",
+                "                self.make_redirect_url(new_path, query_args)"
+              ],
+              "vars": {
+                "domain_part": "''",
+                "method": "'GET'",
+                "path_info": "'/1111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'",
+                "path_part": "'/1111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'",
+                "query_args": "{}",
+                "return_rule": "False",
+                "self": "<werkzeug.routing.map.MapAdapter object at 0x…>",
+                "websocket": "False"
+              }
+            },
+            {
+              "filename": "src/werkzeug/routing/matcher.py",
+              "function": "match",
+              "lineno": 190,
+              "in_app": true,
+              "pre_context": [
+                "            rule, values = rv",
+                "",
+                "            result = {}",
+                "            for name, value in zip(rule._converters.keys(), values):",
+                "                try:"
+              ],
+              "context_line": "                    value = rule._converters[name].to_python(value)",
+              "post_context": [
+                "                except ValidationError:",
+                "                    raise NoMatch(have_match_for, websocket_mismatch) from None",
+                "                result[str(name)] = value",
+                "            if rule.defaults:",
+                "                result.update(rule.defaults)"
+              ],
+              "vars": {
+                "_match": "<function StateMachineMatcher.match.<locals>._match at 0x…>",
+                "domain": "''",
+                "have_match_for": "set()",
+                "method": "'GET'",
+                "name": "'a'",
+                "path": "'/1111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'",
+                "result": "{}",
+                "rule": "<Rule '/<a>' -> a>",
+                "rv": "(<Rule '/<a>' -> a>, ['11111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'])",
+                "self": "<werkzeug.routing.matcher.StateMachineMatcher object at 0x…>",
+                "value": "'11111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'",
+                "values": "['11111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111']",
+                "websocket": "False",
+                "websocket_mismatch": "False"
+              }
+            },
+            {
+              "filename": "src/werkzeug/routing/converters.py",
+              "function": "to_python",
+              "lineno": 155,
+              "in_app": true,
+              "pre_context": [
+                "        self.signed = signed",
+                "",
+                "    def to_python(self, value: str) -> t.Any:",
+                "        if self.fixed_digits and len(value) != self.fixed_digits:",
+                "            raise ValidationError()"
+              ],
+              "context_line": "        value_num = self.num_convert(value)",
+              "post_context": [
+                "        if (self.min is not None and value_num < self.min) or (",
+                "            self.max is not None and value_num > self.max",
+                "        ):",
+                "            raise ValidationError()",
+                "        return value_num"
+              ],
+              "vars": {
+                "self": "<werkzeug.routing.converters.IntegerConverter object at 0x…>",
+                "value": "'11111111111111111111111111111111111111111111111111111111111111111111111111111...111111111111111111111111111111111111111111111111111111111111111111111111111111'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

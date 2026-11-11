@@ -67,3 +67,17 @@ def test_ensure_clone_reports_missing_commit(upstream: tuple[Path, str], tmp_pat
     repo, _ = upstream
     with pytest.raises(RepoError):
         ensure_clone(str(repo), tmp_path / "cache", "up", ["f" * 40])
+
+
+def test_tag_version_is_the_newest_reachable_release(upstream: tuple[Path, str]) -> None:
+    from tracerepro.dataset.repo import tag_version
+
+    repo, first = upstream
+    git(repo, "tag", "v1.2.0")
+    git(repo, "tag", "not-a-version")
+    (repo / "pkg" / "mod.py").write_text("X = 2\n")
+    git(repo, "commit", "--quiet", "--no-gpg-sign", "-am", "second")
+    second = git(repo, "rev-parse", "HEAD")
+    git(repo, "tag", "1.10.0")
+    assert tag_version(repo / ".git", first) == "1.2.0"  # the later tag is not reachable
+    assert tag_version(repo / ".git", second) == "1.10.0"  # version order, not text order

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/attr/validators.py'] (4 lines).
+id: attrs-1513
+repo: python-attrs/attrs
+c_fix: af9c510912ce604a94896cc35c27368d5baf6ae6
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1513
+fix_date: '2026-03-14'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix validators.disabled() to save/restore state on nesting
+split: test

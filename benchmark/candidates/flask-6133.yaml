@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/flask/sansio/scaffold.py'] (8 lines).
+id: flask-6133
+repo: pallets/flask
+c_fix: d8eaaba824655046958d1a97f11780de460c3271
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/flask/pull/6133
+fix_date: '2026-08-11'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: add `app.query` route decorator
+split: test

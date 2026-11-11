@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "554e7c0a15c33f8d93f53e174a013b58",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "AttributeError",
+        "module": "builtins",
+        "value": "'DebuggedApplication' object has no attribute '_pin'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/debug/__init__.py",
+              "function": "__init__",
+              "lineno": 303,
+              "in_app": true,
+              "pre_context": [
+                "                if self.pin is None:",
+                "                    _log(\"warning\", \" * Debugger PIN disabled. DEBUGGER UNSECURED!\")",
+                "                else:",
+                "                    _log(\"info\", \" * Debugger PIN: %s\", self.pin)",
+                "        else:"
+              ],
+              "context_line": "            self.pin = None",
+              "post_context": [
+                "",
+                "        self.trusted_hosts: list[str] = [\".localhost\", \"127.0.0.1\"]",
+                "        \"\"\"List of domains to allow requests to the debugger from. A leading dot",
+                "        allows all subdomains. This only allows ``\".localhost\"`` domains by",
+                "        default."
+              ],
+              "vars": {
+                "app": "<function test_debugged_application_pin_security_false.<locals>.app at 0x…>",
+                "console_init_func": "None",
+                "console_path": "'/console'",
+                "evalex": "True",
+                "pin_logging": "True",
+                "pin_security": "False",
+                "request_key": "'werkzeug.request'",
+                "self": "<werkzeug.debug.DebuggedApplication object at 0x…>",
+                "show_hidden_frames": "False"
+              }
+            },
+            {
+              "filename": "src/werkzeug/debug/__init__.py",
+              "function": "pin",
+              "lineno": 323,
+              "in_app": true,
+              "pre_context": [
+                "        return self._pin",
+                "",
+                "    @pin.setter",
+                "    def pin(self, value: str | None) -> None:",
+                "        if value is None:"
+              ],
+              "context_line": "            del self._pin",
+              "post_context": [
+                "        else:",
+                "            self._pin = value",
+                "",
+                "    @property",
+                "    def pin_cookie_name(self) -> str:"
+              ],
+              "vars": {
+                "self": "<werkzeug.debug.DebuggedApplication object at 0x…>",
+                "value": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

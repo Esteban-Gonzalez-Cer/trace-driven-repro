@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['sqlparse/keywords.py'] (6 lines).
+id: sqlparse-868
+repo: andialbrecht/sqlparse
+c_fix: a194d3187b04b0aed7a935c3401f068236fb6264
+python_version: '3.11'
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/868
+fix_date: '2026-07-25'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-07-25'
+notes: 'Keep keyword before leading-dot float literal (issue #601)'
+split: test

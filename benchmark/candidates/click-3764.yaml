@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['src/click/_termui_impl.py'] (5 lines).
+id: click-3764
+repo: pallets/click
+c_fix: fc5c7f45da0a4443f60ba2d322fe4bf829977739
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3764
+fix_date: '2026-08-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'Fix error reporting on Windows when an error is raised in the pager '
+split: test

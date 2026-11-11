@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -116,6 +117,23 @@ def diff(git_dir: Path, a: str, b: str, paths: list[str], *, context: int = 3) -
         ["--git-dir", str(git_dir), "diff", "--no-renames", "--no-ext-diff", "--no-color",
          "--full-index", f"-U{context}", a, b, "--", *paths]
     )  # fmt: skip
+
+
+_VERSION_RE = re.compile(r"^v?([0-9]+(?:\.[0-9]+){0,3})$")
+
+
+def tag_version(git_dir: Path, sha: str) -> str | None:
+    """The version of the newest release tag reachable from `sha` (for example `26.1.0` from
+    tag `26.1.0` or `v26.1.0`), or None. Deterministic for a fixed commit: tags made later
+    cannot be reachable from it."""
+    try:
+        tags = _git(["--git-dir", str(git_dir), "tag", "--merged", sha])
+    except RepoError:
+        return None
+    versions = [m.group(1) for t in tags.split() if (m := _VERSION_RE.match(t))]
+    if not versions:
+        return None
+    return max(versions, key=lambda v: tuple(int(x) for x in v.split(".")))
 
 
 def clone_name(repo: str) -> str:
