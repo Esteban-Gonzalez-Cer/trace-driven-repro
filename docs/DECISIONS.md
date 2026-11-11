@@ -256,6 +256,17 @@ criterion 5 prefers recent fixes but does not require them. Fix dates in the tes
 more-itertools and tomlkit 6 each (the cap), starlette 4, click 3, werkzeug 2, requests,
 flask and attrs 1 each.
 
+## 2026-11-11: Subtest counting differs between pytest versions
+
+Found by the per-bug known-answer job: with an empty patch, more-itertools-1182 was scored
+`tampered`. Its oracle test has 4 failed subtests; pytest 9.1 (pinned by that bug) counts the
+test itself as passed in the console summary, pytest 9.2 as failed, and the three-way check
+assumed 9.2. The check now accepts either count for exactly those tests (`summary_mismatch`):
+the console may show up to that many more "passed" and as many fewer "failed", nothing else.
+The leeway only lets the console show more passes than the results file, never fewer, and the
+per-test JUnit comparison is unchanged, so it cannot help a forged pass. A harness bug fix
+(spec §15 (a)).
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
