@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['starlette/formparsers.py'] (2 lines).
+id: starlette-3191
+repo: Kludex/starlette
+c_fix: aba13f31b34083dfc0f12f265e7c53b2924a823d
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3191
+fix_date: '2026-05-31'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Catch `OSError` alongside `MultiPartException` when closing temp files
+split: test

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['sqlparse/keywords.py'] (2 lines).
+id: sqlparse-817
+repo: andialbrecht/sqlparse
+c_fix: c7e79847bf5e71884984858ef6bb62b92c6a9fb6
+python_version: '3.11'
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/817
+fix_date: '2025-11-25'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-11-25'
+notes: Support REGEXP BINARY
+split: test

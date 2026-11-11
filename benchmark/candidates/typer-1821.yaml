@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/_click/parser.py'] (6 lines).
+id: typer-1821
+repo: fastapi/typer
+c_fix: 06fce7dc851de662792c840320abe990ddd3566e
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1821
+fix_date: '2026-06-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that the default of a list argument is used correctly
+split: test

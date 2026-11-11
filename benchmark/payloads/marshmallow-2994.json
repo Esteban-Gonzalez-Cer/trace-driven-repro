@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "d33dcb16faf1cbdead1c1b16180e0946",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValidationError",
+        "module": "marshmallow.exceptions",
+        "value": "Field may not be null.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "deserialize",
+              "lineno": 380,
+              "in_app": true,
+              "pre_context": [
+                "        :raise ValidationError: If an invalid value is passed or if a required value",
+                "            is missing.",
+                "        \"\"\"",
+                "        # Validate required fields, deserialize, then validate",
+                "        # deserialized value"
+              ],
+              "context_line": "        self._validate_missing(value)",
+              "post_context": [
+                "        if value is missing_:",
+                "            _miss = self.load_default",
+                "            return _miss() if callable(_miss) else _miss",
+                "",
+                "        # Apply pre_load functions"
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "kwargs": "{}",
+                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None...validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
+                "value": "None"
+              }
+            },
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "_validate_missing",
+              "lineno": 312,
+              "in_app": true,
+              "pre_context": [
+                "        `value` should be considered missing.",
+                "        \"\"\"",
+                "        if value is missing_ and self.required:",
+                "            raise self.make_error(\"required\")",
+                "        if value is None and not self.allow_none:"
+              ],
+              "context_line": "            raise self.make_error(\"null\")",
+              "post_context": [
+                "",
+                "    def serialize(",
+                "        self,",
+                "        attr: str,",
+                "        obj: typing.Any,"
+              ],
+              "vars": {
+                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None...validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
+                "value": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

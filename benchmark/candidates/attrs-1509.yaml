@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (53 lines).
+id: attrs-1509
+repo: python-attrs/attrs
+c_fix: 862696afb52fb7c0d47d45e05ec4feb844c11001
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1509
+fix_date: '2026-03-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Resolve field aliases before calling field_transformer
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['examples/upload.py', 'src/werkzeug/middleware/lint.py', 'src/werkzeug/wsgi.py'] (57 lines).
+id: werkzeug-3306
+repo: pallets/werkzeug
+c_fix: 671537e0e5c7dcec4ac61ffc755dbd8936cefcfb
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3306
+fix_date: '2026-09-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate `FileWrapper`
+split: test
