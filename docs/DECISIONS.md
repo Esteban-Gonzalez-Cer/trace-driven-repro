@@ -26,6 +26,16 @@ The frozen spec is tagged `spec-v1.0` rather than `v1.0`, so harness release tag
 
 Public from day one, at `github.com/Esteban-Gonzalez-Cer/trace-driven-repro`.
 
+## 2026-11-10: Context cap in characters, imports ranked by use
+
+- The context cap (plan §6.2) is 120,000 **characters**, not tokens, so a second model would get
+  byte-identical context whatever its tokenizer. Token counts are logged per call.
+- Imported files are ordered, and dropped over budget, by how often the trace files use the
+  names they import from each file. An alphabetical order was tried first; on marshmallow-3082
+  it dropped `fields.py`, the file the maintainers fixed, for no principled reason. Use counts
+  come from the buggy code only and never look at the fix. Decided on the dev set, before any
+  test-set bug is screened. Full rule in `METHODOLOGY.md`.
+
 ## Open (spec §16)
 
 - Which two models, and the total API budget.
