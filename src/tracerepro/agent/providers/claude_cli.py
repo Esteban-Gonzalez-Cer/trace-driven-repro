@@ -63,6 +63,9 @@ LOCKDOWN_ARGS = (
 RETRYABLE_STATUS = frozenset({408, 409, 429, 500, 502, 503, 504, 529})
 _LIMIT_RE = re.compile(r"usage limit|limit reached|limit will reset|out of (extra )?usage", re.I)
 _OVER_LIMIT_RE = re.compile(r"response exceeded the \d+ output token maximum")
+# The model's safety classifier declined the request. The CLI reports it as an error; it is the
+# model's answer (a refusal), not a failure of the call, so it is never retried.
+_REFUSAL_RE = re.compile(r"safeguards flagged this message")
 _VERSION_RE = re.compile(r"\d+\.\d+\.\d+")
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
@@ -189,13 +192,16 @@ class ClaudeCLI:
         if not isinstance(data, dict) or data.get("type") != "result":
             raise InfraFailure("the CLI reply is not a result object")
         text = data.get("result")
-        cut_off = False
+        cut_off = refused = False
         if data.get("is_error") is not False:
-            if not (isinstance(text, str) and _OVER_LIMIT_RE.search(text)):
+            if isinstance(text, str) and _REFUSAL_RE.search(text):
+                text, refused = "", True
+            elif isinstance(text, str) and _OVER_LIMIT_RE.search(text):
+                # The answer outgrew the output limit. The CLI asks the model to continue a few
+                # times, then gives up and drops the partial text: the model's failure, not ours.
+                text, cut_off = "", True
+            else:
                 self._raise_error(data, text)
-            # The answer outgrew the output limit. The CLI asks the model to continue a few
-            # times, then gives up and drops the partial text: the model's failure, not ours.
-            text, cut_off = "", True
         elif returncode != 0:
             raise InfraFailure(f"the CLI exited with code {returncode} but reported success")
         if not isinstance(text, str):
@@ -218,11 +224,13 @@ class ClaudeCLI:
         if spawned:
             raise InfraFailure(f"the CLI started {spawned} subagent(s); tools must be off")
         models = data.get("modelUsage")
+        if refused and models in ({}, None):
+            models = {request.settings.model: {}}  # declined before any output: nothing served
         if not isinstance(models, dict) or set(models) != {request.settings.model}:
             served = sorted(models) if isinstance(models, dict) else models
             wanted = request.settings.model
             raise InfraFailure(f"requested {wanted}, but the reply came from {served}")
-        stop = "max_tokens" if cut_off else data.get("stop_reason")
+        stop = "refusal" if refused else "max_tokens" if cut_off else data.get("stop_reason")
         if not isinstance(stop, str):
             raise InfraFailure("the CLI reply has no stop reason")
         cost = data.get("total_cost_usd", 0.0)

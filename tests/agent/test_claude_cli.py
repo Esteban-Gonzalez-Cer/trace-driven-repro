@@ -198,3 +198,16 @@ def test_missing_cli_is_an_infra_failure(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setattr("shutil.which", lambda _: None)
     with pytest.raises(InfraFailure, match="not installed"):
         ClaudeCLI(run=FakeRun()).complete(request())
+
+
+def test_a_safety_refusal_is_a_model_failure_not_retried() -> None:
+    # Seen for real in the prompt-injection round (CLI 2.1.308): the CLI reports the safety
+    # classifier's refusal as an error. It must not be retried as a network glitch.
+    text = "API Error: Sonnet 5.5's safeguards flagged this message (https://...). Try rephrasing"
+    data = reply(is_error=True, result=text, stop_reason="stop_sequence", modelUsage={},
+                 usage={"input_tokens": 0, "output_tokens": 0})  # fmt: skip
+    done = provider(FakeRun(json.dumps(data), returncode=1)).complete(request())
+    assert done.stop_reason == "refusal" and done.model_failed and done.text == ""
+    other_model = reply(is_error=True, result=text, modelUsage={"claude-opus-5-5": {}})
+    with pytest.raises(InfraFailure, match="requested"):
+        provider(FakeRun(json.dumps(other_model), returncode=1)).complete(request())

@@ -25,7 +25,8 @@ never included.
 
 ## Status
 
-Phase 1 (harness). No results yet.
+Phase 2 (agent stage) complete: Pipelines A and B run end to end on the 5 dev bugs from one
+command, with per-run usage measured. No results yet: dev-set runs only tune the harness.
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)
 - Development plan: [`docs/spec/development-plan.pdf`](docs/spec/development-plan.pdf)

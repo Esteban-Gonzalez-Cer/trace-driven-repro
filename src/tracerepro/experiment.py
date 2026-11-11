@@ -68,7 +68,7 @@ class RunConfig:
     prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
     max_repro_attempts: int = 2
-    token_cap: int = 300_000
+    token_cap: int = 400_000
     context_budget: int = DEFAULT_BUDGET_CHARS
     cache: bool = True
     evaluate: bool = True
