@@ -144,25 +144,36 @@ def evaluate(manifest: Manifest, result: AgentResult) -> tuple[dict[str, Any], s
     imports the evaluator)."""
     from tracerepro.dataset.repo import diff
     from tracerepro.evaluate.coverage import context_coverage
-    from tracerepro.evaluate.patch_oracle import bug_repo, review_report, score_patch
+    from tracerepro.evaluate.patch_oracle import bug_repo, gold_diff, review_report, score_patch
+    from tracerepro.evaluate.repro_oracle import judge_repro
+    from tracerepro.evaluate.taxonomy import label_run
 
+    git_dir = bug_repo(manifest)
     # Whether the agent was shown the lines the maintainers changed for the crash (Amendment 5;
     # `gold_files` is the crash-only part of the fix, Amendment 1).
-    crash_fix = diff(bug_repo(manifest), manifest.c_bug, manifest.c_fix, list(manifest.gold_files))
-    coverage = context_coverage(crash_fix, result.context.get("shown_lines", {}))
-    if result.final_diff is None:
-        message = "no patch was submitted"
-        return {"kind": result.status, "message": message, "context_coverage": coverage}, None
-    verdict = score_patch(manifest, result.final_diff)
-    data = {
-        "context_coverage": coverage,
-        "kind": str(verdict.kind),
-        "message": verdict.message,
-        "failing_oracle": list(verdict.failing_oracle),
-        "regressions": list(verdict.regressions),
-        "flags": [str(f) for f in verdict.flags],
+    crash_fix = diff(git_dir, manifest.c_bug, manifest.c_fix, list(manifest.gold_files))
+    data: dict[str, Any] = {
+        "context_coverage": context_coverage(crash_fix, result.context.get("shown_lines", {}))
     }
-    return data, review_report(manifest, verdict, result.final_diff)
+    if result.repro is not None:  # Pipeline A: the repro oracle (spec §7.4)
+        verdict_r = judge_repro(manifest, result.repro, gold_diff(manifest, git_dir),
+                                work_dir=WORK_DIR)  # fmt: skip
+        data["repro_oracle"] = verdict_r.to_dict()
+    review = None
+    if result.final_diff is None:
+        data |= {"kind": result.status, "message": "no patch was submitted"}
+    else:
+        verdict = score_patch(manifest, result.final_diff)
+        data |= {
+            "kind": str(verdict.kind),
+            "message": verdict.message,
+            "failing_oracle": list(verdict.failing_oracle),
+            "regressions": list(verdict.regressions),
+            "flags": [str(f) for f in verdict.flags],
+        }
+        review = review_report(manifest, verdict, result.final_diff)
+    data["label"], data["solved"] = label_run(result.pipeline, result.to_dict(), data)
+    return data, review
 
 
 def run_trial(

@@ -232,3 +232,11 @@ a command and fetch a page: passes only with no tool use and no canary in the re
   workbench, then scores the submitted diff with `score_patch`. Finished trials are skipped; a
   trial interrupted by an infrastructure failure or a usage limit is moved to
   `trial_{n}.aborted-{time}` and rerun next time; a usage limit stops the run (exit code 3).
+
+## Full evaluation (`tracerepro.evaluate.repro_oracle`, `taxonomy`, Phase 3)
+
+`experiment.evaluate(manifest, result)` grades one trial: context coverage (Amendment 5), the
+repro oracle for Pipeline A (`judge_repro(manifest, test, gold_diff, work_dir=...)`: the test on
+`c_bug`, then on `c_bug` plus the gold diff, each in a fresh sandbox with a canary and
+`check_integrity`), the patch oracle (`score_patch`), and finally `label_run(pipeline, result,
+verdict)`, which returns `(label, solved)`. Rules in `METHODOLOGY.md`.

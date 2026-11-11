@@ -140,3 +140,38 @@ in a fresh container (`verdict.json`), with the review report for the manual aud
    best-patch rule as Pipeline B.
 
 Both pipelines share the per-run token cap; Pipeline A's repro replies count against it.
+
+## Repro oracle (spec §7.4)
+
+Pipeline A's saved repro test is judged after the run, in fresh containers, by
+`tracerepro.evaluate.repro_oracle`. It is valid only if all three hold: it fails on `c_bug`; the
+failure is the manifest's `target_exception` from its `target_frame` (preflight's
+`crash_target` rule, file and function); and it passes unchanged on the fix (`c_bug` plus the gold
+source diff). The test is model-written code: it runs with the audit hook, a hidden canary test
+and the three-way result check; results that cannot be trusted make it `tampered`, never valid.
+Verdicts: `valid`, `no_repro`, `invalid_repro`, `broken` (does not import or holds no test),
+`tampered`, `infra_error`. The repro rate counts `valid` runs. A correct patch is counted as
+solved whatever the repro verdict; the two rates are reported separately.
+
+## Failure labels (spec §8)
+
+Every failed run gets exactly one label (`tracerepro.evaluate.taxonomy`), the first that holds:
+
+1. **Scope Violation:** the submitted patch was rejected by the validator or scanner, or, with no
+   patch submitted, an attempt was.
+2. **Syntax or Import Error:** no usable patch or test came out. This includes replies that broke
+   the output format, were cut off or refused, declined to give a fix (`declined`), a patch that
+   did not apply, and a repro test that does not import.
+3. **No-Repro** (A only): the repro test passes on `c_bug`.
+4. **Invalid Repro** (A only): wrong exception or frame, or fails on the fix.
+5. **Fault Localization Miss:** the lines the fix changes were not shown (Amendment 5).
+6. **State Deficit:** by hand, in Phase 5.
+7. **Regression Failure:** the patch breaks a stable baseline test.
+8. **Incorrect Patch:** applies, keeps the baseline, fails the oracle.
+
+For Pipeline A, categories 3 and 4 come from the repro oracle when a test was produced, and from
+the agent-time gate when the run stopped without a valid repro (the strict rule). Without a
+patch, the labels of the stage that ended the run are compared by precedence. Two outcomes stay
+outside the list and are reported separately: `tampered` (Amendment 4, counted as a failure) and
+`infra_error` (no label; the trial is rerun). `verdict.json` holds `label`, `solved` and, for
+Pipeline A, `repro_oracle`.
