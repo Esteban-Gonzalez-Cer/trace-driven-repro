@@ -212,3 +212,27 @@ def test_subtests_are_marked(tmp_path: Path) -> None:
         ("failed", True),
         ("passed", False),  # the test itself; pytest then reports it failed (a subtest failed)
     ]
+
+
+def test_python_install_dirs_are_not_sensitive() -> None:
+    # CI regression: GitHub's runner keeps Python under /home/runner, so stdlib reads were logged
+    # as sensitive-file reads. Python's own folders are exempt; credentials never are.
+    code = textwrap.dedent(
+        """
+        import json, sysconfig
+        import tracerepro_pytest_plugin as p
+        stdlib = sysconfig.get_paths()["stdlib"]
+        p.SENSITIVE_PREFIXES = (stdlib.rsplit("/", 2)[0] + "/", "/home/")
+        print(json.dumps([
+            p._is_sensitive(stdlib + "/importlib/metadata/__init__.py"),
+            p._is_sensitive(stdlib + "/.ssh/id_rsa"),
+            p._is_sensitive("/home/someone/.netrc"),
+            p._is_sensitive("/home/someone/notes.txt"),
+            p._is_sensitive("/proc/1/environ"),
+        ]))
+        """
+    )
+    env = dict(os.environ, PYTHONPATH=str(PLUGIN_DIR))
+    out = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr
+    assert json.loads(out.stdout.splitlines()[-1]) == [False, True, True, True, True]

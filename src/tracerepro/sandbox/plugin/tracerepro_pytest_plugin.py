@@ -96,6 +96,22 @@ _LIB_DIRS = tuple(
     {os.path.realpath(sysconfig.get_paths()[k]) + "/" for k in ("stdlib", "platstdlib",
                                                                  "purelib", "platlib")}
 )  # fmt: skip
+# Python's own install (interpreter, stdlib, site-packages). On a CI runner it can live under
+# /home, which would otherwise make every stdlib read look like a sensitive-file read.
+_PYTHON_DIRS = tuple(
+    {os.path.realpath(d) + "/" for d in (sys.prefix, sys.base_prefix, sys.exec_prefix)}
+    | set(_LIB_DIRS)
+)
+
+
+def _is_sensitive(path: str) -> bool:
+    if any(p in path for p in SENSITIVE_PARTS):
+        return True  # credentials stay sensitive wherever they are
+    if path.startswith("/proc/") and os.path.basename(path) in PROC_SENSITIVE:
+        return True
+    return path.startswith(SENSITIVE_PREFIXES) and not (path + "/").startswith(_PYTHON_DIRS)
+
+
 GC_EVENTS = ("gc.get_objects", "gc.get_referrers", "gc.get_referents")
 TEST_FILE_PARTS = ("/tests/", "/test/", "/testing/", "/conftest.py")
 _WRITE_FLAGS = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
@@ -263,12 +279,7 @@ def _install_audit_hook() -> Callable[[Any], None]:
                             break
                     elif _is_write(event, args) and not (path + "/").startswith(WRITE_ROOTS):
                         emit("log", f"{event}:write", path, _origin(_caller()))
-                    elif (
-                        path.startswith(SENSITIVE_PREFIXES)
-                        or any(p in path for p in SENSITIVE_PARTS)
-                        or (path.startswith("/proc/")
-                            and os.path.basename(path) in PROC_SENSITIVE)
-                    ):  # fmt: skip
+                    elif _is_sensitive(path):
                         emit("log", f"{event}:sensitive", path, _origin(_caller()))
                     elif (
                         not _is_write(event, args)
