@@ -39,3 +39,4 @@ One line per merged task (plan §2, definition of done).
 - Screening batch 3: 18 candidates from 13 libraries (backups included), 4 test bugs (attrs-1529, click-3493, marshmallow-2994, requests-7308; 11 in all) (#44).
 - Screening batch 4 (one long run): 120 candidates, 19 test bugs; the test set is complete at 30 (9 libraries, 23 `python_failure`, 7 `library_raise`), 208 candidates screened in all (#44).
 - Integrity fix: the console-summary check accepts both pytest 9.1 and 9.2 counting of a test with failed subtests (more-itertools-1182 was wrongly `tampered`).
+- Dress rehearsal on the dev set with the final settings (26/30 trials correct, both pipelines 5/5 bugs by the 2-of-3 rule); run summary from logs (`tracerepro.analysis.summary`); resuming after a hard stop and a usage pause checked for real; sandbox containers labelled and leftovers removed at run start (#45).

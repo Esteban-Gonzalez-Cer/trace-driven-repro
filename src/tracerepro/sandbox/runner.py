@@ -346,6 +346,20 @@ def parse_audit(text: str) -> tuple[AuditEvent, ...]:
     return tuple(events)
 
 
+SANDBOX_LABEL = "org.tracerepro.sandbox"
+
+
+def remove_leftover_sandboxes(client: docker.DockerClient | None = None) -> int:
+    """Remove sandbox containers left behind when a run was killed mid-way (its host process
+    never reached the cleanup). Only containers carrying the sandbox label are touched."""
+    client = client or docker.from_env()
+    found = client.containers.list(all=True, filters={"label": f"{SANDBOX_LABEL}=1"})
+    for container in found:
+        with contextlib.suppress(*_API_ERRORS):
+            container.remove(force=True)
+    return len(found)
+
+
 def run_sandboxed(
     image: str,
     command: Sequence[str],
@@ -371,6 +385,7 @@ def run_sandboxed(
         working_dir=REPO_MOUNT,
         user=user,
         environment={**BASE_ENV, **(env or {}), "TRACEREPRO_NONCE": nonce},
+        labels={SANDBOX_LABEL: "1"},
         network_mode="none",
         read_only=True,
         tmpfs={

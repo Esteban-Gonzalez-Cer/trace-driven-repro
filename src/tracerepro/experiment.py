@@ -22,6 +22,7 @@ import argparse
 import dataclasses
 import glob
 import json
+import shutil
 import subprocess
 import sys
 import time
@@ -231,6 +232,13 @@ def run(
 ) -> int:
     provider = provider or ClaudeCLI()
     rid = run_id(config, commit or harness_commit(), provider.version)
+    if bench_factory is DockerWorkbench:  # a real run: clear what a killed run left behind
+        from tracerepro.sandbox.runner import remove_leftover_sandboxes
+
+        stale = remove_leftover_sandboxes()
+        if stale:
+            print(f"removed {stale} sandbox container(s) left by an interrupted run")
+        shutil.rmtree(WORK_DIR / "agent", ignore_errors=True)
     root = runs_dir / rid
     root.mkdir(parents=True, exist_ok=True)
     (root / "run.json").write_text(

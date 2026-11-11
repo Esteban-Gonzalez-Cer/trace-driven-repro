@@ -228,3 +228,21 @@ def test_the_run_secret_is_not_readable_inside(tmp_path: Path) -> None:
     )
     assert "env False" in result.output
     assert "READ" not in result.output and result.output.count("denied") == 2
+
+
+def test_only_labelled_leftover_sandboxes_are_removed() -> None:
+    # A run killed mid-way never reaches its cleanup; the next run removes what it left, and
+    # only containers carrying the sandbox label (never another project's containers).
+    import docker
+
+    from tracerepro.sandbox.runner import SANDBOX_LABEL, remove_leftover_sandboxes
+
+    client = docker.from_env()
+    ours = client.containers.create("python:3.11-slim", ["true"], labels={SANDBOX_LABEL: "1"})
+    other = client.containers.create("python:3.11-slim", ["true"])
+    try:
+        assert remove_leftover_sandboxes(client) >= 1
+        ids = {c.id for c in client.containers.list(all=True)}
+        assert ours.id not in ids and other.id in ids
+    finally:
+        other.remove(force=True)

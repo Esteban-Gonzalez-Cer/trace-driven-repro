@@ -267,6 +267,28 @@ The leeway only lets the console show more passes than the results file, never f
 per-test JUnit comparison is unchanged, so it cannot help a forged pass. A harness bug fix
 (spec §15 (a)).
 
+## 2026-11-11: Dress rehearsal (plan §7.3)
+
+The final run's exact settings (`benchmark/configs/dry-run.yaml`: Sonnet 5.5, both pipelines,
+3 trials, cache off, 400k cap) on the 5 dev bugs, run `dry-run-94b6a4a1-v2-claude-sonnet-5-5-
+cli2.1.308`. Tuning only, never reported as results.
+
+- 30 trials, 26 correct. Pipeline A: 5/5 bugs solved by the 2-of-3 rule (12/15 trials; repro
+  oracle 13 valid, 1 invalid); Pipeline B: 5/5 (14/15). Tokens per run: A mean 144k (max 270k),
+  B mean 64k (max 89k), all under the cap. 48 model calls.
+- Checked on every trial folder: complete (`record.json`, `verdict.json`, `calls.jsonl`), a
+  label on every failure, no oracle test id in any request, no cache hit, no prompt leak, no
+  key, email or username in the logs.
+- **Resuming:** a second run of the same command skipped all 30 finished trials. A run stopped
+  hard in the middle of a trial (a separate small Haiku run) left only its call log; the next
+  run set it aside (`trial_n.aborted-*`) and redid it. The same run then hit the usage guard (60
+  calls in the hour), paused cleanly (exit code 3) and set the unstarted trial aside.
+- **Fix:** a run killed while a sandbox container runs could leave that container behind. Sandbox
+  containers now carry the label `org.tracerepro.sandbox`, and every real run first removes
+  leftover labelled containers (never any other container) and stale agent workbenches.
+- **For the final run:** about 290 model calls; with the guard at 60 calls per hour it takes
+  roughly 5 to 6 hours, pausing and resuming on its own terms if the plan limit is reached.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

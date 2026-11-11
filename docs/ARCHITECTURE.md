@@ -255,3 +255,12 @@ verdict)`, which returns `(label, solved)`. Rules in `METHODOLOGY.md`.
 - `python -m tracerepro.dataset.preflight` keeps a `Batch`: test candidates of a library that
   already has `--cap-per-library` (6) test bugs are skipped, the batch stops at `--stop-at` (30)
   test bugs, and a summary is printed at the end.
+
+## Run summary (`tracerepro.analysis.summary`, Phase 3)
+
+`python -m tracerepro.analysis.summary runs/<run_id> [--json]` reads only the trial folders and
+reports per pipeline: bugs solved by the 2-of-3 rule (spec §9), pass@k, consistency, failure
+labels, repro oracle verdicts, tokens per run, model calls and the list-price estimate.
+Incomplete trials (no verdict, or set aside as `trial_n.aborted-*`) are listed and never
+counted. Before a real run, `experiment.run` removes sandbox containers left by a killed run
+(`runner.remove_leftover_sandboxes`, only containers labelled `org.tracerepro.sandbox`).
