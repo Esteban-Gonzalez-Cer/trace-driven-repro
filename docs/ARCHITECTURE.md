@@ -136,6 +136,22 @@ patches that edit an oracle test or add a skipping `conftest.py` are rejected. R
 no flags. Red-team tests (`tests/evaluate/test_red_team.py`) cover an injection payload,
 malicious patches, and plain and disguised result forgery.
 
+## Context assembler (`tracerepro.context.assembler`, Phase 2)
+
+`assemble(payload, tree, budget=120_000)` returns a `Context`: the selected files
+(`ContextFile`: path, role `trace` or `import`, the numbered lines shown, and shape `whole`,
+`outline`, `window` or `cut`), the truncation stage reached, and the files dropped. `render()`
+gives the text shown to the agent; `file_list()` the files it was shown (used for the Fault
+Localization Miss label). Selection, ordering and the truncation rule are in `METHODOLOGY.md`.
+
+- Frame paths come from the payload and are treated as untrusted: only relative paths to `.py`
+  files that are library frames, not tests, with no `..`, that resolve inside the tree and are
+  not symlinks are read.
+- `import_refs` resolves imports with `ast` against the package layout (`src/` or flat) and
+  counts how often each imported file's names are used; files filtered out (tests) never fall
+  back to their package's `__init__.py`.
+- `python -m tracerepro.context.assembler benchmark/manifests/*.yaml [--show]` prints, per bug,
+  the files chosen, the stage and the size (it materializes `c_bug` from the cached clone).
 ## LLM client (`tracerepro.agent`, Phase 2)
 
 `LLMClient(provider).complete(request, budget)` returns a `Completion` (text, stop reason, token
