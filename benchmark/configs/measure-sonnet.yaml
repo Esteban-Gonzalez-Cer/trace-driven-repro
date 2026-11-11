@@ -1,0 +1,21 @@
+# Usage measurement (plan §6.6): both pipelines on the 5 dev bugs with the main model, cache off,
+# and a token cap high enough not to cut runs short, so the natural usage per run is measured.
+name: measure
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v2
+pipelines: [A, B]
+trials: 1
+bugs:
+  - benchmark/manifests/*.yaml
+max_patch_attempts: 2
+max_repro_attempts: 2
+token_cap: 1000000          # measurement only: deliberately above any natural run
+context_budget: 250000
+cache: false                # trials must be independent
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0
