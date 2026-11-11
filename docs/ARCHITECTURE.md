@@ -243,3 +243,14 @@ repro oracle for Pipeline A (`judge_repro(manifest, test, gold_diff, work_dir=..
 `c_bug`, then on `c_bug` plus the gold diff, each in a fresh sandbox with a canary and
 `check_integrity`), the patch oracle (`score_patch`), and finally `label_run(pipeline, result,
 verdict)`, which returns `(label, solved)`. Rules in `METHODOLOGY.md`.
+
+## Screening tools (`tracerepro.dataset.find_candidates`, preflight batches, Phase 3)
+
+- `find_candidates LIB... [--since DATE] [--limit N] [--per-library K] [--write]` lists merged
+  pull requests with `gh pr list` (read-only), filters them with `keep` (criterion 3's split
+  comes from `preflight.split_changes`), orders them by `crash_hint`, and with `--write` writes
+  `benchmark/candidates/{lib}-{number}.yaml` (`split: test`) from the library's environment
+  profile in `benchmark/screening_profiles.yaml`.
+- `python -m tracerepro.dataset.preflight` keeps a `Batch`: test candidates of a library that
+  already has `--cap-per-library` (6) test bugs are skipped, the batch stops at `--stop-at` (30)
+  test bugs, and a summary is printed at the end.

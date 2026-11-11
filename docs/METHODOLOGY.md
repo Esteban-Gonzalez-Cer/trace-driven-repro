@@ -175,3 +175,21 @@ patch, the labels of the stage that ended the run are compared by precedence. Tw
 outside the list and are reported separately: `tampered` (Amendment 4, counted as a failure) and
 `infra_error` (no label; the trial is rerun). `verdict.json` holds `label`, `solved` and, for
 Pipeline A, `repro_oracle`.
+
+## Screening the test set (plan §7.2)
+
+1. **Finding candidates** (`python -m tracerepro.dataset.find_candidates LIB ...`): merged pull
+   requests of each pool library from the last 12 months, read through `gh`. A pull request is
+   kept mechanically if its author is not a bot, it changes a test module and library source,
+   it changes no deny-listed file, and its source change is at most 3 files and 60 lines (the
+   exact criterion 3 limit is applied by preflight on the real diff). The file split is
+   preflight's own (`split_changes`). Pull requests already screened are skipped.
+2. **Order:** kept pull requests are listed with those whose title or description names an
+   exception, a traceback or a crash first, newest first within each level. Order decides only
+   which candidates are screened first; nothing is excluded from a title or description.
+3. **Preflight in batches** of 10 to 20 (`make validate-gold CANDIDATES=...`): every screened
+   candidate gets a screening-log row; a batch ends with a summary (decisions, exclusion
+   reasons, kinds of the passing bugs, test bugs per library).
+4. **Balance and stop rule:** at most 6 test bugs per library (later candidates of a full
+   library are skipped and not logged); screening stops at 30 test bugs. No model is run on a
+   test bug before the freeze.
