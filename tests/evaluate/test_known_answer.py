@@ -8,6 +8,7 @@ answers right. The toy fixture runs with the Docker tests; real bugs are marked 
   rejected before anything runs.
 """
 
+import os
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,10 @@ from ..dataset.test_manifest import TOY
 pytestmark = requires_docker
 
 REAL = sorted((PROJECT_ROOT / "benchmark" / "manifests").glob("*.yaml"))
+# CI checks each bug in its own job (TRACEREPRO_BUG=<id>): one job for all of them no longer fits
+# in a CI time limit once the test set grows.
+if os.environ.get("TRACEREPRO_BUG"):
+    REAL = [p for p in REAL if p.stem == os.environ["TRACEREPRO_BUG"]]
 BUGS = [
     pytest.param(TOY, id="tiny_lib-001"),
     *(pytest.param(p, id=p.stem, marks=pytest.mark.realbugs) for p in REAL),
