@@ -135,3 +135,18 @@ patches that edit an oracle test or add a skipping `conftest.py` are rejected. R
 `realbugs` marker and run in the CI `known-answer` job; they also require the gold patch to carry
 no flags. Red-team tests (`tests/evaluate/test_red_team.py`) cover an injection payload,
 malicious patches, and plain and disguised result forgery.
+
+## Prompts and output contracts (`tracerepro.agent.prompts`, `parse`, `edits`, Phase 2)
+
+- `load_prompt(name, version)` reads `prompts/{name}_{version}.md` and gives its sha256.
+  `patch_message` and `repro_message` build the user message: the prompt text, then data blocks
+  with random per-message tags (`build_message`). `leak_check(reply, prompts, tags)` lists what
+  of our own text a reply repeats.
+- `parse_repro(reply)` returns the test file from the single Python code block;
+  `parse_edits(reply)` returns the `Edit(path, search, replace)` blocks. Both return a
+  `ContractFailure(kind, detail)` instead when the reply breaks the contract; its `label` is the
+  taxonomy category.
+- `apply_edits(tree, edits)` applies the edits to a scratch copy (the tree is not touched) and
+  returns `EditResult(diff, files)`, the diff written by git (`git add`, then `git diff`, so new
+  files and missing final newlines are handled the way `git apply` expects), or a
+  `ContractFailure`. Contracts and labels are in `METHODOLOGY.md`.

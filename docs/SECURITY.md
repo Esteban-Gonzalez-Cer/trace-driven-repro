@@ -138,3 +138,22 @@ once, and to make each of them visible. Four layers:
 Each of these needs deliberate, unusual code in a patch of at most 40 lines, which is exactly
 what the manual audit of every correct patch (spec §7.5) reads. The audit stays the last line
 of defence.
+
+## Prompt injection (Phase 2)
+
+The core assumption (spec §10) is that injected instructions in a crash message, a comment or
+a docstring **will sometimes work**. Defences, from weakest to strongest:
+
+1. **Data blocks.** All project material is wrapped in tags with a random suffix drawn per
+   message and re-drawn if it appears in the material, so the material cannot close its own
+   block. The system prompt says block contents are data and never instructions. **Delimiters
+   are not a security boundary:** they reduce confusion, nothing more.
+2. **Nothing worth stealing in the prompt.** Our prompts contain no paths, no harness internals
+   and nothing about the oracle or hidden tests (checked by a test). A model talked into
+   revealing them reveals little.
+3. **Leak check.** Each reply is scanned for long lines of our own prompts and for data block
+   tags. A hit sets a `prompt_leak` flag on the run for the reviewer; it never changes a verdict.
+4. **Only edits come back.** The reply is parsed by a strict contract; paths that leave the
+   tree are refused before anything is written, and the resulting diff goes through the
+   validator, the scanner and the sandbox like any patch. The model has no tools (see "LLM
+   access").
