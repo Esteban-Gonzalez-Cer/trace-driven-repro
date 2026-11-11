@@ -152,3 +152,41 @@ Localization Miss label). Selection, ordering and the truncation rule are in `ME
   back to their package's `__init__.py`.
 - `python -m tracerepro.context.assembler benchmark/manifests/*.yaml [--show]` prints, per bug,
   the files chosen, the stage and the size (it materializes `c_bug` from the cached clone).
+## LLM client (`tracerepro.agent`, Phase 2)
+
+`LLMClient(provider).complete(request, budget)` returns a `Completion` (text, stop reason, token
+usage, latency, the provider's list-price estimate). A `Request` is a system prompt, the messages,
+`Settings(model, effort, max_output_tokens)` and the prompt version and hash.
+
+- **Providers** (`agent/providers/`) only turn a request into a completion and classify failures:
+  `ClaudeCLI` (the user's Claude plan, see below) and `FakeProvider` (scripted, for tests).
+- **Failures** (`agent/errors.py`): `TransientError` (network, overload, timeout) is retried with
+  exponential backoff and jitter and never counts as an attempt; when retries run out the call
+  is an `InfraFailure`, rerun later and never a model failure. `UsageLimitReached` (the plan's
+  limit) and `PacingLimitReached` (our guard) stop the run cleanly for a later resume.
+  `TokenCapReached` ends a run, which then submits its best patch. A model's own failure (a
+  refusal, output cut off) is a `Completion` with `model_failed` true: a failed attempt.
+- **Log:** one JSON line per call, failed or not: time, provider and version, model, effort,
+  prompt version and hash, request hash (sha256 of the canonical request), the full request and
+  response, usage, latency, cost estimate, retries, cache hit.
+- **Cache:** with `cache_dir`, an identical request returns the stored completion and uses no
+  plan usage. Measured and final runs turn it off (trials must be independent).
+- **Limits** (`agent/usage_guard.py`): `TokenBudget` is the per-run token cap shared by both
+  pipelines; `UsageGuard` keeps a ledger (`work/llm-usage.json`) and enforces calls per hour,
+  calls per day and a pause between calls. Cached answers never touch it.
+
+**Claude CLI provider** (`agent/providers/claude_cli.py`). Runs `claude -p --model … --effort …
+--system-prompt … --tools "" --restricted --strict-mcp-config --disable-slash-commands
+--permission-prompts none --no-session-persistence --output-format json` as an argument list,
+with the prompt on stdin, in a fresh empty temporary folder, with an allow-listed environment
+(home, user, locale, temp dir, a fixed `PATH`, the output limit). API-key variables and the
+parent Claude Code session's variables are never passed, and there is no `--fallback-model`.
+Earlier turns are rendered into the one prompt, so each call is stateless. The JSON reply is
+checked before it is trusted: one turn (more means the answer was continued past the output
+limit, counted as cut off), no tool or permission requests, no server tools, no subagents, and
+exactly the requested model; anything else is an `InfraFailure`.
+
+`make llm-smoke [MODEL=…]` makes three real calls: `ping` (usage and the CLI's own token
+overhead), `hands-off` (a canary file in the working folder and a prompt asking to read it, run
+a command and fetch a page: passes only with no tool use and no canary in the reply) and
+`max-tokens` (a long answer under a tiny limit must come back as `max_tokens`).

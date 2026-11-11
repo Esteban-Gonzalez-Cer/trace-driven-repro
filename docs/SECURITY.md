@@ -138,3 +138,27 @@ once, and to make each of them visible. Four layers:
 Each of these needs deliberate, unusual code in a patch of at most 40 lines, which is exactly
 what the manual audit of every correct patch (spec §7.5) reads. The audit stays the last line
 of defence.
+
+## LLM access (Phase 2)
+
+The model is reached through the `claude` CLI on the host (the user's Claude plan). That CLI is
+an agent with "hands": by default it can read files, run commands and fetch pages on the host.
+A crash payload or source file carrying hidden instructions could try to use them. Containment:
+
+- **No tools.** Every built-in tool is switched off (`--tools ""`), restricted mode, no MCP
+  servers, no slash commands, and nobody answers permission prompts. Tested for real
+  (`make llm-smoke hands-off`): asked to read a canary file, run a command and fetch a page, the
+  model reports it has no tools, and the canary never appears.
+- **Nothing to read anyway.** Each call runs in a fresh, empty temporary folder outside the
+  repository, so no project file, `CLAUDE.md` or memory reaches the model.
+- **No secrets.** The environment is an allow-list; API keys and the parent Claude Code
+  session's variables are never passed. The call log holds requests and replies only (checked:
+  no key, email or username in it).
+- **Fail closed.** A reply that shows a tool use, a permission request, a server tool, a
+  subagent, or a different model than requested is refused as an infrastructure failure and
+  never scored.
+- **Bounded usage.** The usage guard and the per-run token cap stop a run before it can drain
+  the plan.
+
+Whatever the model writes is still untrusted: patches go through the validator, scanner and
+sandbox like any other patch.
