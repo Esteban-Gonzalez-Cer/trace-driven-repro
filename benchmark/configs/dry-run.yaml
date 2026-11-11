@@ -1,0 +1,26 @@
+# Dress rehearsal (plan §7.3): the final run's exact settings, on the dev set only.
+# Both pipelines, the main model, 3 trials, cache off, the measured token cap.
+name: dry-run
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v2
+pipelines: [A, B]
+trials: 3
+split: dev
+bugs:                      # the dev set only (split: dev); never test bugs before the freeze
+  - benchmark/manifests/flask-6096.yaml
+  - benchmark/manifests/marshmallow-3004.yaml
+  - benchmark/manifests/marshmallow-3016.yaml
+  - benchmark/manifests/marshmallow-3082.yaml
+  - benchmark/manifests/more-itertools-1342.yaml
+max_patch_attempts: 2
+max_repro_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: false                # trials must be independent
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0
