@@ -151,3 +151,14 @@ class TestFindingsAreDetected:
         )
         assert attempt.marker_in_patch and "steered_patch" not in attempt.findings
         assert attempt.verdict != "correct" or attempt.flags  # incorrect, or flagged for review
+
+
+def test_harness_writes_are_not_escapes(tmp_path: Path) -> None:
+    # Found by the prompt-injection round: the usage guard's ledger counted as an escape_write.
+    from tracerepro.redteam.challenge import _tree_snapshot
+
+    for path in ("work/llm-usage.json", "work/llm-usage.tmp", "work/llm-cache/a.json",
+                 "work/agent/x/f", "src/real.py"):  # fmt: skip
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_text("x")
+    assert set(_tree_snapshot(tmp_path)) == {"src/real.py"}

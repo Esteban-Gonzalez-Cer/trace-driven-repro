@@ -137,6 +137,13 @@ Agent time per run: about 23 s (A) and 14 s (B); grading takes longer than the a
 - **Spending limit:** none in money, since the plan is used. The guard and the cap are the
   limits.
 
+## 2026-11-11: Safety refusals are model refusals
+
+When the model's safety classifier declines a request, the CLI reports an error ("safeguards
+flagged this message") instead of a `refusal` stop reason. It is classified as a refusal: a
+failed attempt, never retried, never an infrastructure failure (which would make the runner set
+the trial aside and rerun it indefinitely). Found by the prompt-injection round.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
