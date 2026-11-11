@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['src/click/_compat.py'] (6 lines).
+id: click-3681
+repo: pallets/click
+c_fix: 8c1a0a7abbc1c36f70d1f65f3604acc46c5ce6ab
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3681
+fix_date: '2026-07-10'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Strip all ANSI sequences
+split: test

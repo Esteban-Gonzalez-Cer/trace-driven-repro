@@ -209,7 +209,18 @@ def crash_kind(failure: FailureInfo, repo: Path) -> str:
     if not statements:
         return PYTHON_FAILURE
     innermost = min(statements, key=lambda n: (n.end_lineno or n.lineno) - n.lineno)
-    return LIBRARY_RAISE if isinstance(innermost, ast.Raise) else PYTHON_FAILURE
+    if not isinstance(innermost, ast.Raise):
+        return PYTHON_FAILURE
+    # `raise X(...)` is a deliberate rejection only if X is what was raised: an error while
+    # building the exception (starlette-3783: `raise ValueError(f"... {cast.__name__}")` fails
+    # with AttributeError) is Python failing. A bare `raise` or `raise exc` re-raises on purpose.
+    exc = innermost.exc
+    if isinstance(exc, ast.Call):
+        func = exc.func
+        name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
+        if name is not None and name != failure.type.rsplit(".", 1)[-1]:
+            return PYTHON_FAILURE
+    return LIBRARY_RAISE
 
 
 def changed_lines(zero_context_diff: str) -> set[int]:

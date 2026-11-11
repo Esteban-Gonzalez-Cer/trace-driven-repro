@@ -10,5 +10,8 @@ deps:
   strategy: uv-lock
   groups:
   - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
 notes: Clear exc.__traceback__ after handled exceptions to prevent memory leak
 split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/marshmallow/utils.py'] (2 lines).
+id: marshmallow-2904
+repo: marshmallow-code/marshmallow
+c_fix: 72ac4a04208ff24df0a9694d9b03b78b1c5a2e6a
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2904
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Reject booleans in from_timestamp_ms, consistent with from_timestamp
+split: test

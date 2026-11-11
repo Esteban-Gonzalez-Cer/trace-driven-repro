@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['starlette/datastructures.py'] (3 lines).
+id: starlette-3619
+repo: Kludex/starlette
+c_fix: d7731e02c1eb2aaf40870d7cbec6b433330fc411
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3619
+fix_date: '2026-10-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Compare `FormData` with repeated uploads without raising `TypeError`
+split: test

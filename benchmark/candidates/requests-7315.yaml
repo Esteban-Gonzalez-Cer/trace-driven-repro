@@ -1,0 +1,26 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/requests/adapters.py'] (2 lines).
+id: requests-7315
+repo: psf/requests
+c_fix: fd628095d7b9ddbf3e987d8a4bf0e6062768916f
+python_version: '3.11'
+fix_pr_url: https://github.com/psf/requests/pull/7315
+fix_date: '2026-05-10'
+deps:
+  strategy: compile
+  inputs:
+  - pyproject.toml
+  extra:
+  - PySocks>=1.5.6,!=1.5.7
+  - pytest-httpbin==2.1.0
+  - httpbin~=0.10.0
+  - pytest-cov
+  - pytest-mock
+  - pytest>=3
+  - trustme
+  - pytest-timeout
+  exclude_newer: '2026-05-10'
+pytest_args:
+- --timeout=120
+notes: Preserve leading slashes in request path_url
+split: test

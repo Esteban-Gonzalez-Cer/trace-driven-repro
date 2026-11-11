@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (26 lines).
+id: attrs-1541
+repo: python-attrs/attrs
+c_fix: 0f758fe54a8742110f730ebbaf146e79f3937c8d
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1541
+fix_date: '2026-04-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Expose converter as a decorator
+split: test

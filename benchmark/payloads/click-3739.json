@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "025714392e47d1e7519de2937cb1c352",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "a bytes-like object is required, not 'str'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/click/termui.py",
+              "function": "echo_via_pager",
+              "lineno": 394,
+              "in_app": true,
+              "pre_context": [
+                "    # convert every element of i to a text type if necessary",
+                "    text_generator = (el if isinstance(el, str) else str(el) for el in i)",
+                "",
+                "    with get_pager_file(color=color) as pager:",
+                "        for text in itertools.chain(text_generator, \"\\n\"):"
+              ],
+              "context_line": "            pager.write(text)",
+              "post_context": [
+                "            # Flush after each write so a slow generator streams to the pager",
+                "            # incrementally rather than staying invisible until the pipe buffer",
+                "            # fills (~8 KB).",
+                "            pager.flush()",
+                ""
+              ],
+              "vars": {
+                "color": "None",
+                "i": "['hello']",
+                "pager": "<tempfile._TemporaryFileWrapper object at 0x…>",
+                "text": "'hello'",
+                "text_generator": "<generator object echo_via_pager.<locals>.<genexpr> at 0x…>",
+                "text_or_generator": "'hello'"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/tempfile.py",
+              "function": "func_wrapper",
+              "lineno": 500,
+              "in_app": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

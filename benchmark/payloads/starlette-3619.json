@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "04a1d92a1a0009c96b354879f830fa42",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "'<' not supported between instances of 'UploadFile' and 'UploadFile'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/datastructures.py",
+              "function": "__eq__",
+              "lineno": 329,
+              "in_app": true,
+              "pre_context": [
+                "        return len(self._dict)",
+                "",
+                "    def __eq__(self, other: Any) -> bool:",
+                "        if not isinstance(other, self.__class__):",
+                "            return False"
+              ],
+              "context_line": "        return sorted(self._list) == sorted(other._list)",
+              "post_context": [
+                "",
+                "    def __repr__(self) -> str:",
+                "        class_name = self.__class__.__name__",
+                "        items = self.multi_items()",
+                "        return f\"{class_name}({items!r})\""
+              ],
+              "vars": {
+                "other": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}... UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])",
+                "self": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}... UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

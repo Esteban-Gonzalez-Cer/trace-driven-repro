@@ -42,7 +42,10 @@ werkzeug:
   deps: {strategy: uv-lock, groups: [tests]}
 starlette:
   repo: Kludex/starlette
-  deps: {strategy: uv-lock, groups: [dev]}
+  # blockbuster (a test-quality tool that flags blocking calls) patches builtins through
+  # gc.get_referents, which the sandbox always blocks; starlette's conftest supports running
+  # without it, so it and its helper are left out.
+  deps: {strategy: uv-lock, groups: [dev], drop: [blockbuster, forbiddenfruit]}
 httpx:
   repo: encode/httpx
   deps: {strategy: compile, inputs: [requirements.txt]}

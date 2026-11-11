@@ -212,6 +212,21 @@ Candidates that failed only because of them were screened again.
   config's `split` (`RunConfig.split`, default `dev`). Before this, the dev configs selected
   every manifest and would have run the model on test bugs once they existed.
 
+## 2026-11-11: Screening batch 2 fixes
+
+- **Optional test tooling the sandbox forbids is left out of the environment.** Starlette's
+  conftest activates `blockbuster` (it flags blocking calls in async code) for every test;
+  `blockbuster` patches builtins through `forbiddenfruit`, which calls `gc.get_referents`. The
+  sandbox blocks every gc walk (red-team round 3), so every starlette test errored at setup and
+  real crashes were excluded as "not a crash". The gc block stays; instead the starlette profile
+  drops `blockbuster` and `forbiddenfruit` from the lock (`deps.drop`), a set-up the project
+  supports (its conftest skips the fixture when `blockbuster` is missing). The affected
+  candidates were screened again; two pass.
+- **Bug kind, refined.** `library_raise` now also needs the raised class to be what the `raise`
+  statement creates: an error while building the exception (starlette-3783:
+  `raise ValueError(f"... {cast.__name__}")` fails with `AttributeError`) is a
+  `python_failure`. A bare `raise` or `raise exc` still counts as deliberate.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

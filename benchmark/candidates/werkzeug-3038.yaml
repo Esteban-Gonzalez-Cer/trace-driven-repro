@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/werkzeug/routing/exceptions.py', 'src/werkzeug/routing/matcher.py', 'src/werkzeug/routing/rules.py'] (46 lines).
+id: werkzeug-3038
+repo: pallets/werkzeug
+c_fix: bf7529e62685e0b87350481703ddae5b6351072d
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3038
+fix_date: '2026-02-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add a DuplicateRuleError
+split: test
