@@ -10,12 +10,14 @@ target_exception: ValueError
 target_frame:
   file: more_itertools/more.py
   function: chunked_even
+crash_kind: python_failure
 payload_path: benchmark/payloads/more-itertools-1342.json
 oracle_tests:
 - tests/test_more.py::ChunkedEvenTests::test_zero_chunk_size
 excluded_fix_tests:
 - id: tests/test_more.py::ChunkedEvenTests::test_negative_chunk_size
-  reason: fails with AssertionError raised in the test itself, not a crash
+  reason: 'fails with AssertionError raised in the test itself, not a crash ("n must be at least 0" does
+    not match "Indices for islice() must be None or an integer: 0 <= x <= sy)'
 baseline_pass_set:
 - tests/test_more.py::AdjacentTests::test_call_once
 - tests/test_more.py::AdjacentTests::test_consecutive_true

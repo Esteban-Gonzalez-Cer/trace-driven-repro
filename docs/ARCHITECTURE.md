@@ -102,6 +102,9 @@ It is a mechanical version of `docs/preflight/flask-6096.md`:
    synthetic Sentry-style payload: frames from the outermost library frame inward, source context
    and masked local reprs for library frames, no test frames.
 
+7. The oracle failure's kind is recorded as `crash_kind` (`crash_kind()`): `library_raise` if
+   the innermost frame is a library `raise` statement, otherwise `python_failure`.
+
 Outputs: `benchmark/manifests/{id}.yaml` (deterministic YAML), `benchmark/locks/{id}.txt`,
 `benchmark/payloads/{id}.json`, an upserted `benchmark/screening_log.jsonl` row, and
 `work/preflight/{id}/report.json` with every run's outcome counts and durations. Re-running gives

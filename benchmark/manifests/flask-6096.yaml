@@ -10,12 +10,13 @@ target_exception: ValueError
 target_frame:
   file: src/flask/app.py
   function: run
+crash_kind: python_failure
 payload_path: benchmark/payloads/flask-6096.json
 oracle_tests:
 - tests/test_basic.py::test_run_from_config[None-None-[::1]:8080-::1-8080]
 excluded_fix_tests:
 - id: tests/test_testing.py::test_session_transaction_ipv6
-  reason: fails with AssertionError raised in the test itself, not a crash
+  reason: fails with AssertionError raised in the test itself, not a crash (assert 'None' == '42')
 baseline_pass_set:
 - tests/test_appctx.py::test_app_context_provides_current_app
 - tests/test_appctx.py::test_app_ctx_globals_methods
