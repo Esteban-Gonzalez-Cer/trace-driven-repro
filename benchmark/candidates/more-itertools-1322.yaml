@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (16 lines).
+id: more-itertools-1322
+repo: more-itertools/more-itertools
+c_fix: 69dbc3392928afe1cc892a387bf0e721522f21c2
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1322
+fix_date: '2026-10-30'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-10-30'
+notes: 'peekable: avoid caching entire iterable on negative slice with omitted stop'
+split: test

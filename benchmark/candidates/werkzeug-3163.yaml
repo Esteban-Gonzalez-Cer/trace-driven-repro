@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/datastructures/range.py', 'src/werkzeug/sansio/request.py'] (27 lines).
+id: werkzeug-3163
+repo: pallets/werkzeug
+c_fix: 811b9e511e336fd122933690a50451f99ab6b0de
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3163
+fix_date: '2026-04-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: if-range discards weak etag
+split: test

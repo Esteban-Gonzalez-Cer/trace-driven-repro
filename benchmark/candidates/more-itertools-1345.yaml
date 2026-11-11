@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 5; source ['more_itertools/more.py'] (6 lines).
+id: more-itertools-1345
+repo: more-itertools/more-itertools
+c_fix: f42daddf205f335fea6e200dad46049f33e71221
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1345
+fix_date: '2026-11-04'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-11-04'
+notes: Fix numeric_range equality and hashing above sys.maxsize
+split: test

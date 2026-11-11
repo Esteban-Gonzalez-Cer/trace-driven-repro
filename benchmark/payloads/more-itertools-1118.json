@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "6630689489678064c400148b6ba15848",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/recipes.py",
+              "function": "nth_combination",
+              "lineno": 656,
+              "in_app": true,
+              "pre_context": [
+                "    ``IndexError`` will be raised if the given *index* is invalid.",
+                "    \"\"\"",
+                "    pool = tuple(iterable)",
+                "    n = len(pool)",
+                "    if (r < 0) or (r > n):"
+              ],
+              "context_line": "        raise ValueError",
+              "post_context": [
+                "",
+                "    c = 1",
+                "    k = min(r, n - r)",
+                "    for i in range(1, k + 1):",
+                "        c = c * (n - k + i) // i"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

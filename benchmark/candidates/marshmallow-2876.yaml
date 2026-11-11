@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/error_store.py'] (2 lines).
+id: marshmallow-2876
+repo: marshmallow-code/marshmallow
+c_fix: 692e79df9cb03458c0bd215b32ef83d92afb9a47
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2876
+fix_date: '2025-12-22'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Delint
+split: test

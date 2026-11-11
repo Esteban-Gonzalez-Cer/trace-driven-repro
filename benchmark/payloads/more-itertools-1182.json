@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "7bba7b402b297b553d14af62ab208879",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/recipes.py",
+              "function": "iter_index",
+              "lineno": 894,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    \"\"\"",
+                "    seq_index = getattr(iterable, 'index', None)",
+                "    if seq_index is None:",
+                "        # Slow path for general iterables"
+              ],
+              "context_line": "        iterator = islice(iterable, start, stop)",
+              "post_context": [
+                "        for i, element in enumerate(iterator, start):",
+                "            if element is value or element == value:",
+                "                yield i",
+                "    else:",
+                "        # Fast path for sequences"
+              ],
+              "vars": {
+                "iterable": "<str_ascii_iterator object at 0x…>",
+                "seq_index": "None",
+                "start": "-3",
+                "stop": "None",
+                "value": "'A'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

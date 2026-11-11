@@ -221,7 +221,10 @@ Candidates that failed only because of them were screened again.
   real crashes were excluded as "not a crash". The gc block stays; instead the starlette profile
   drops `blockbuster` and `forbiddenfruit` from the lock (`deps.drop`), a set-up the project
   supports (its conftest skips the fixture when `blockbuster` is missing). The affected
-  candidates were screened again; two pass.
+  candidates were screened again; two pass. Older starlette commits import `blockbuster`
+  unconditionally in their conftest: without it the suite does not load, and with it every test
+  errors at the gc block. Those candidates (starlette-3271, starlette-3545) cannot be used; the
+  screening log records them as `preflight_fail` with the import error.
 - **Bug kind, refined.** `library_raise` now also needs the raised class to be what the `raise`
   statement creates: an error while building the exception (starlette-3783:
   `raise ValueError(f"... {cast.__name__}")` fails with `AttributeError`) is a
@@ -242,8 +245,20 @@ garbage collection cannot fail an unrelated test. A harness bug fix (spec §15 (
 a correct patch never depended on it, but labels (Regression Failure) and the agent's feedback
 could. All 12 real bugs were re-run through preflight with the new command.
 
+## 2026-11-11: Test set complete (30 bugs)
+
+Screening stopped by the stop rule at 30 test bugs, after 208 candidates in all (35 passed
+preflight: 5 dev and 30 test; 170 excluded; 3 preflight failures), every decision in the
+screening log. The last rounds also looked at fixes merged up to two years back
+(`--since 2024-11-11`), once the most crash-like candidates of the last 12 months were used up;
+criterion 5 prefers recent fixes but does not require them. Fix dates in the test set run from
+2025-08 to 2026-11. Kinds: 23 `python_failure`, 7 `library_raise`. Per library: marshmallow,
+more-itertools and tomlkit 6 each (the cap), starlette 4, click 3, werkzeug 2, requests,
+flask and attrs 1 each.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
 - Where the write-up is published.
-- Final repository list after early screening.
+- (Settled: the final repository list is the 9 libraries above; jinja2, httpx, itsdangerous and
+  markupsafe yielded no usable fix, rich and typer none that passed.)

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['more_itertools/more.py'] (22 lines).
+id: more-itertools-1126
+repo: more-itertools/more-itertools
+c_fix: e4d2a4a2a97246a73856754b2c4866d7f41d4875
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1126
+fix_date: '2026-03-31'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-03-31'
+notes: 'fix: prevent _marker exposure to user predicates in replace() and locate()'
+split: test

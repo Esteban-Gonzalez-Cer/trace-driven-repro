@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['starlette/middleware/gzip.py'] (16 lines).
+id: starlette-3421
+repo: Kludex/starlette
+c_fix: f1dc9b630da61ee14e8b7580921a7d8f55dfa4ff
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3421
+fix_date: '2026-08-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Expand default excluded content types in `GZipMiddleware`
+split: test

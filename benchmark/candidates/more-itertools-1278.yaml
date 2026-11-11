@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['more_itertools/more.py'] (15 lines).
+id: more-itertools-1278
+repo: more-itertools/more-itertools
+c_fix: 4ebeea3e569388911a0bec740092f3cf996d79f3
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1278
+fix_date: '2026-09-14'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-14'
+notes: Reuse input iterators in zip_broadcast
+split: test

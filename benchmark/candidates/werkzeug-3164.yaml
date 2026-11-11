@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/debug/__init__.py', 'src/werkzeug/http.py', 'src/werkzeug/wrappers/response.py'] (38 lines).
+id: werkzeug-3164
+repo: pallets/werkzeug
+c_fix: cd8be56a8a3cd70ed359cfaeeee6905933b1e07a
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3164
+fix_date: '2026-04-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: use sha3-256 instead of sha-1
+split: test

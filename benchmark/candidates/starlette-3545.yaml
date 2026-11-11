@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['starlette/exceptions.py'] (4 lines).
+id: starlette-3545
+repo: Kludex/starlette
+c_fix: 03f12b7fcf0a3e21a8da648ca0900c79472e9efe
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3545
+fix_date: '2026-09-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Allow HTTPException to use non-standard status codes
+split: test

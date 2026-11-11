@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (19 lines).
+id: click-3821
+repo: pallets/click
+c_fix: 00aca23ee9135eedc651c6929c7bc1d39e522431
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3821
+fix_date: '2026-09-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add `Option.get_help_spec` to extract the help's left part of an hidden option
+split: test

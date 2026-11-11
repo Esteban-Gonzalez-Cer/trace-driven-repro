@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['typer/cli.py', 'typer/core.py', 'typer/main.py'] (25 lines).
+id: typer-1128
+repo: fastapi/typer
+c_fix: f398fb1276062f9e77575e1b3e7570d43e5d7eb6
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1128
+fix_date: '2025-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ⚡️ Lazy-load `rich_utils` to reduce startup time
+split: test

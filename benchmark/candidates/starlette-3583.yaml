@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['starlette/responses.py'] (2 lines).
+id: starlette-3583
+repo: Kludex/starlette
+c_fix: 9774b08ef457e91e37e38c8a1abbfa3510427f21
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3583
+fix_date: '2026-09-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Stop multipart range responses on unexpected EOF
+split: test

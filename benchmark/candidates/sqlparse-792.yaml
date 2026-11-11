@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['sqlparse/filters/others.py'] (35 lines).
+id: sqlparse-792
+repo: andialbrecht/sqlparse
+c_fix: 48bd14ea394785200cb1cccc7343b644881e5971
+python_version: '3.11'
+fix_pr_url: https://github.com/andialbrecht/sqlparse/pull/792
+fix_date: '2024-11-14'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2024-11-14'
+notes: '[fix] issue262 fixing SQL-Hint deleting when clearing script from comments'
+split: test

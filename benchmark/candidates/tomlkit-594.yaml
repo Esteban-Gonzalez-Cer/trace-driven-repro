@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 6; source ['tomlkit/api.py'] (9 lines).
+id: tomlkit-594
+repo: python-poetry/tomlkit
+c_fix: 90365ea1d67cee7aa3bc62e03ba817a6ddb6f67d
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/594
+fix_date: '2026-10-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Reject trailing characters in key_value()
+split: test

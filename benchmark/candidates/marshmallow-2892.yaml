@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/validate.py'] (4 lines).
+id: marshmallow-2892
+repo: marshmallow-code/marshmallow
+c_fix: 39e7c833e9c8711a49d6d710f7e3ee5cf2effbbe
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2892
+fix_date: '2026-01-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'fix: handle uppercase `file` URLs '
+split: test

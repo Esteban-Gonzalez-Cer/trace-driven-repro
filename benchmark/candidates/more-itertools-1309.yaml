@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (5 lines).
+id: more-itertools-1309
+repo: more-itertools/more-itertools
+c_fix: 67fcf640477c78605580f5ee703a54c73c1e7a8a
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1309
+fix_date: '2026-10-07'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-10-07'
+notes: 'fix: honour a falsey validator in bucket (#1308)'
+split: test

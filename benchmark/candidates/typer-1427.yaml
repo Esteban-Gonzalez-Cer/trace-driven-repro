@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['docs_src/arguments/default/tutorial002.py', 'docs_src/arguments/default/tutorial002_an.py'] (4 lines).
+id: typer-1427
+repo: fastapi/typer
+c_fix: f7b240d8fbc3a0e44752a571f102e39a4837c1df
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1427
+fix_date: '2025-11-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: '✅ Update tests to use `mod.app` '
+split: test

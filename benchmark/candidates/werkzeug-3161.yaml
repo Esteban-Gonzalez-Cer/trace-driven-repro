@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/datastructures/__init__.py', 'src/werkzeug/datastructures/accept.py', 'src/werkzeug/sansio/request.py'] (59 lines).
+id: werkzeug-3161
+repo: pallets/werkzeug
+c_fix: 3ea0d282d7ea183b73f9e8e7d8225f4bd9fc30c3
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3161
+fix_date: '2026-04-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate Accept-Charset header
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py'] (2 lines).
+id: typer-1708
+repo: fastapi/typer
+c_fix: 31b468ba599a31028c3c209d8f8a64e93ebc6d30
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1708
+fix_date: '2026-04-22'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that `typer.launch` forwards correctly when launching a file
+split: test

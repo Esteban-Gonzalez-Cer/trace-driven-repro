@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/schemas.py'] (20 lines).
+id: starlette-3736
+repo: Kludex/starlette
+c_fix: 0f08970e5cce0aec4fc1cea7447c262d741795eb
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3736
+fix_date: '2026-11-01'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Include `functools.partial` endpoints in the generated schema
+split: test

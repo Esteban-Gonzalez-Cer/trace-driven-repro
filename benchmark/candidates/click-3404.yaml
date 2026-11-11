@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['src/click/core.py'] (57 lines).
+id: click-3404
+repo: pallets/click
+c_fix: ec8226954e2657324e7a25fec6657e4fbde33bcb
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3404
+fix_date: '2026-05-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'Dual-option value arbitration: `first` vs. `last` vs. `most explicit` policy'
+split: test

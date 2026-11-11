@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "a2bb2434553ed00292bb8a3ba713a5b6",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ParseError",
+        "module": "tomlkit.exceptions",
+        "value": "'OutOfOrderTableProxy' object has no attribute 'trivia' at line 2 col 0",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/api.py",
+              "function": "parse",
+              "lineno": 107,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "def parse(string: str | bytes) -> TOMLDocument:",
+                "    \"\"\"",
+                "    Parses a string or bytes into a TOMLDocument.",
+                "    \"\"\""
+              ],
+              "context_line": "    return Parser(string).parse()",
+              "post_context": [
+                "",
+                "",
+                "def document() -> TOMLDocument:",
+                "    \"\"\"",
+                "    Returns a new TOMLDocument instance."
+              ],
+              "vars": {
+                "string": "' [[a.b.c.d]]\\n[a.b.c]\\n'"
+              }
+            },
+            {
+              "filename": "tomlkit/parser.py",
+              "function": "parse",
+              "lineno": 209,
+              "in_app": true,
+              "pre_context": [
+                "                value = self._parse_aot(value, key)",
+                "",
+                "            try:",
+                "                body.append(key, value)",
+                "            except Exception as e:"
+              ],
+              "context_line": "                raise self.parse_error(ParseError, str(e)) from e",
+              "post_context": [
+                "",
+                "        body.parsing(False)",
+                "",
+                "        return body",
+                ""
+              ],
+              "vars": {
+                "body": "{'a': {'b': {'c': {'d': [{}]}}}}",
+                "item": "None",
+                "key": "<Key a>",
+                "self": "<tomlkit.parser.Parser object at 0x…>",
+                "value": "{'b': {'c': {}}}"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

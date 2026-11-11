@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (15 lines).
+id: click-3728
+repo: pallets/click
+c_fix: 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3728
+fix_date: '2026-08-09'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Sort help args to make them reproducible
+split: test

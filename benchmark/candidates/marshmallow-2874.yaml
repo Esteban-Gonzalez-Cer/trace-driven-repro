@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/validate.py'] (2 lines).
+id: marshmallow-2874
+repo: marshmallow-code/marshmallow
+c_fix: 10fe10be814a77765a76334e00bc6f69cd18409b
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2874
+fix_date: '2025-12-05'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'Fix: Case sensitivity in validator'
+split: test

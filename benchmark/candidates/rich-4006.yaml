@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/cells.py'] (45 lines).
+id: rich-4006
+repo: Textualize/rich
+c_fix: 7338cb9dafd0d0e916585f191ae505b3e602bb51
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/4006
+fix_date: '2026-02-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: fix for infinite loop in split_graphemes
+split: test

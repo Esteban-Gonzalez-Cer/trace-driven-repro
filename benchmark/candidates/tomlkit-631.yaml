@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['tomlkit/items.py'] (7 lines).
+id: tomlkit-631
+repo: python-poetry/tomlkit
+c_fix: d41d237103c368c28a760bf57ed5b3d5e6b0c504
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/631
+fix_date: '2026-11-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix array-of-tables assignment serialization and list storage
+split: test

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['more_itertools/recipes.py'] (3 lines).
+id: more-itertools-1194
+repo: more-itertools/more-itertools
+c_fix: 586ccc4d5af7263108c0f51386acff27469a28e4
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1194
+fix_date: '2026-07-01'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-07-01'
+notes: Raise for negative tail sizes on sized iterables
+split: test

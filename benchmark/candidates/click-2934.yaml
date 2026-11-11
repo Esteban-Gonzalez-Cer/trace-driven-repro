@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 8; source ['src/click/testing.py'] (11 lines).
+id: click-2934
+repo: pallets/click
+c_fix: 262bdf02288daf9a37b9e815b44acafd62b5c6fe
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/2934
+fix_date: '2025-05-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Raise an exception on end of input in CliRunner
+split: test

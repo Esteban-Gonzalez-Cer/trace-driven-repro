@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/schema.py'] (2 lines).
+id: marshmallow-2903
+repo: marshmallow-code/marshmallow
+c_fix: 252090c7c707166cf4fcfcdc73eb4376b7bbc4b7
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2903
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix nested partial to use attr_name instead of data_key for prefix
+split: test

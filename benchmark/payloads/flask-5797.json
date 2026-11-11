@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "123801836240e759fcb4d3ac441ec020",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "KeyError",
+        "module": "builtins",
+        "value": "'target'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/flask/sessions.py",
+              "function": "__getitem__",
+              "lineno": 86,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        super().__init__(initial, on_update)",
+                "",
+                "    def __getitem__(self, key: str) -> t.Any:",
+                "        self.accessed = True"
+              ],
+              "context_line": "        return super().__getitem__(key)",
+              "post_context": [
+                "",
+                "    def get(self, key: str, default: t.Any = None) -> t.Any:",
+                "        self.accessed = True",
+                "        return super().get(key, default)",
+                ""
+              ],
+              "vars": {
+                "key": "'target'",
+                "self": "<SecureCookieSession {'redirect': True}>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

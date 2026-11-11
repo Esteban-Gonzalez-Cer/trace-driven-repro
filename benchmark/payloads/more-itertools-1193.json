@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "997be7e1319fbea9e7bae6cce098050c",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "list index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "interleave_evenly",
+              "lineno": 1350,
+              "in_app": true,
+              "pre_context": [
+                "    lengths_desc = [lengths[i] for i in lengths_permute]",
+                "    iters_desc = [iter(iterables[i]) for i in lengths_permute]",
+                "",
+                "    # the longest iterable is the primary one (Bresenham: the longest",
+                "    # distance along an axis)"
+              ],
+              "context_line": "    delta_primary, deltas_secondary = lengths_desc[0], lengths_desc[1:]",
+              "post_context": [
+                "    iter_primary, iters_secondary = iters_desc[0], iters_desc[1:]",
+                "    errors = [delta_primary // dims] * len(deltas_secondary)",
+                "",
+                "    to_yield = sum(lengths)",
+                "    while to_yield:"
+              ],
+              "vars": {
+                "dims": "0",
+                "iterables": "[]",
+                "iters_desc": "[]",
+                "lengths": "[]",
+                "lengths_desc": "[]",
+                "lengths_permute": "[]"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

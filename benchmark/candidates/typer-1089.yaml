@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/cli.py', 'typer/core.py'] (38 lines).
+id: typer-1089
+repo: fastapi/typer
+c_fix: c0aeb6e1f2a4288add296f067cfa3299fad9b4ac
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1089
+fix_date: '2026-01-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix escaping in help text when `rich` is installed but not used
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/termui.py'] (14 lines).
+id: click-3653
+repo: pallets/click
+c_fix: fe3ad76e5807e7a401ed7520f051071c6ae1fa6e
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3653
+fix_date: '2026-07-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Strip ANSI from `confirm()` and `prompt()`
+split: test

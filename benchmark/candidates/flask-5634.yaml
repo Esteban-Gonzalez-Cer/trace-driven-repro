@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/flask/app.py'] (42 lines).
+id: flask-5634
+repo: pallets/flask
+c_fix: 10bdf61a0f751f3cb000f8f8ac5ac5b4bb535677
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/flask/pull/5634
+fix_date: '2024-11-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: setting `SERVER_NAME` does not restrict routing for both `subdomain_matching` and `host_matching`
+split: test

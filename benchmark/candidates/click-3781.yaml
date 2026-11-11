@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/_termui_impl.py', 'src/click/termui.py'] (29 lines).
+id: click-3781
+repo: pallets/click
+c_fix: e1fd5946ab26aaf372009eaff1acf947140b40fb
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3781
+fix_date: '2026-08-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add support of `pathlib.Path` to `edit`
+split: test

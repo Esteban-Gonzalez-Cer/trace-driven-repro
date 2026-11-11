@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/testing.py'] (38 lines).
+id: click-3878
+repo: pallets/click
+c_fix: ac0e297ec2d7d78455a7d18ce306996e668c4a85
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3878
+fix_date: '2026-11-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Print `\x04` and `\x1a` input bytes as `^D` and `^Z` in `CliRunner`
+split: test

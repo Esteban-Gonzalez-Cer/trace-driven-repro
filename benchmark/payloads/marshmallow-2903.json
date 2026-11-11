@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "6e11f3447a1fb9012b599eef97a7b642",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValidationError",
+        "module": "marshmallow.exceptions",
+        "value": "{'homeAddress': {'zip_code': ['Missing data for required field.']}}",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/schema.py",
+              "function": "load",
+              "lineno": 730,
+              "in_app": true,
+              "pre_context": [
+                "        .. versionchanged:: 3.0.0b7",
+                "            This method returns the deserialized data rather than a ``(data, errors)`` tuple.",
+                "            A :exc:`ValidationError <marshmallow.exceptions.ValidationError>` is raised",
+                "            if invalid data are passed.",
+                "        \"\"\""
+              ],
+              "context_line": "        return self._do_load(",
+              "post_context": [
+                "            data, many=many, partial=partial, unknown=unknown, postprocess=True",
+                "        )",
+                "",
+                "    def loads(",
+                "        self,"
+              ],
+              "vars": {
+                "data": "{'homeAddress': {'city': 'Springfield'}}",
+                "many": "None",
+                "partial": "('address.zip_code',)",
+                "self": "<PersonSchema(many=False)>",
+                "unknown": "None"
+              }
+            },
+            {
+              "filename": "src/marshmallow/schema.py",
+              "function": "_do_load",
+              "lineno": 938,
+              "in_app": true,
+              "pre_context": [
+                "                except ValidationError as err:",
+                "                    errors = err.normalized_messages()",
+                "        if errors:",
+                "            exc = ValidationError(errors, data=data, valid_data=result)",
+                "            self.handle_error(exc, data, many=many, partial=partial)"
+              ],
+              "context_line": "            raise exc",
+              "post_context": [
+                "",
+                "        return result",
+                "",
+                "    def _normalize_nested_options(self) -> None:",
+                "        \"\"\"Apply then flatten nested schema options."
+              ],
+              "vars": {
+                "data": "{'homeAddress': {'city': 'Springfield'}}",
+                "error_store": "<marshmallow.error_store.ErrorStore object at 0x…>",
+                "errors": "{'homeAddress': {'zip_code': ['Missing data for required field.']}}",
+                "exc": "ValidationError({'homeAddress': {'zip_code': ['Missing data for required field.']}})",
+                "many": "False",
+                "partial": "('address.zip_code',)",
+                "postprocess": "True",
+                "processed_data": "{'homeAddress': {'city': 'Springfield'}}",
+                "result": "{'address': {'city': 'Springfield'}}",
+                "self": "<PersonSchema(many=False)>",
+                "unknown": "'raise'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

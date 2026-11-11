@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/rich_utils.py'] (20 lines).
+id: typer-1508
+repo: fastapi/typer
+c_fix: a2215ebdcd50d2010576d492ee0ef89321e8eab3
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1508
+fix_date: '2026-02-10'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix highlighting of optional variadic argument metavars
+split: test

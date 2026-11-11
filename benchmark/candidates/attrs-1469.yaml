@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_funcs.py'] (11 lines).
+id: attrs-1469
+repo: python-attrs/attrs
+c_fix: 1315e42fe51743fe1c3529da6792dcda2ef6cc1f
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1469
+fix_date: '2025-09-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Improve performance of attr.astuple
+split: test

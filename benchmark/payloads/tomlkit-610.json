@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "b0ea9ebf40a7c6205487441f9812f072",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "invalid literal for int() with base 10: '0o7_7'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/api.py",
+              "function": "integer",
+              "lineno": 119,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "",
+                "# Items",
+                "def integer(raw: str | int) -> Integer:",
+                "    \"\"\"Create an integer item from a number or string.\"\"\""
+              ],
+              "context_line": "    return item(int(raw))",
+              "post_context": [
+                "",
+                "",
+                "def float_(raw: str | float) -> Float:",
+                "    \"\"\"Create an float item from a number or string.\"\"\"",
+                "    return item(float(raw))"
+              ],
+              "vars": {
+                "raw": "'0o7_7'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

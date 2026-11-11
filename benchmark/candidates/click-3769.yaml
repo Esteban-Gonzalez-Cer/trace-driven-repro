@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/_termui_impl.py'] (8 lines).
+id: click-3769
+repo: pallets/click
+c_fix: 150d1071d69c5cdad7de78590013ffe56cf9e3bb
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3769
+fix_date: '2026-08-15'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Settles progress bar on its final position
+split: test

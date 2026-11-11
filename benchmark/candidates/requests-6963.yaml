@@ -1,0 +1,26 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/requests/utils.py'] (9 lines).
+id: requests-6963
+repo: psf/requests
+c_fix: 5b4b64c3467fd7a3c03f91ee641aaa348b6bed3b
+python_version: '3.11'
+fix_pr_url: https://github.com/psf/requests/pull/6963
+fix_date: '2025-06-05'
+deps:
+  strategy: compile
+  inputs:
+  - pyproject.toml
+  extra:
+  - PySocks>=1.5.6,!=1.5.7
+  - pytest-httpbin==2.1.0
+  - httpbin~=0.10.0
+  - pytest-cov
+  - pytest-mock
+  - pytest>=3
+  - trustme
+  - pytest-timeout
+  exclude_newer: '2025-06-05'
+pytest_args:
+- --timeout=120
+notes: 'fix CVE 2024 47081: manual url parsing leads to netloc credentials leak'
+split: test

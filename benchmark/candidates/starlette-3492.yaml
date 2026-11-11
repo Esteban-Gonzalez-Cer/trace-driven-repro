@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['starlette/formparsers.py'] (10 lines).
+id: starlette-3492
+repo: Kludex/starlette
+c_fix: 39fd0ffac25593fce39466320c9a666957ce8b8c
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3492
+fix_date: '2026-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Return 400 for invalid multipart parser input
+split: test

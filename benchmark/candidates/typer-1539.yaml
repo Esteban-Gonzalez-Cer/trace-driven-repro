@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py', 'typer/utils.py'] (18 lines).
+id: typer-1539
+repo: fastapi/typer
+c_fix: 1edb5992937bd777bd8dddc0c72d9bb66534dada
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1539
+fix_date: '2026-02-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix `TYPER_USE_RICH` parsing to allow disabling Rich completely
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/routing/converters.py'] (7 lines).
+id: werkzeug-3147
+repo: pallets/werkzeug
+c_fix: a7e3ab2b42ab509148d2864e64a8f8378a638e7e
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3147
+fix_date: '2026-04-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Prevent scientific notation being used for floats
+split: test

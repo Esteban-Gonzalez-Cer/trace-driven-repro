@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/types.py'] (43 lines).
+id: click-3858
+repo: pallets/click
+c_fix: 86949d19b930ef68a45566544cb4b9508d895d0d
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3858
+fix_date: '2026-09-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Make `click.Path` generic on `path_type`
+split: test

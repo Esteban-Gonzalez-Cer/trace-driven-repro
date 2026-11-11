@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/console.py', 'rich/segment.py'] (45 lines).
+id: rich-3938
+repo: Textualize/rich
+c_fix: 3286095ff8b70e093dbbc4136ff7ba7d51944bec
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3938
+fix_date: '2026-01-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: fix background style with soft wrap
+split: test
