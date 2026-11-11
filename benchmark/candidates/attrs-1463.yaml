@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_funcs.py'] (39 lines).
+id: attrs-1463
+repo: python-attrs/attrs
+c_fix: 7369ad9f4b273e400478c8e65399d826ab3f3b32
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1463
+fix_date: '2025-09-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Improve performance of asdict in the common case
+split: test

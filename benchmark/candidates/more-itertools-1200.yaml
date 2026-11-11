@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 13; source ['more_itertools/more.py'] (3 lines).
+id: more-itertools-1200
+repo: more-itertools/more-itertools
+c_fix: c2859de7ae7b791b77c33462a58f81f9a4d9d5d6
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1200
+fix_date: '2026-07-08'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-07-08'
+notes: Raise for negative slice sizes in sliced()
+split: test

@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "0907f89aaf011bff0378b6f7aa71a96a",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Invalid header value b'\\n'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/requests/api.py",
+              "function": "get",
+              "lineno": 73,
+              "in_app": true,
+              "pre_context": [
+                "    :param \\*\\*kwargs: Optional arguments that ``request`` takes.",
+                "    :return: :class:`Response <Response>` object",
+                "    :rtype: requests.Response",
+                "    \"\"\"",
+                ""
+              ],
+              "context_line": "    return request(\"get\", url, params=params, **kwargs)",
+              "post_context": [
+                "",
+                "",
+                "def options(url, **kwargs):",
+                "    r\"\"\"Sends an OPTIONS request.",
+                ""
+              ],
+              "vars": {
+                "kwargs": "{'headers': {'foo': '\\n'}}",
+                "params": "None",
+                "url": "'http://127.0.0.1:36145/get'"
+              }
+            },
+            {
+              "filename": "src/requests/api.py",
+              "function": "request",
+              "lineno": 59,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    # By using the 'with' statement we are sure the session is closed, thus we",
+                "    # avoid leaving sockets open which can trigger a ResourceWarning in some",
+                "    # cases, and look like a memory leak in others.",
+                "    with sessions.Session() as session:"
+              ],
+              "context_line": "        return session.request(method=method, url=url, **kwargs)",
+              "post_context": [
+                "",
+                "",
+                "def get(url, params=None, **kwargs):",
+                "    r\"\"\"Sends a GET request.",
+                ""
+              ],
+              "vars": {
+                "kwargs": "{'headers': {'foo': '\\n'}, 'params': None}",
+                "method": "'get'",
+                "session": "<requests.sessions.Session object at 0x…>",
+                "url": "'http://127.0.0.1:36145/get'"
+              }
+            },
+            {
+              "filename": "src/requests/sessions.py",
+              "function": "request",
+              "lineno": 592,
+              "in_app": true,
+              "pre_context": [
+                "        send_kwargs = {",
+                "            \"timeout\": timeout,",
+                "            \"allow_redirects\": allow_redirects,",
+                "        }",
+                "        send_kwargs.update(settings)"
+              ],
+              "context_line": "        resp = self.send(prep, **send_kwargs)",
+              "post_context": [
+                "",
+                "        return resp",
+                "",
+                "    def get(self, url, **kwargs):",
+                "        r\"\"\"Sends a GET request. Returns :class:`Response` object."
+              ],
+              "vars": {
+                "allow_redirects": "True",
+                "auth": "None",
+                "cert": "None",
+                "cookies": "None",
+                "data": "None",
+                "files": "None",
+                "headers": "{'foo': '\\n'}",
+                "hooks": "None",
+                "json": "None",
+                "method": "'get'",
+                "params": "None",
+                "prep": "<PreparedRequest [GET]>",
+                "proxies": "{}",
+                "req": "<Request [GET]>",
+                "self": "<requests.sessions.Session object at 0x…>",
+                "send_kwargs": "{'allow_redirects': True, 'cert': None, 'proxies': OrderedDict(), 'stream': False, 'timeout': None, 'verify': True}",
+                "settings": "{'cert': None, 'proxies': OrderedDict(), 'stream': False, 'verify': True}",
+                "stream": "None",
+                "timeout": "None",
+                "url": "'http://127.0.0.1:36145/get'",
+                "verify": "None"
+              }
+            },
+            {
+              "filename": "src/requests/sessions.py",
+              "function": "send",
+              "lineno": 706,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        # Start time (approximately) of the request",
+                "        start = preferred_clock()",
+                "",
+                "        # Send the request"
+              ],
+              "context_line": "        r = adapter.send(request, **kwargs)",
+              "post_context": [
+                "",
+                "        # Total elapsed time of the request (approximately)",
+                "        elapsed = preferred_clock() - start",
+                "        r.elapsed = timedelta(seconds=elapsed)",
+                ""
+              ],
+              "vars": {
+                "adapter": "<requests.adapters.HTTPAdapter object at 0x…>",
+                "allow_redirects": "True",
+                "hooks": "{'response': []}",
+                "kwargs": "{'cert': None, 'proxies': OrderedDict(), 'stream': False, 'timeout': None, 'verify': True}",
+                "request": "<PreparedRequest [GET]>",
+                "self": "<requests.sessions.Session object at 0x…>",
+                "start": "1794427180.323118",
+                "stream": "False"
+              }
+            },
+            {
+              "filename": "src/requests/adapters.py",
+              "function": "send",
+              "lineno": 645,
+              "in_app": true,
+              "pre_context": [
+                "            pass",
+                "        else:",
+                "            timeout = TimeoutSauce(connect=timeout, read=timeout)",
+                "",
+                "        try:"
+              ],
+              "context_line": "            resp = conn.urlopen(",
+              "post_context": [
+                "                method=request.method,",
+                "                url=url,",
+                "                body=request.body,",
+                "                headers=request.headers,",
+                "                redirect=False,"
+              ],
+              "vars": {
+                "cert": "None",
+                "chunked": "False",
+                "conn": "<urllib3.connectionpool.HTTPConnectionPool object at 0x…>",
+                "proxies": "OrderedDict()",
+                "request": "<PreparedRequest [GET]>",
+                "self": "<requests.adapters.HTTPAdapter object at 0x…>",
+                "stream": "False",
+                "timeout": "Timeout(connect=None, read=None, total=None)",
+                "url": "'/get'",
+                "verify": "True"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py",
+              "function": "urlopen",
+              "lineno": 787,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py",
+              "function": "_make_request",
+              "lineno": 493,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/urllib3/connection.py",
+              "function": "request",
+              "lineno": 499,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/urllib3/connection.py",
+              "function": "putheader",
+              "lineno": 413,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/http/client.py",
+              "function": "putheader",
+              "lineno": 1329,
+              "in_app": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

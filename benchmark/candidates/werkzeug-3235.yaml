@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/_internal.py', 'src/werkzeug/serving.py'] (21 lines).
+id: werkzeug-3235
+repo: pallets/werkzeug
+c_fix: 218a653fd952b0a7fde05657dff00c40be5b8291
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3235
+fix_date: '2026-08-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: make plain int parsing even stricter
+split: test

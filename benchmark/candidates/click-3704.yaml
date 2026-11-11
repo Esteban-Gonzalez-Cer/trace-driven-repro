@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/testing.py'] (26 lines).
+id: click-3704
+repo: pallets/click
+c_fix: cfa01eeb7894a408af70b29d28c0b24f8680f9fb
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3704
+fix_date: '2026-07-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Deprecate `isolated_filesystem` and document its limits
+split: test

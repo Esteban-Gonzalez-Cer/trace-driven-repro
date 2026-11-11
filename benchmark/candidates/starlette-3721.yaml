@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['starlette/middleware/base.py', 'starlette/middleware/gzip.py', 'starlette/middleware/sessions.py'] (4 lines).
+id: starlette-3721
+repo: Kludex/starlette
+c_fix: 41144325474acf3c4c2e3187ea896815f962bef4
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3721
+fix_date: '2026-10-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Default omitted `http.response.start` headers in middlewares
+split: test

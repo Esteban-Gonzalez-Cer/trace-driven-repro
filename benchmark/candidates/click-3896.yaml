@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/testing.py'] (16 lines).
+id: click-3896
+repo: pallets/click
+c_fix: fdb65f4809719580436acb067410cec64433e5de
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3896
+fix_date: '2026-11-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add `context_settings` parameter to `CliRunner.invoke`
+split: test

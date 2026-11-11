@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['examples/i18nurls/application.py', 'src/werkzeug/debug/__init__.py', 'src/werkzeug/wrappers/request.py'] (50 lines).
+id: werkzeug-3300
+repo: pallets/werkzeug
+c_fix: f7e71c134f4ebe40e50b1f656b0113cdbdfb9357
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3300
+fix_date: '2026-09-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate `populate_request`
+split: test

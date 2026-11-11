@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py'] (2 lines).
+id: typer-1812
+repo: fastapi/typer
+c_fix: 917248604affe32caf899cc8faddfa23f81cb1ef
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1812
+fix_date: '2026-06-01'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that hidden commands are not shown when Rich markup is disabled
+split: test

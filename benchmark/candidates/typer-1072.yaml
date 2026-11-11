@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['docs_src/exceptions/tutorial002_py39.py', 'typer/main.py'] (19 lines).
+id: typer-1072
+repo: fastapi/typer
+c_fix: 458325db1de5b51c661e0fa65c591dd598bb6469
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1072
+fix_date: '2026-02-11'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ♻️ When printing error tracebacks with Rich, default to not showing locals, which are sometimes
+  verbose
+split: test

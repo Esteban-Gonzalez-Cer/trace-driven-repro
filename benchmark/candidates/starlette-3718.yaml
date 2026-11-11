@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/wsgi.py'] (2 lines).
+id: starlette-3718
+repo: Kludex/starlette
+c_fix: 438cbeda1a2e3b315a82e206cbc007626a96f2ad
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3718
+fix_date: '2026-10-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Strip `root_path` from `PATH_INFO` only at a segment boundary in `WSGIMiddleware`
+split: test

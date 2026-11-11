@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 7; source ['tomlkit/parser.py'] (9 lines).
+id: tomlkit-538
+repo: python-poetry/tomlkit
+c_fix: b48c094775fba4cb3c16dea4c302ae5e371ac4e9
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/538
+fix_date: '2026-07-14'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: reject overlong decimal integer instead of coercing to inf
+split: test

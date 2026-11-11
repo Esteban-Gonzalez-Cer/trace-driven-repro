@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "188438a49f833d6e39538e168b689ac0",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "list assignment index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/items.py",
+              "function": "__delitem__",
+              "lineno": 2446,
+              "in_app": true,
+              "pre_context": [
+                "    def __setitem__(self, key: slice | int, value: Any) -> None:  # type: ignore[override]",
+                "        self._body[key] = item(value, _parent=self)",
+                "",
+                "    def __delitem__(self, key: slice | int) -> None:  # type: ignore[override]",
+                "        del self._body[key]"
+              ],
+              "context_line": "        list.__delitem__(self, key)",
+              "post_context": [
+                "",
+                "    def insert(self, index: int, value: dict[str, Any]) -> None:  # type: ignore[override]",
+                "        value = item(value, _parent=self)",
+                "        if not isinstance(value, Table):",
+                "            raise ValueError(f\"Unsupported insert value type: {type(value)}\")"
+              ],
+              "vars": {
+                "key": "1",
+                "self": "<AoT [{'x': 1}]>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -28,16 +28,35 @@ jobs:
       - run: docker pull python:3.11-slim
       - run: uv run pytest -m "docker and not realbugs"
 
+  known-answer-bugs:
+    # The list of validated bugs, one CI job per bug below.
+    runs-on: ubuntu-latest
+    outputs:
+      bugs: ${{ steps.list.outputs.bugs }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - id: list
+        run: |
+          echo "bugs=$(ls benchmark/manifests/*.yaml | xargs -n1 basename | sed 's/.yaml$//' | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
   known-answer:
     # Known-answer tests on every validated benchmark bug (plan §5.5): clones upstream at the
-    # pinned commits and builds each bug_env image, so it needs network and Docker.
+    # pinned commits and builds the bug_env image, so it needs network and Docker. One job per
+    # bug: all of them in one job no longer fit in a time limit.
+    needs: known-answer-bugs
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        bug: ${{ fromJson(needs.known-answer-bugs.outputs.bugs) }}
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.3.3
       - run: uv sync --locked
       - run: uv run pytest -m realbugs -ra
+        env:
+          TRACEREPRO_BUG: ${{ matrix.bug }}
 
   secrets:
     runs-on: ubuntu-latest

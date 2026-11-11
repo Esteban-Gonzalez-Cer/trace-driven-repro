@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/validate.py'] (13 lines).
+id: marshmallow-2909
+repo: marshmallow-code/marshmallow
+c_fix: 65374df0c31cdc45acc4435741779298201306a2
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2909
+fix_date: '2026-03-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix OneOf.options() emitting phantom entries when labels outnumber choices
+split: test

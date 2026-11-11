@@ -1,0 +1,629 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "318309181c7e3dfd51a586afe7ad1241",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "embedded null byte",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/testclient.py",
+              "function": "get",
+              "lineno": 473,
+              "in_app": true,
+              "pre_context": [
+                "        auth: httpx._types.AuthTypes | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        follow_redirects: bool | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        timeout: httpx._types.TimeoutTypes | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        extensions: dict[str, Any] | None = None,",
+                "    ) -> httpx.Response:"
+              ],
+              "context_line": "        return super().get(",
+              "post_context": [
+                "            url,",
+                "            params=params,",
+                "            headers=headers,",
+                "            cookies=cookies,",
+                "            auth=auth,"
+              ],
+              "vars": {
+                "auth": "<httpx._client.UseClientDefault object at 0x…>",
+                "cookies": "None",
+                "extensions": "None",
+                "follow_redirects": "<httpx._client.UseClientDefault object at 0x…>",
+                "headers": "None",
+                "params": "None",
+                "self": "<starlette.testclient.TestClient object at 0x…>",
+                "timeout": "<httpx._client.UseClientDefault object at 0x…>",
+                "url": "'/example%00.txt'"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "get",
+              "lineno": 1053,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "request",
+              "lineno": 445,
+              "in_app": true,
+              "pre_context": [
+                "                \"You should not use the 'timeout' argument with the TestClient. \"",
+                "                \"See https://github.com/Kludex/starlette/issues/1108 for more information.\",",
+                "                DeprecationWarning,",
+                "            )",
+                "        url = self._merge_url(url)"
+              ],
+              "context_line": "        return super().request(",
+              "post_context": [
+                "            method,",
+                "            url,",
+                "            content=content,",
+                "            data=data,",
+                "            files=files,"
+              ],
+              "vars": {
+                "auth": "<httpx._client.UseClientDefault object at 0x…>",
+                "content": "None",
+                "cookies": "None",
+                "data": "None",
+                "extensions": "None",
+                "files": "None",
+                "follow_redirects": "<httpx._client.UseClientDefault object at 0x…>",
+                "headers": "None",
+                "json": "None",
+                "method": "'GET'",
+                "params": "None",
+                "self": "<starlette.testclient.TestClient object at 0x…>",
+                "timeout": "<httpx._client.UseClientDefault object at 0x…>",
+                "url": "URL('http://testserver/example%00.txt')"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "request",
+              "lineno": 825,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "send",
+              "lineno": 914,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "_send_handling_auth",
+              "lineno": 942,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "_send_handling_redirects",
+              "lineno": 979,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx/_client.py",
+              "function": "_send_single_request",
+              "lineno": 1014,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "handle_request",
+              "lineno": 348,
+              "in_app": true,
+              "pre_context": [
+                "            with self.portal_factory() as portal:",
+                "                response_complete = portal.call(anyio.Event)",
+                "                portal.call(self.app, scope, receive, send)",
+                "        except BaseException as exc:",
+                "            if self.raise_server_exceptions:"
+              ],
+              "context_line": "                raise exc",
+              "post_context": [
+                "",
+                "        if self.raise_server_exceptions:",
+                "            assert response_started, \"TestClient did not receive any response.\"",
+                "        elif not response_started:",
+                "            raw_kwargs = {"
+              ],
+              "vars": {
+                "context": "None",
+                "default_port": "80",
+                "headers": "[(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')]",
+                "host": "'testserver'",
+                "netloc": "'testserver'",
+                "path": "'/example\\x00.txt'",
+                "port": "80",
+                "portal": "<anyio._backends._asyncio.BlockingPortal object at 0x…>",
+                "query": "''",
+                "raw_kwargs": "{'headers': [('content-length', '21'), ('content-type', 'text/plain; charset=utf-8')], 'status_code': 500, 'stream': <_io.BytesIO object at 0x…>}",
+                "raw_path": "b'/example%00.txt'",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<Request('GET', 'http://testserver/example%00.txt')>",
+                "request_complete": "False",
+                "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
+                "response_started": "True",
+                "scheme": "'http'",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.testclient._TestClientTransport object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
+                "template": "None"
+              }
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "handle_request",
+              "lineno": 345,
+              "in_app": true,
+              "pre_context": [
+                "                context = message[\"info\"][\"context\"]",
+                "",
+                "        try:",
+                "            with self.portal_factory() as portal:",
+                "                response_complete = portal.call(anyio.Event)"
+              ],
+              "context_line": "                portal.call(self.app, scope, receive, send)",
+              "post_context": [
+                "        except BaseException as exc:",
+                "            if self.raise_server_exceptions:",
+                "                raise exc",
+                "",
+                "        if self.raise_server_exceptions:"
+              ],
+              "vars": {
+                "context": "None",
+                "default_port": "80",
+                "headers": "[(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')]",
+                "host": "'testserver'",
+                "netloc": "'testserver'",
+                "path": "'/example\\x00.txt'",
+                "port": "80",
+                "portal": "<anyio._backends._asyncio.BlockingPortal object at 0x…>",
+                "query": "''",
+                "raw_kwargs": "{'headers': [('content-length', '21'), ('content-type', 'text/plain; charset=utf-8')], 'status_code': 500, 'stream': <_io.BytesIO object at 0x…>}",
+                "raw_path": "b'/example%00.txt'",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<Request('GET', 'http://testserver/example%00.txt')>",
+                "request_complete": "False",
+                "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
+                "response_started": "True",
+                "scheme": "'http'",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.testclient._TestClientTransport object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
+                "template": "None"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/from_thread.py",
+              "function": "call",
+              "lineno": 291,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "result",
+              "lineno": 456,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "__get_result",
+              "lineno": 401,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/from_thread.py",
+              "function": "_call_func",
+              "lineno": 222,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/applications.py",
+              "function": "__call__",
+              "lineno": 90,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:",
+                "        scope[\"app\"] = self",
+                "        if self.middleware_stack is None:",
+                "            self.middleware_stack = self.build_middleware_stack()"
+              ],
+              "context_line": "        await self.middleware_stack(scope, receive, send)",
+              "post_context": [
+                "",
+                "    def mount(self, path: str, app: ASGIApp, name: str | None = None) -> None:",
+                "        self.router.mount(path, app=app, name=name)  # pragma: no cover",
+                "",
+                "    def host(self, host: str, app: ASGIApp, name: str | None = None) -> None:"
+              ],
+              "vars": {
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.applications.Starlette object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/middleware/errors.py",
+              "function": "__call__",
+              "lineno": 186,
+              "in_app": true,
+              "pre_context": [
+                "                await response(scope, receive, send)",
+                "",
+                "            # We always continue to raise the exception.",
+                "            # This allows servers to log the error, or allows test clients",
+                "            # to optionally raise the error within the test case."
+              ],
+              "context_line": "            raise exc",
+              "post_context": [
+                "",
+                "    def format_line(self, index: int, line: str, frame_lineno: int, frame_index: int) -> str:",
+                "        values = {",
+                "            # HTML escape - line could contain < or >",
+                "            \"line\": html.escape(line).replace(\" \", \"&nbsp\"),"
+              ],
+              "vars": {
+                "_send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<starlette.requests.Request object at 0x…>",
+                "response": "<starlette.responses.PlainTextResponse object at 0x…>",
+                "response_started": "False",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.middleware.errors.ServerErrorMiddleware object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/middleware/errors.py",
+              "function": "__call__",
+              "lineno": 164,
+              "in_app": true,
+              "pre_context": [
+                "            if message[\"type\"] == \"http.response.start\":",
+                "                response_started = True",
+                "            await send(message)",
+                "",
+                "        try:"
+              ],
+              "context_line": "            await self.app(scope, receive, _send)",
+              "post_context": [
+                "        except Exception as exc:",
+                "            request = Request(scope)",
+                "            if self.debug:",
+                "                # In debug mode, return traceback responses.",
+                "                response = self.debug_response(request, exc)"
+              ],
+              "vars": {
+                "_send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<starlette.requests.Request object at 0x…>",
+                "response": "<starlette.responses.PlainTextResponse object at 0x…>",
+                "response_started": "False",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.middleware.errors.ServerErrorMiddleware object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/middleware/exceptions.py",
+              "function": "__call__",
+              "lineno": 63,
+              "in_app": true,
+              "pre_context": [
+                "        if scope[\"type\"] == \"http\":",
+                "            conn = Request(scope, receive, send)",
+                "        else:",
+                "            conn = WebSocket(scope, receive, send)",
+                ""
+              ],
+              "context_line": "        await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)",
+              "post_context": [
+                "",
+                "    async def http_exception(self, request: Request, exc: Exception) -> Response:",
+                "        assert isinstance(exc, HTTPException)",
+                "        if exc.status_code in {204, 304}:",
+                "            return Response(status_code=exc.status_code, headers=exc.headers)"
+              ],
+              "vars": {
+                "conn": "<starlette.requests.Request object at 0x…>",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>",
+                "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/_exception_handler.py",
+              "function": "wrapped_app",
+              "lineno": 53,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "            if handler is None:",
+                "                handler = _lookup_exception_handler(exception_handlers, exc)",
+                "",
+                "            if handler is None:"
+              ],
+              "context_line": "                raise exc",
+              "post_context": [
+                "",
+                "            if response_started:",
+                "                raise RuntimeError(\"Caught handled exception, but response already started.\") from exc",
+                "",
+                "            if is_async_callable(handler):"
+              ],
+              "vars": {
+                "app": "<starlette.routing.Router object at 0x…>",
+                "conn": "<starlette.requests.Request object at 0x…>",
+                "exception_handlers": "{<class 'starlette.exceptions.HTTPException'>: <bound method ExceptionMiddleware.http_exception of <starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>>, <class 'starlette.exceptions.WebSocketException'>: <bound method ExceptionMiddleware.websocket_exception of <starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>>}",
+                "handler": "None",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "response_started": "False",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
+                "sender": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>",
+                "status_handlers": "{}"
+              }
+            },
+            {
+              "filename": "starlette/_exception_handler.py",
+              "function": "wrapped_app",
+              "lineno": 42,
+              "in_app": true,
+              "pre_context": [
+                "            if message[\"type\"] == \"http.response.start\":",
+                "                response_started = True",
+                "            await send(message)",
+                "",
+                "        try:"
+              ],
+              "context_line": "            await app(scope, receive, sender)",
+              "post_context": [
+                "        except Exception as exc:",
+                "            handler = None",
+                "",
+                "            if isinstance(exc, HTTPException):",
+                "                handler = status_handlers.get(exc.status_code)"
+              ],
+              "vars": {
+                "app": "<starlette.routing.Router object at 0x…>",
+                "conn": "<starlette.requests.Request object at 0x…>",
+                "exception_handlers": "{<class 'starlette.exceptions.HTTPException'>: <bound method ExceptionMiddleware.http_exception of <starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>>, <class 'starlette.exceptions.WebSocketException'>: <bound method ExceptionMiddleware.websocket_exception of <starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>>}",
+                "handler": "None",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "response_started": "False",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
+                "sender": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>",
+                "status_handlers": "{}"
+              }
+            },
+            {
+              "filename": "starlette/routing.py",
+              "function": "__call__",
+              "lineno": 660,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:",
+                "        \"\"\"",
+                "        The main entry point to the Router class.",
+                "        \"\"\""
+              ],
+              "context_line": "        await self.middleware_stack(scope, receive, send)",
+              "post_context": [
+                "",
+                "    async def app(self, scope: Scope, receive: Receive, send: Send) -> None:",
+                "        assert scope[\"type\"] in (\"http\", \"websocket\", \"lifespan\")",
+                "",
+                "        if \"router\" not in scope:"
+              ],
+              "vars": {
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.routing.Router object at 0x…>",
+                "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/routing.py",
+              "function": "app",
+              "lineno": 680,
+              "in_app": true,
+              "pre_context": [
+                "            # Determine if any route matches the incoming scope,",
+                "            # and hand over to the matching route if found.",
+                "            match, child_scope = route.matches(scope)",
+                "            if match == Match.FULL:",
+                "                scope.update(child_scope)"
+              ],
+              "context_line": "                await route.handle(scope, receive, send)",
+              "post_context": [
+                "                return",
+                "            elif match == Match.PARTIAL and partial is None:",
+                "                partial = route",
+                "                partial_scope = child_scope",
+                ""
+              ],
+              "vars": {
+                "child_scope": "{'app_root_path': '', 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'path_params': {}, 'root_path': ''}",
+                "match": "<Match.FULL: 2>",
+                "partial": "None",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "route": "Mount(path='', name='static', app=<starlette.staticfiles.StaticFiles object at 0x…>)",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.routing.Router object at 0x…>",
+                "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/routing.py",
+              "function": "handle",
+              "lineno": 448,
+              "in_app": true,
+              "pre_context": [
+                "                except NoMatchFound:",
+                "                    pass",
+                "        raise NoMatchFound(name, path_params)",
+                "",
+                "    async def handle(self, scope: Scope, receive: Receive, send: Send) -> None:"
+              ],
+              "context_line": "        await self.app(scope, receive, send)",
+              "post_context": [
+                "",
+                "    def __eq__(self, other: Any) -> bool:",
+                "        return isinstance(other, Mount) and self.path == other.path and self.app == other.app",
+                "",
+                "    def __repr__(self) -> str:"
+              ],
+              "vars": {
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "Mount(path='', name='static', app=<starlette.staticfiles.StaticFiles object at 0x…>)",
+                "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/staticfiles.py",
+              "function": "__call__",
+              "lineno": 98,
+              "in_app": true,
+              "pre_context": [
+                "        if not self.config_checked:",
+                "            await self.check_config()",
+                "            self.config_checked = True",
+                "",
+                "        path = self.get_path(scope)"
+              ],
+              "context_line": "        response = await self.get_response(path, scope)",
+              "post_context": [
+                "        await response(scope, receive, send)",
+                "",
+                "    def get_path(self, scope: Scope) -> str:",
+                "        \"\"\"",
+                "        Given the ASGI scope, return the `path` string to serve up,"
+              ],
+              "vars": {
+                "path": "'example\\x00.txt'",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.staticfiles.StaticFiles object at 0x…>",
+                "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/staticfiles.py",
+              "function": "get_response",
+              "lineno": 117,
+              "in_app": true,
+              "pre_context": [
+                "        \"\"\"",
+                "        if scope[\"method\"] not in (\"GET\", \"HEAD\"):",
+                "            raise HTTPException(status_code=405)",
+                "",
+                "        try:"
+              ],
+              "context_line": "            full_path, stat_result = await anyio.to_thread.run_sync(self.lookup_path, path)",
+              "post_context": [
+                "        except PermissionError:",
+                "            raise HTTPException(status_code=401)",
+                "        except OSError as exc:",
+                "            # Filename is too long, so it can't be a valid static file.",
+                "            if exc.errno == errno.ENAMETOOLONG:"
+              ],
+              "vars": {
+                "path": "'example\\x00.txt'",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "self": "<starlette.staticfiles.StaticFiles object at 0x…>"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/to_thread.py",
+              "function": "run_sync",
+              "lineno": 56,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py",
+              "function": "run_sync_in_worker_thread",
+              "lineno": 2476,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/_backends/_asyncio.py",
+              "function": "run",
+              "lineno": 967,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/staticfiles.py",
+              "function": "lookup_path",
+              "lineno": 158,
+              "in_app": true,
+              "pre_context": [
+                "            joined_path = os.path.join(directory, path)",
+                "            if self.follow_symlink:",
+                "                full_path = os.path.abspath(joined_path)",
+                "                directory = os.path.abspath(directory)",
+                "            else:"
+              ],
+              "context_line": "                full_path = os.path.realpath(joined_path)",
+              "post_context": [
+                "                directory = os.path.realpath(directory)",
+                "            if os.path.commonpath([full_path, directory]) != str(directory):",
+                "                # Don't allow misbehaving clients to break out of the static files directory.",
+                "                continue",
+                "            try:"
+              ],
+              "vars": {
+                "directory": "local('/tmp/pytest-of-runner/pytest-0/test_staticfiles_null_byte_in_0')",
+                "joined_path": "'/tmp/pytest-of-runner/pytest-0/test_staticfiles_null_byte_in_0/example\\x00.txt'",
+                "path": "'example\\x00.txt'",
+                "self": "<starlette.staticfiles.StaticFiles object at 0x…>"
+              }
+            },
+            {
+              "filename": "<frozen posixpath>",
+              "function": "realpath",
+              "lineno": 413,
+              "in_app": false
+            },
+            {
+              "filename": "<frozen posixpath>",
+              "function": "_joinrealpath",
+              "lineno": 457,
+              "in_app": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

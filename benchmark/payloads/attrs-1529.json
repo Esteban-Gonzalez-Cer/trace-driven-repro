@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "e047db3c8a39c059b6869e375dee2989",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "Passed object must be a class.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/attr/_make.py",
+              "function": "fields",
+              "lineno": 1918,
+              "in_app": true,
+              "pre_context": [
+                "    \"\"\"",
+                "    generic_base = get_generic_base(cls)",
+                "",
+                "    if generic_base is None and not isinstance(cls, type):",
+                "        msg = \"Passed object must be a class.\""
+              ],
+              "context_line": "        raise TypeError(msg)",
+              "post_context": [
+                "",
+                "    attrs = getattr(cls, \"__attrs_attrs__\", None)",
+                "",
+                "    if attrs is None:",
+                "        if generic_base is not None:"
+              ],
+              "vars": {
+                "cls": "HypClass()",
+                "generic_base": "None",
+                "msg": "'Passed object must be a class.'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

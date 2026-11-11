@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/flask/app.py'] (7 lines).
+id: flask-5637
+repo: pallets/flask
+c_fix: 7b21d43d4c763b874bc86d4c2d69a48ee492dc22
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/flask/pull/5637
+fix_date: '2024-11-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: configure and check `request.trusted_hosts`
+split: test

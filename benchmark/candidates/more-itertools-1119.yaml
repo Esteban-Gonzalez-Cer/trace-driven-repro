@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['more_itertools/more.py'] (35 lines).
+id: more-itertools-1119
+repo: more-itertools/more-itertools
+c_fix: 881095e4b2041f9c32bb714cf53d7a193232c4b1
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1119
+fix_date: '2026-01-03'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-01-03'
+notes: Simplify nth_xxx code and fix invalid exception.
+split: test

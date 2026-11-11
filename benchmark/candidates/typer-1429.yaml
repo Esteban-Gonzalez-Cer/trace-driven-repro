@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['docs_src/commands/help/tutorial006.py', 'docs_src/commands/help/tutorial007.py', 'docs_src/commands/help/tutorial007_an.py'] (10 lines).
+id: typer-1429
+repo: fastapi/typer
+c_fix: 30af2d0d6d3c10e8404552a0a2cd512eb723ffbe
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1429
+fix_date: '2025-11-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 📝 Update emoji used in Rich help formatting tutorial
+split: test

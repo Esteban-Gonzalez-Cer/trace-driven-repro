@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/table.py'] (16 lines).
+id: rich-3935
+repo: Textualize/rich
+c_fix: 9e18b96652f37293121b04017fb6aa95af21b013
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3935
+fix_date: '2026-01-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: fix for padding width
+split: test

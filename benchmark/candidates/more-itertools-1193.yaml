@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['more_itertools/more.py'] (3 lines).
+id: more-itertools-1193
+repo: more-itertools/more-itertools
+c_fix: b363d6b82c7082db647bd350560fca5e1d724a16
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1193
+fix_date: '2026-06-30'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-06-30'
+notes: Handle empty interleave_evenly input
+split: test

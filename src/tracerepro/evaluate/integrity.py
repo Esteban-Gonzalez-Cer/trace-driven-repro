@@ -144,6 +144,36 @@ def summary_counts(output: str) -> dict[str, int] | None:
     return None
 
 
+def summary_mismatch(
+    console: dict[str, int], recorded: dict[str, int], ambiguous: int
+) -> dict[str, tuple[int, int]]:
+    """Counts on which the console summary and the results file disagree.
+
+    pytest versions disagree on a test that passed itself but has failed subtests: 9.2 counts it
+    as failed, 9.1 as passed (found on more-itertools-1182). For those `ambiguous` tests only,
+    the console may move up to that many from "failed" to "passed"; everything else must match.
+    """
+    mismatched = {k: (console.get(k, 0), v) for k, v in recorded.items() if console.get(k, 0) != v}
+    moved = console.get("passed", 0) - recorded["passed"]
+    if (
+        mismatched
+        and set(mismatched) <= {"passed", "failed"}
+        and 0 < moved <= ambiguous
+        and console.get("failed", 0) == recorded["failed"] - moved
+    ):
+        return {}
+    return mismatched
+
+
+def passed_with_failed_subtests(run: PytestRun) -> set[str]:
+    """Tests whose own call passed but that have at least one failed subtest."""
+    failed_sub = {t.nodeid for t in run.tests if t.subtest and t.outcome == "failed"}
+    return {
+        t.nodeid for t in run.tests
+        if not t.subtest and t.when == "call" and t.outcome == "passed" and t.nodeid in failed_sub
+    }  # fmt: skip
+
+
 def recorded_counts(run: PytestRun) -> dict[str, int]:
     """The same counts as pytest's summary, computed from the results file.
 
@@ -210,9 +240,7 @@ def check_integrity(run: PytestRun, canary: Canary, decisive: Sequence[str]) -> 
         problems.append("no pytest summary line in the console output")
     else:
         recorded = recorded_counts(run)
-        mismatched = {
-            k: (summary.get(k, 0), v) for k, v in recorded.items() if summary.get(k, 0) != v
-        }
+        mismatched = summary_mismatch(summary, recorded, len(passed_with_failed_subtests(run)))
         if mismatched:
             problems.append(f"console summary disagrees (console, recorded): {mismatched}")
     return problems

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 7; source ['more_itertools/more.py'] (7 lines).
+id: more-itertools-1139
+repo: more-itertools/more-itertools
+c_fix: a6a2edcc9d9d72f3ba06b6744e39c207cd76a5e3
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1139
+fix_date: '2026-04-01'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-04-01'
+notes: 'Major wishlist: Issue #1057: Raise exception for invalid size in windowed()'
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 7; source ['tomlkit/parser.py'] (8 lines).
+id: tomlkit-517
+repo: python-poetry/tomlkit
+c_fix: 989c1a79787d63806de37934a6c2b041e1f550d8
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/517
+fix_date: '2026-06-15'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Don't build a discarded error when an array closes right after a value
+split: test

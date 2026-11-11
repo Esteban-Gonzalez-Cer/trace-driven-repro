@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "f3c2dcfd9530b9d290388bc39e140e3f",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Indices for islice() must be None or an integer: 0 <= x <= sys.maxsize.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "exactly_n",
+              "lineno": 3080,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    The iterable will be advanced until ``n + 1`` truthy items are encountered,",
+                "    so avoid calling it on infinite iterables.",
+                "",
+                "    \"\"\""
+              ],
+              "context_line": "    return ilen(islice(filter(predicate, iterable), n + 1)) == n",
+              "post_context": [
+                "",
+                "",
+                "def circular_shifts(iterable, steps=1):",
+                "    \"\"\"Yield the circular shifts of *iterable*.",
+                ""
+              ],
+              "vars": {
+                "iterable": "[True]",
+                "n": "-10",
+                "predicate": "<class 'bool'>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

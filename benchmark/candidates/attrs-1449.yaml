@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/validators.py', 'src/attr/validators.pyi'] (41 lines).
+id: attrs-1449
+repo: python-attrs/attrs
+c_fix: 5bab46deb916520b153892d73400978ccb08ef96
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1449
+fix_date: '2025-07-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Allow deep_iterable and deep_mapping take lists/tuples
+split: test

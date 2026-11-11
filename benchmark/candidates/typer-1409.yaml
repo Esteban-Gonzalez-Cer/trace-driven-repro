@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py'] (5 lines).
+id: typer-1409
+repo: fastapi/typer
+c_fix: 2cfdb99aff18c8efcc752b4d0cfd843a448eed0c
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1409
+fix_date: '2025-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure an optional argument is shown in brackets, even when `metavar` is set
+split: test

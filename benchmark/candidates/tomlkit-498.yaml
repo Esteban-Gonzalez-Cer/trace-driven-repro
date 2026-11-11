@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['tomlkit/container.py'] (10 lines).
+id: tomlkit-498
+repo: python-poetry/tomlkit
+c_fix: de68fd06eef61aab0d50d69fb589a43f00a046bf
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/498
+fix_date: '2026-06-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix ParseError when a sub-table extends an array of tables out of order
+split: test

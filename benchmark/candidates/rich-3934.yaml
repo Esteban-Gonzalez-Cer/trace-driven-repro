@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/live.py', 'rich/live_render.py'] (20 lines).
+id: rich-3934
+repo: Textualize/rich
+c_fix: e9a5680682e0dbaf9e0f3f0fc2a771612307bc3d
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3934
+fix_date: '2026-01-22'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: empty live
+split: test

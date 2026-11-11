@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['starlette/middleware/base.py'] (6 lines).
+id: starlette-2911
+repo: Kludex/starlette
+c_fix: 48f7cd7f28b9e4b9a5a6b19159139205907aec41
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/2911
+fix_date: '2025-04-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Prevents reraising of exception from `BaseHTTPMiddleware`
+split: test

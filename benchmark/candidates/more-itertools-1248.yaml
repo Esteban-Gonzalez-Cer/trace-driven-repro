@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['more_itertools/more.py'] (53 lines).
+id: more-itertools-1248
+repo: more-itertools/more-itertools
+c_fix: bc8be1013ac90fe3c1df8aae646b02605d578818
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1248
+fix_date: '2026-09-02'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-02'
+notes: 'Issue 1247: Keep numeric_range consistent with the items it produces'
+split: test

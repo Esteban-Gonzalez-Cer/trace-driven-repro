@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['more_itertools/more.py'] (5 lines).
+id: more-itertools-1305
+repo: more-itertools/more-itertools
+c_fix: 1ea82a711c69f590054987b5cb194157f8ce8ac4
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1305
+fix_date: '2026-09-29'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-29'
+notes: 'Issue 1304: ichunked matches chunked for n=0 and negative n'
+split: test

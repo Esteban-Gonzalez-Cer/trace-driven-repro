@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['Makefile'] (2 lines).
+id: more-itertools-1235
+repo: more-itertools/more-itertools
+c_fix: fc2c4f4f47eb445b39ce3cc74db693f15c06ee08
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1235
+fix_date: '2026-08-10'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-08-10'
+notes: Close the last coverage gaps, fix a no-op equality assertion
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/sansio/http.py'] (37 lines).
+id: werkzeug-3249
+repo: pallets/werkzeug
+c_fix: 9163f9a36a54c0a795c5408b5c6681bff348d61d
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3249
+fix_date: '2026-08-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: improve performance of cookie parsing
+split: test

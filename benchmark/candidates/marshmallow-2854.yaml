@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/fields.py'] (11 lines).
+id: marshmallow-2854
+repo: marshmallow-code/marshmallow
+c_fix: 2bf3ae6ac656c977ec10808b5eb0e7480ced0311
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2854
+fix_date: '2026-01-04'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'feat: improve consistency of many arg with nested schema'
+split: test

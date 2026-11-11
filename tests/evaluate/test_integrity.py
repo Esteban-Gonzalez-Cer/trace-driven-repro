@@ -276,3 +276,18 @@ def test_every_plain_rerun_must_pass(monkeypatch: pytest.MonkeyPatch) -> None:
         None,
         None,  # type: ignore[arg-type]
     ) == (True, "3 plain runs passed")
+
+
+def test_both_pytest_ways_of_counting_failed_subtests_are_accepted() -> None:
+    # more-itertools-1182 (pytest 9.1): a test with 4 failed subtests is "passed" in the
+    # console; pytest 9.2 counts it as failed. Only that much leeway is allowed.
+    from tracerepro.evaluate.integrity import summary_mismatch
+
+    recorded = {"passed": 725, "failed": 6, "error": 0}
+    assert summary_mismatch({"passed": 725, "failed": 6}, recorded, ambiguous=1) == {}
+    assert summary_mismatch({"passed": 726, "failed": 5}, recorded, ambiguous=1) == {}
+    assert summary_mismatch({"passed": 727, "failed": 4}, recorded, ambiguous=1)  # too many
+    assert summary_mismatch({"passed": 726, "failed": 5}, recorded, ambiguous=0)  # none allowed
+    assert summary_mismatch({"passed": 726, "failed": 6}, recorded, ambiguous=1)  # not a move
+    assert summary_mismatch({"passed": 724, "failed": 7}, recorded, ambiguous=1)  # wrong way
+    assert summary_mismatch({"passed": 726, "failed": 5, "error": 1}, recorded, ambiguous=1)

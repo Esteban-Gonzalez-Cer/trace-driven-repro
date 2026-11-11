@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/sansio/response.py', 'src/werkzeug/utils.py', 'src/werkzeug/wrappers/response.py'] (40 lines).
+id: werkzeug-3327
+repo: pallets/werkzeug
+c_fix: 456407ae4201661b14f726e1409db185418b6df7
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3327
+fix_date: '2026-10-14'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate correcting location from iri
+split: test

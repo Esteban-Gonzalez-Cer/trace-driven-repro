@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "bd126f27b13f6eedd633cbd53eb606f0",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "a bytes-like object is required, not 'str'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/click/utils.py",
+              "function": "echo",
+              "lineno": 333,
+              "in_app": true,
+              "pre_context": [
+                "            if auto_wrap_for_ansi is not None:",
+                "                file = auto_wrap_for_ansi(file, color)  # type: ignore",
+                "            elif not color:",
+                "                out = strip_ansi(out)",
+                ""
+              ],
+              "context_line": "    file.write(out)  # type: ignore",
+              "post_context": [
+                "    file.flush()",
+                "",
+                "",
+                "def get_binary_stream(name: t.Literal[\"stdin\", \"stdout\", \"stderr\"]) -> t.BinaryIO:",
+                "    \"\"\"Returns a system stream for byte processing."
+              ],
+              "vars": {
+                "color": "None",
+                "err": "False",
+                "file": "<_io.BytesIO object at 0x…>",
+                "message": "b''",
+                "nl": "True",
+                "out": "'\\n'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

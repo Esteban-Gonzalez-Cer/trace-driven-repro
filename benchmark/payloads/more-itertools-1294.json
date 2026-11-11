@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "2de13623330dd5880ddc35d4bc82c711",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "StopIteration",
+        "module": "builtins",
+        "value": "",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "peek",
+              "lineno": 3129,
+              "in_app": true,
+              "pre_context": [
+                "            return False",
+                "        return True",
+                "",
+                "    def peek(self, default=_marker):",
+                "        try:"
+              ],
+              "context_line": "            peeked = next(self)",
+              "post_context": [
+                "        except StopIteration:",
+                "            if default is _marker:",
+                "                raise",
+                "            return default",
+                "        if self._index is None:"
+              ],
+              "vars": {
+                "default": "<object object at 0x…>",
+                "self": "<more_itertools.more.seekable object at 0x…>"
+              }
+            },
+            {
+              "filename": "more_itertools/more.py",
+              "function": "__next__",
+              "lineno": 3116,
+              "in_app": true,
+              "pre_context": [
+                "                self._index = None",
+                "            else:",
+                "                self._index += 1",
+                "                return item",
+                ""
+              ],
+              "context_line": "        item = next(self._source)",
+              "post_context": [
+                "        self._cache.append(item)",
+                "        return item",
+                "",
+                "    def __bool__(self):",
+                "        try:"
+              ],
+              "vars": {
+                "self": "<more_itertools.more.seekable object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "212ae2d8b0c048a7b07d7b919d06b0cf",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "InvalidNumberError",
+        "module": "tomlkit.exceptions",
+        "value": "Invalid number at line 1 col 0",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/api.py",
+              "function": "parse",
+              "lineno": 107,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "def parse(string: str | bytes) -> TOMLDocument:",
+                "    \"\"\"",
+                "    Parses a string or bytes into a TOMLDocument.",
+                "    \"\"\""
+              ],
+              "context_line": "    return Parser(string).parse()",
+              "post_context": [
+                "",
+                "",
+                "def document() -> TOMLDocument:",
+                "    \"\"\"",
+                "    Returns a new TOMLDocument instance."
+              ],
+              "vars": {
+                "string": "'dt = 1900-01-01T12:00:00Z:30'"
+              }
+            },
+            {
+              "filename": "tomlkit/parser.py",
+              "function": "parse",
+              "lineno": 185,
+              "in_app": true,
+              "pre_context": [
+                "            # Break out if a table is found",
+                "            if self._current == \"[\":",
+                "                break",
+                "",
+                "            # Otherwise, take and append one KV"
+              ],
+              "context_line": "            item = self._parse_item()",
+              "post_context": [
+                "            if not item:",
+                "                break",
+                "",
+                "            key, value = item",
+                "            if (key is not None and key.is_multi()) or not self._merge_ws(value, body):"
+              ],
+              "vars": {
+                "body": "{}",
+                "self": "<tomlkit.parser.Parser object at 0x…>"
+              }
+            },
+            {
+              "filename": "tomlkit/parser.py",
+              "function": "_parse_item",
+              "lineno": 290,
+              "in_app": true,
+              "pre_context": [
+                "                    # Return to beginning of whitespace so it gets included",
+                "                    # as indentation for the KV about to be parsed.",
+                "                    state.restore = True",
+                "                    break",
+                ""
+              ],
+              "context_line": "        return self._parse_key_value(True)",
+              "post_context": [
+                "",
+                "    def _parse_comment_trail(self, parse_trail: bool = True) -> tuple[str, str, str]:",
+                "        \"\"\"",
+                "        Returns (comment_ws, comment, trail)",
+                "        If there is no comment, comment_ws and comment will"
+              ],
+              "vars": {
+                "c": "'d'",
+                "self": "<tomlkit.parser.Parser object at 0x…>",
+                "state": "<tomlkit.source._State object at 0x…>"
+              }
+            },
+            {
+              "filename": "tomlkit/parser.py",
+              "function": "_parse_key_value",
+              "lineno": 390,
+              "in_app": true,
+              "pre_context": [
+                "            key.sep = self.extract()",
+                "        else:",
+                "            key.sep += self.extract()",
+                "",
+                "        # Value"
+              ],
+              "context_line": "        val = self._parse_value()",
+              "post_context": [
+                "        # Comment",
+                "        if parse_comment:",
+                "            cws, comment, trail = self._parse_comment_trail()",
+                "            meta = val.trivia",
+                "            if not meta.comment_ws:"
+              ],
+              "vars": {
+                "found_equals": "True",
+                "indent": "''",
+                "key": "<Key dt >",
+                "parse_comment": "True",
+                "self": "<tomlkit.parser.Parser object at 0x…>"
+              }
+            },
+            {
+              "filename": "tomlkit/parser.py",
+              "function": "_parse_value",
+              "lineno": 597,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "            item = self._parse_number(raw, trivia)",
+                "            if item is not None:",
+                "                return item",
+                ""
+              ],
+              "context_line": "            raise self.parse_error(InvalidNumberError)",
+              "post_context": [
+                "        else:",
+                "            raise self.parse_error(UnexpectedCharError, c)",
+                "",
+                "    def _parse_true(self) -> Bool:",
+                "        return self._parse_bool(BoolType.TRUE)"
+              ],
+              "vars": {
+                "c": "'1'",
+                "item": "None",
+                "m": "None",
+                "raw": "'1900-01-01T12:00:00Z:30'",
+                "self": "<tomlkit.parser.Parser object at 0x…>",
+                "trivia": "Trivia(indent='', comment_ws='', comment='', trail='\\n')"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

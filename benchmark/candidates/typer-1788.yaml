@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py'] (1 lines).
+id: typer-1788
+repo: fastapi/typer
+c_fix: 30288540dde2b68d820c450ea0452747be632a84
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1788
+fix_date: '2026-05-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that an envvar set for `typer.Option` works as expected
+split: test

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py'] (8 lines).
+id: typer-1820
+repo: fastapi/typer
+c_fix: 8e75bc3565d5dc270cd4ef3b09b5b2abf9f8491a
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1820
+fix_date: '2026-06-03'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Respect wait=False when launching URLs with xdg-open
+split: test

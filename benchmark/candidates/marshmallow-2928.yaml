@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/validate.py'] (28 lines).
+id: marshmallow-2928
+repo: marshmallow-code/marshmallow
+c_fix: c1e727e16bed9851c6e77dde0119ee2d4f1ba08d
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2928
+fix_date: '2026-04-01'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Add support for IDNs to validate.URL
+split: test

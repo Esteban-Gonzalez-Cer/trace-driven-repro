@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/progress.py'] (7 lines).
+id: rich-3905
+repo: Textualize/rich
+c_fix: fe55a131c2780fa856464ad04d7d6dc8a1079b72
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3905
+fix_date: '2026-01-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Update progress.py
+split: test

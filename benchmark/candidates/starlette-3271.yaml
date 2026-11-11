@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['starlette/authentication.py'] (8 lines).
+id: starlette-3271
+repo: Kludex/starlette
+c_fix: fd662b17b9cc41dca32a03509305619643f2dd61
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3271
+fix_date: '2026-09-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Implement `identity` on `SimpleUser` and `UnauthenticatedUser`
+split: test

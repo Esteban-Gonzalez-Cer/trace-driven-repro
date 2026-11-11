@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "e5f6942731d4bb99d4511c7e0914daf3",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValidationError",
+        "module": "marshmallow.exceptions",
+        "value": "Not a valid URL.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/validate.py",
+              "function": "__call__",
+              "lineno": 209,
+              "in_app": true,
+              "pre_context": [
+                "        # Check first if the scheme is valid",
+                "        scheme = None",
+                "        if \"://\" in value:",
+                "            scheme = value.split(\"://\")[0].lower()",
+                "            if scheme not in self.schemes:"
+              ],
+              "context_line": "                raise ValidationError(message)",
+              "post_context": [
+                "",
+                "        regex = self._regex(",
+                "            relative=self.relative, absolute=self.absolute, require_tld=self.require_tld",
+                "        )",
+                ""
+              ],
+              "vars": {
+                "message": "'Not a valid URL.'",
+                "scheme": "'http'",
+                "self": "<URL(relative=False, absolute=True, error='Not a valid URL.')>",
+                "value": "'http://example.com'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

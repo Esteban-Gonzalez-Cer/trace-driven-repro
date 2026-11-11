@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/validate.py'] (32 lines).
+id: marshmallow-2937
+repo: marshmallow-code/marshmallow
+c_fix: f07eadc87dfac25ed505d5cd9d186920f2682733
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2937
+fix_date: '2026-04-02'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix validate.Email to accept IDNs
+split: test

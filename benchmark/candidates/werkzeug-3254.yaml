@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/routing/matcher.py'] (13 lines).
+id: werkzeug-3254
+repo: pallets/werkzeug
+c_fix: 12abecb2de7ddf4767570c67dc3a5a1fc5b9c81d
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3254
+fix_date: '2026-08-21'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: sort converter matches numerically
+split: test

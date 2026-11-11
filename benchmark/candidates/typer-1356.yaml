@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/rich_utils.py'] (10 lines).
+id: typer-1356
+repo: fastapi/typer
+c_fix: f35ae0da5878059491acdcd85f89d366a670233f
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1356
+fix_date: '2026-02-10'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix `--help` text alignment when using `typer.style()` in option descriptions
+split: test

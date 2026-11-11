@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (9 lines).
+id: more-itertools-1294
+repo: more-itertools/more-itertools
+c_fix: 1dd480a08bc2a4c399c84bf21cb1558f8b5fc838
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1294
+fix_date: '2026-09-25'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-25'
+notes: Bound lookahead storage for zero-cache seekable iterators
+split: test

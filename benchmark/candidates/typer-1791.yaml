@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py'] (5 lines).
+id: typer-1791
+repo: fastapi/typer
+c_fix: 5568bab22f9de34dbcd25e02a566505a11349d35
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1791
+fix_date: '2026-05-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that an envvar set for a `typer.Option` list is split on whitespace
+split: test

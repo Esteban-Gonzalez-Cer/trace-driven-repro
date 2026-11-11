@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/datastructures/auth.py'] (4 lines).
+id: werkzeug-3248
+repo: pallets/werkzeug
+c_fix: b2de40c39f2565a5b57f7072ff0f4058c8878c2b
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3248
+fix_date: '2026-08-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: validate base64 in basic auth parser
+split: test

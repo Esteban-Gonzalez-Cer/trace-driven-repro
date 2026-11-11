@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 4; source ['starlette/websockets.py'] (16 lines).
+id: starlette-2767
+repo: Kludex/starlette
+c_fix: e7a0b007b601f5e4ff98424333fd2fb794a3f1e6
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/2767
+fix_date: '2026-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Replace RuntimeError with WebSocketDisconnected
+split: test

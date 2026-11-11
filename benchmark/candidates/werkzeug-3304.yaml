@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/wsgi.py'] (22 lines).
+id: werkzeug-3304
+repo: pallets/werkzeug
+c_fix: d4b67549221d050e3e7300dfaa002b8b59672a12
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3304
+fix_date: '2026-09-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate `responder`
+split: test

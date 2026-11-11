@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 5; source ['more_itertools/recipes.py'] (7 lines).
+id: more-itertools-1182
+repo: more-itertools/more-itertools
+c_fix: 43decdd76072519fbf1392fb3d066ad26601c147
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1182
+fix_date: '2026-06-17'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-06-17'
+notes: Support negative start/stop in iter_index for general iterables
+split: test

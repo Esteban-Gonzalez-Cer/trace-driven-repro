@@ -25,3 +25,6 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
   Poetry's old format; the screening log records each case.
 - **Screening order.** Candidates whose fix descriptions mention an exception or a crash are
   screened first (DECISIONS.md), so the test set may lean toward bugs described that way.
+- **Test suites that need gc access.** The sandbox blocks every gc walk (red-team round 3), so
+  bugs whose test suite cannot run without a tool that patches builtins through gc (older
+  starlette commits and `blockbuster`) cannot be used.

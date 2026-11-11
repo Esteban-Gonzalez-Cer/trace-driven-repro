@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py'] (24 lines).
+id: typer-816
+repo: fastapi/typer
+c_fix: 10f23a4ac8a29ef22f636c920bc0f7da1929c1f0
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/816
+fix_date: '2025-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that `options_metavar` is passed through correctly
+split: test

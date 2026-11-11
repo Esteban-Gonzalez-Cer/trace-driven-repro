@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (26 lines).
+id: attrs-1446
+repo: python-attrs/attrs
+c_fix: 000c563473400aa086f6486a9c38ace0e77ea219
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1446
+fix_date: '2025-07-28'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix slotted reference cycles on 3.14
+split: test

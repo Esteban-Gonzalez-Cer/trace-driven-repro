@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 3; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (5 lines).
+id: more-itertools-1154
+repo: more-itertools/more-itertools
+c_fix: 37bb3adb089f7f392edb96bc7bf8d3c921e26d38
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1154
+fix_date: '2026-04-14'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-04-14'
+notes: Add __class_getitem__ to peekable for generic type subscript support
+split: test

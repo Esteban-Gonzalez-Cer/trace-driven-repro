@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "4b171a0c77c500f903ad3b2df7bafb22",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "'PosixPath' object is not iterable",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/click/termui.py",
+              "function": "edit",
+              "lineno": 898,
+              "in_app": true,
+              "pre_context": [
+                "        return ed.edit(text)",
+                "",
+                "    if isinstance(filename, str):",
+                "        filename = (filename,)",
+                ""
+              ],
+              "context_line": "    ed.edit_files(filenames=filename)",
+              "post_context": [
+                "    return None",
+                "",
+                "",
+                "def launch(url: str, wait: bool = False, locate: bool = False) -> int:",
+                "    \"\"\"This function launches the given URL (or filename) in the default"
+              ],
+              "vars": {
+                "Editor": "<class 'click._termui_impl.Editor'>",
+                "ed": "<click._termui_impl.Editor object at 0x…>",
+                "editor": "\"sed -i~ 's/$/Test/'\"",
+                "env": "None",
+                "extension": "'.txt'",
+                "filename": "PosixPath('/tmp/pytest-of-runner/pytest-0/test_edit_pathlib_single_0/file.txt')",
+                "require_save": "True",
+                "text": "None"
+              }
+            },
+            {
+              "filename": "src/click/_termui_impl.py",
+              "function": "edit_files",
+              "lineno": 730,
+              "in_app": true,
+              "pre_context": [
+                "        try:",
+                "            # Split in POSIX mode (the default) for the same reasons as",
+                "            # in pager(): strips quotes from tokens and preserves quoted",
+                "            # Windows paths.",
+                "            c = subprocess.Popen("
+              ],
+              "context_line": "                args=shlex.split(editor) + list(filenames),",
+              "post_context": [
+                "                env=environ,",
+                "            )",
+                "            exit_code = c.wait()",
+                "            if exit_code != 0:",
+                "                raise ClickException("
+              ],
+              "vars": {
+                "editor": "\"sed -i~ 's/$/Test/'\"",
+                "environ": "None",
+                "filenames": "PosixPath('/tmp/pytest-of-runner/pytest-0/test_edit_pathlib_single_0/file.txt')",
+                "self": "<click._termui_impl.Editor object at 0x…>",
+                "shlex": "<module 'shlex' from '/usr/local/lib/python3.11/shlex.py'>",
+                "subprocess": "<module 'subprocess' from '/usr/local/lib/python3.11/subprocess.py'>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

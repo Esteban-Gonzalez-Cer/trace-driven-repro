@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "event_id": "2987e17978df370ad1115dd91f839b2f",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "Stop argument for islice() must be None or an integer: 0 <= x <= sys.maxsize.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "ichunked",
+              "lineno": 3723,
+              "in_app": true,
+              "pre_context": [
+                "    [8, 9, 10, 11]",
+                "",
+                "    \"\"\"",
+                "    iterator = iter(iterable)",
+                "    for first in iterator:"
+              ],
+              "context_line": "        rest = islice(iterator, n - 1)",
+              "post_context": [
+                "        cache, cacher = tee(rest)",
+                "        yield chain([first], rest, cache)",
+                "        consume(cacher)",
+                "",
+                ""
+              ],
+              "vars": {
+                "first": "1",
+                "iterable": "[1, 2, 3]",
+                "iterator": "<list_iterator object at 0x…>",
+                "n": "0"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}
