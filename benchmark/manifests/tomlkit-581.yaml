@@ -10,7 +10,7 @@ target_exception: tomlkit.exceptions.UnexpectedCharError
 target_frame:
   file: tomlkit/parser.py
   function: _parse_value
-crash_kind: python_failure
+crash_kind: library_raise
 payload_path: benchmark/payloads/tomlkit-581.json
 oracle_tests:
 - tests/test_items.py::test_array_add_line_single_line_comment_round_trips
