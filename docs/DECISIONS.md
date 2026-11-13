@@ -310,6 +310,23 @@ Sonnet 5.5 is Anthropic's stated training data cutoff, June 2026 (models overvie
 the frozen run config. The `m3-freeze` tag marks the commit; after it, only harness bug fixes
 (with an amendment when the spec changes).
 
+## 2026-11-13: Final run (Phase 4) and the session-limit message
+
+The final run (`final-935ffcd2-v2-claude-sonnet-5-5-cli2.1.308`) finished all 180 trials over
+44 invocations of the runner (2026-11-12 to 2026-11-13), at the `m3-freeze` commit with a clean
+tree. 88 trial attempts were set aside (`trial_n.aborted-*`) and rerun from scratch: 42 at a
+usage-guard pause (22 hourly, 20 daily) and 46 at the plan's 5-hour "session limit". No
+finished trial was rerun, so none of this touches a result.
+
+The session-limit message ("You've hit your session limit · resets 7:20pm") did not match the
+provider's limit pattern, so it was read as an ordinary rate limit: retried 4 times, then an
+infrastructure failure. Fixed after the run (P5.1): the pattern now also covers "hit your …
+limit", "session limit" and "weekly limit", which stop the run cleanly like the other plan
+limits. Each rejected retry was also written to the usage guard's ledger; once, the 140 entries
+from these rejections (28 trials × 5 tries, no tokens used) were removed by hand from
+`work/llm-usage.json` so the daily cap counted only real calls (a backup was kept). The caps
+themselves never changed.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
