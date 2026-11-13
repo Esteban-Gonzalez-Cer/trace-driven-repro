@@ -27,6 +27,7 @@ from typing import Any
 
 import yaml
 
+from tracerepro.analysis import audit as audit_files
 from tracerepro.analysis import stats
 from tracerepro.evaluate.taxonomy import PRECEDENCE, TAMPERED
 
@@ -252,6 +253,8 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
         f"on the other categories: {', '.join(SHARED_LABELS)}. `state_deficit` is assigned by "
         "hand in the audit.",
     ]
+    if "audit" in n:
+        out += audit_files.section(n["audit"], n["audit"].get("adjusted"))
     for key, title in (("kind", "By bug kind"), ("cohort", "By contamination cohort")):
         out += ["", f"## {title} (descriptive, no test)", "", head]
         for value, cells in n["groups"][key].items():
@@ -292,11 +295,24 @@ def per_bug_csv(n: dict[str, Any]) -> str:
     return buf.getvalue()
 
 
-def write_all(results: Path, manifests: Path, out: Path, name: str = "final") -> list[Path]:
+def write_all(
+    results: Path,
+    manifests: Path,
+    out: Path,
+    name: str = "final",
+    audit: Path | None = None,
+) -> list[Path]:
     rows = load_rows(results, name)
     run_path = results / f"{name}-run.json"
     run = json.loads(run_path.read_text()) if run_path.is_file() else {}
-    numbers = analyze(rows, load_bugs(manifests, {r["bug"] for r in rows}))
+    bugs = load_bugs(manifests, {r["bug"] for r in rows})
+    numbers = analyze(rows, bugs)
+    if audit is not None and (audit / "correct.yaml").is_file():
+        correct = audit_files.load_correct(audit / "correct.yaml", rows)
+        numbers["audit"] = {"correct": correct}
+        if correct["not_a_fix"]:
+            adj = analyze(audit_files.adjusted_rows(rows, correct["not_a_fix"]), bugs)
+            numbers["audit"]["adjusted"] = {p: e["accuracy"] for p, e in adj["pipelines"].items()}
     numbers["run_id"] = run.get("run_id")
     numbers["set_aside"] = run.get("set_aside", {})
     out.mkdir(parents=True, exist_ok=True)
@@ -320,8 +336,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--manifests", type=Path, default=Path("benchmark/manifests"))
     parser.add_argument("--out", type=Path, default=Path("results"))
     parser.add_argument("--name", default="final")
+    parser.add_argument("--audit", type=Path, default=Path("benchmark/audit"))
     args = parser.parse_args(argv)
-    for path in write_all(args.results, args.manifests, args.out, args.name):
+    for path in write_all(args.results, args.manifests, args.out, args.name, args.audit):
         print(f"wrote {path}")
     return 0
 

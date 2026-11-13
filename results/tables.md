@@ -49,6 +49,18 @@ The list price is the CLI's estimate at API prices; the runs used a Claude plan,
 
 `no_repro` and `invalid_repro` apply to Pipeline A only, so the pipelines are compared on the other categories: scope_violation, syntax_or_import_error, fault_localization_miss, state_deficit, regression_failure, incorrect_patch, tampered. `state_deficit` is assigned by hand in the audit.
 
+## Audit of patches graded correct (spec §7.5)
+
+Every trial graded correct was reviewed next to the maintainers' fix (first pass: claude-opus-5-5): 79 distinct patches; details in docs/AUDIT.md.
+
+| decision | distinct patches | trials | by pipeline |
+|---|---|---|---|
+| ok | 46 | 98 | A 47, B 51 |
+| ok_with_note | 33 | 35 | A 18, B 17 |
+| not_a_fix | 0 | 0 | none |
+
+No patch was judged `not_a_fix`, so the audit changes no number.
+
 ## By bug kind (descriptive, no test)
 
 | | Pipeline A | Pipeline B |
