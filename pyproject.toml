@@ -12,6 +12,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+analysis = [
+    "matplotlib>=3.9",
+]
 dev = [
     "mypy>=1.13",
     "pre-commit>=4.0",
@@ -20,6 +23,11 @@ dev = [
     "types-docker>=7.2.0.20261006",
     "types-pyyaml>=6.0.12.20261030",
 ]
+
+[tool.uv]
+# `analysis` (matplotlib) is only for `make analyze` figures; installed by default so tests,
+# mypy and CI see one environment.
+default-groups = ["dev", "analysis"]
 
 [build-system]
 requires = ["hatchling"]
