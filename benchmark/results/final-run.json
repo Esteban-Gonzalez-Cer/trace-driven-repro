@@ -1,0 +1,65 @@
+{
+  "config": {
+    "bugs": [
+      "benchmark/manifests/attrs-1529.yaml",
+      "benchmark/manifests/click-3493.yaml",
+      "benchmark/manifests/click-3739.yaml",
+      "benchmark/manifests/click-3781.yaml",
+      "benchmark/manifests/flask-5797.yaml",
+      "benchmark/manifests/marshmallow-2874.yaml",
+      "benchmark/manifests/marshmallow-2892.yaml",
+      "benchmark/manifests/marshmallow-2901.yaml",
+      "benchmark/manifests/marshmallow-2903.yaml",
+      "benchmark/manifests/marshmallow-2928.yaml",
+      "benchmark/manifests/marshmallow-2994.yaml",
+      "benchmark/manifests/more-itertools-1088.yaml",
+      "benchmark/manifests/more-itertools-1118.yaml",
+      "benchmark/manifests/more-itertools-1182.yaml",
+      "benchmark/manifests/more-itertools-1193.yaml",
+      "benchmark/manifests/more-itertools-1294.yaml",
+      "benchmark/manifests/more-itertools-1305.yaml",
+      "benchmark/manifests/requests-7308.yaml",
+      "benchmark/manifests/starlette-3139.yaml",
+      "benchmark/manifests/starlette-3317.yaml",
+      "benchmark/manifests/starlette-3619.yaml",
+      "benchmark/manifests/starlette-3783.yaml",
+      "benchmark/manifests/tomlkit-565.yaml",
+      "benchmark/manifests/tomlkit-581.yaml",
+      "benchmark/manifests/tomlkit-610.yaml",
+      "benchmark/manifests/tomlkit-631.yaml",
+      "benchmark/manifests/tomlkit-663.yaml",
+      "benchmark/manifests/tomlkit-701.yaml",
+      "benchmark/manifests/werkzeug-3078.yaml",
+      "benchmark/manifests/werkzeug-3238.yaml"
+    ],
+    "cache": false,
+    "context_budget": 250000,
+    "effort": "medium",
+    "evaluate": true,
+    "guard": {
+      "max_calls_per_day": 400,
+      "max_calls_per_hour": 60,
+      "min_interval_s": 2.0
+    },
+    "max_output_tokens": 16000,
+    "max_patch_attempts": 2,
+    "max_repro_attempts": 2,
+    "model": "claude-sonnet-5-5",
+    "name": "final",
+    "pipelines": [
+      "A",
+      "B"
+    ],
+    "prompt_version": "v2",
+    "split": "test",
+    "token_cap": 400000,
+    "trials": 3
+  },
+  "format": 1,
+  "run_id": "final-935ffcd2-v2-claude-sonnet-5-5-cli2.1.308",
+  "set_aside": {
+    "InfraFailure": 46,
+    "PacingLimitReached": 42
+  },
+  "trials": 180
+}

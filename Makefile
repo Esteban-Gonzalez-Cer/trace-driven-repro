@@ -1,4 +1,4 @@
-.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold llm-smoke run-benchmark analyze
+.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold llm-smoke run-benchmark analyze export-results
 
 help:
 	@echo "setup         install dev environment and pre-commit hooks"
@@ -10,7 +10,8 @@ help:
 	@echo "validate-gold run gold-patch preflight (CANDIDATES=...); writes manifests and payloads"
 	@echo "llm-smoke     real Claude CLI checks: ping, hands-off, max-tokens (uses plan; MODEL=...)"
 	@echo "run-benchmark run the agent pipelines and score them (CONFIG=..., uses plan + Docker)"
-	@echo "analyze       regenerate tables and figures from logs     (Phase 5)"
+	@echo "analyze       rebuild results/ tables and figures from benchmark/results (no Docker, no keys)"
+	@echo "export-results write benchmark/results from a run folder (RUN=runs/<run_id>)"
 
 setup:
 	uv sync
@@ -52,5 +53,11 @@ CONFIG ?= benchmark/configs/dev.yaml
 run-benchmark:
 	uv run python -m tracerepro.experiment $(CONFIG)
 
+# Reads only benchmark/results/ and the manifests; writes results/.
 analyze:
-	@echo "analyze: not implemented yet (Phase 5)"; exit 2
+	uv run python -m tracerepro.analysis.report
+
+# Turns a finished run folder (git-ignored) into the small published result files.
+export-results:
+	@test -n "$(RUN)" || { echo "usage: make export-results RUN=runs/<run_id>"; exit 2; }
+	uv run python -m tracerepro.analysis.export $(RUN)

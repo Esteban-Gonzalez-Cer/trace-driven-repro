@@ -19,6 +19,17 @@ jobs:
       - run: uv run mypy
       - run: uv run pytest -m "not docker"
 
+  analyze:
+    # Every table and figure must come from the committed results (plan §8.2): rebuild them on a
+    # clean checkout, with no Docker, keys or model, and fail if anything differs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: uv sync --locked
+      - run: make analyze
+      - run: git status --porcelain results/ && test -z "$(git status --porcelain results/)"
+
   sandbox-smoke:
     runs-on: ubuntu-latest
     steps:

@@ -97,7 +97,7 @@ class Summary:
         return out
 
 
-def _calls(folder: Path) -> tuple[int, float]:
+def count_calls(folder: Path) -> tuple[int, float]:
     path = folder / "calls.jsonl"
     if not path.is_file():
         return 0, 0.0
@@ -129,7 +129,7 @@ def summarize(run_dir: Path) -> Summary:
         ver = json.loads(verdict.read_text())
         result, meta = rec["result"], rec.get("meta", {})
         bug, pipeline, model = folder.parts[-4], folder.parts[-3], folder.parts[-2]
-        calls, cost = _calls(folder)
+        calls, cost = count_calls(folder)
         summary.trials.append(Trial(
             bug=bug, pipeline=pipeline, model=model, n=int(meta.get("trial", 0)),
             solved=bool(ver.get("solved", ver.get("kind") == "correct")),
