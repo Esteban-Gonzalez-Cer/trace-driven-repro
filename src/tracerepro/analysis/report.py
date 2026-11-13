@@ -253,10 +253,14 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
         f"on the other categories: {', '.join(SHARED_LABELS)}. `state_deficit` is assigned by "
         "hand in the audit.",
     ]
-    if "audit" in n:
+    if "state_deficit" in n.get("audit", {}):
+        out += audit_files.state_deficit_note(n["audit"]["state_deficit"])
+    if "correct" in n.get("audit", {}):
         out += audit_files.section(n["audit"], n["audit"].get("adjusted"))
-        if "incorrect_sample" in n["audit"]:
-            out += audit_files.incorrect_section(n["audit"]["incorrect_sample"])
+    if "incorrect_sample" in n.get("audit", {}):
+        out += audit_files.incorrect_section(n["audit"]["incorrect_sample"])
+    if "second_review" in n.get("audit", {}):
+        out += audit_files.second_review_section(n["audit"]["second_review"])
     for key, title in (("kind", "By bug kind"), ("cohort", "By contamination cohort")):
         out += ["", f"## {title} (descriptive, no test)", "", head]
         for value, cells in n["groups"][key].items():
@@ -308,16 +312,28 @@ def write_all(
     run_path = results / f"{name}-run.json"
     run = json.loads(run_path.read_text()) if run_path.is_file() else {}
     bugs = load_bugs(manifests, {r["bug"] for r in rows})
+    found: dict[str, Any] = {}
+    if audit is not None and (audit / "state_deficit.yaml").is_file():
+        deficit = audit_files.load_state_deficit(audit / "state_deficit.yaml", set(bugs))
+        rows, relabelled = audit_files.apply_state_deficit(rows, deficit["bugs"])
+        found["state_deficit"] = deficit | {"relabelled": relabelled}
     numbers = analyze(rows, bugs)
     if audit is not None and (audit / "correct.yaml").is_file():
         correct = audit_files.load_correct(audit / "correct.yaml", rows)
-        numbers["audit"] = {"correct": correct}
-        if (audit / "incorrect_sample.yaml").is_file():
-            sample = audit_files.load_incorrect_sample(audit / "incorrect_sample.yaml", rows)
-            numbers["audit"]["incorrect_sample"] = sample
+        found["correct"] = correct
         if correct["not_a_fix"]:
             adj = analyze(audit_files.adjusted_rows(rows, correct["not_a_fix"]), bugs)
-            numbers["audit"]["adjusted"] = {p: e["accuracy"] for p, e in adj["pipelines"].items()}
+            found["adjusted"] = {p: e["accuracy"] for p, e in adj["pipelines"].items()}
+    if audit is not None and (audit / "incorrect_sample.yaml").is_file():
+        sample = audit_files.load_incorrect_sample(audit / "incorrect_sample.yaml", rows)
+        found["incorrect_sample"] = sample
+    if audit is not None and (audit / "second_review.yaml").is_file():
+        decisions = audit_files.first_pass(audit)
+        found["second_review"] = audit_files.load_second_review(
+            audit / "second_review.yaml", decisions
+        )
+    if found:
+        numbers["audit"] = found
     numbers["run_id"] = run.get("run_id")
     numbers["set_aside"] = run.get("set_aside", {})
     out.mkdir(parents=True, exist_ok=True)

@@ -117,3 +117,83 @@ def test_committed_incorrect_sample_matches_a_fresh_draw() -> None:
         ROOT / "benchmark" / "audit" / "incorrect_sample.yaml", data
     )
     assert found["sampled"] == 12 and found["population"] == 46
+
+
+def deficit_file(tmp_path: Path, labels: dict) -> Path:
+    path = tmp_path / "state_deficit.yaml"
+    path.write_text(yaml.safe_dump({"reviewer": "r", "bugs": labels}))
+    return path
+
+
+def test_state_deficit_replaces_only_labels_7_and_8_on_failed_trials(tmp_path: Path) -> None:
+    path = deficit_file(tmp_path, {"b": {"deficit": True}, "c": {"deficit": False}})
+    found = audit.load_state_deficit(path, {"b", "c"})
+    assert found["bugs"] == ["b"] and found["judged"] == 2
+    data = [
+        {"id": "b/A/1", "bug": "b", "pipeline": "A", "solved": False, "label": "incorrect_patch"},
+        {"id": "b/A/2", "bug": "b", "pipeline": "A", "solved": False, "label": "invalid_repro"},
+        {
+            "id": "b/B/1",
+            "bug": "b",
+            "pipeline": "B",
+            "solved": False,
+            "label": "regression_failure",
+        },
+        {"id": "b/B/2", "bug": "b", "pipeline": "B", "solved": True, "label": None},
+        {"id": "c/B/1", "bug": "c", "pipeline": "B", "solved": False, "label": "incorrect_patch"},
+    ]
+    out, changed = audit.apply_state_deficit(data, found["bugs"])
+    assert [r["label"] for r in out] == [
+        "state_deficit",
+        "invalid_repro",
+        "state_deficit",
+        None,
+        "incorrect_patch",
+    ]
+    assert out[0]["auto_label"] == "incorrect_patch" and changed == {"A": 1, "B": 1}
+
+
+def test_state_deficit_must_cover_every_bug(tmp_path: Path) -> None:
+    with pytest.raises(audit.AuditError, match="without a State Deficit"):
+        audit.load_state_deficit(deficit_file(tmp_path, {"b": {"deficit": False}}), {"b", "c"})
+    with pytest.raises(audit.AuditError, match="true or false"):
+        audit.load_state_deficit(deficit_file(tmp_path, {"b": {"deficit": "yes"}}), {"b"})
+
+
+def test_cohen_kappa() -> None:
+    assert audit.cohen_kappa([("a", "a"), ("b", "b"), ("a", "b"), ("b", "b")]) == 0.5
+    assert audit.cohen_kappa([("a", "a"), ("b", "b")]) == 1.0
+    assert audit.cohen_kappa([("a", "a"), ("a", "a")]) is None  # one category: undefined
+    assert audit.cohen_kappa([]) is None
+
+
+def test_second_review_matches_the_draw_and_counts_agreement(tmp_path: Path) -> None:
+    decisions = {
+        "correct": {f"b{i}#1": "ok" for i in range(20)},
+        "incorrect": {f"t{i}": "not_a_fix" for i in range(12)},
+        "state_deficit": {f"b{i}": "no_deficit" for i in range(30)},
+    }
+    draw = audit.draw_second_review(decisions, seed=3)
+    assert draw == audit.draw_second_review(decisions, seed=3)
+    assert {k: len(v) for k, v in draw.items()} == audit.SECOND_REVIEW_SIZES
+    parts = {
+        part: {ref: {"decision": decisions[part][ref]} for ref in refs}
+        for part, refs in draw.items()
+    }
+    first = draw["correct"][0]
+    parts["correct"][first] = {"decision": "not_a_fix"}
+    path = tmp_path / "second_review.yaml"
+    path.write_text(yaml.safe_dump({"reviewer": "owner", "seed": 3, "parts": parts}))
+    found = audit.load_second_review(path, decisions)
+    assert (found["n"], found["agree"]) == (20, 19)
+    assert found["parts"]["correct"]["disagreements"] == [first]
+    path.write_text(yaml.safe_dump({"reviewer": "owner", "seed": 4, "parts": parts}))
+    with pytest.raises(audit.AuditError, match="does not match the draw"):
+        audit.load_second_review(path, decisions)
+
+
+def test_committed_state_deficit_covers_every_bug() -> None:
+    results = ROOT / "benchmark" / "results" / "final.jsonl"
+    bugs = {json.loads(line)["bug"] for line in results.read_text().splitlines()}
+    found = audit.load_state_deficit(ROOT / "benchmark" / "audit" / "state_deficit.yaml", bugs)
+    assert found["judged"] == 30

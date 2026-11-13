@@ -43,6 +43,22 @@
       "reviewer": "claude-opus-5-5",
       "sampled": 12,
       "seed": 20261111
+    },
+    "state_deficit": {
+      "bugs": [
+        "flask-5797",
+        "marshmallow-2874",
+        "marshmallow-2994",
+        "more-itertools-1118",
+        "more-itertools-1294",
+        "tomlkit-581",
+        "tomlkit-701"
+      ],
+      "judged": 30,
+      "relabelled": {
+        "B": 9
+      },
+      "reviewer": "claude-opus-5-5"
     }
   },
   "bugs": 30,
@@ -480,7 +496,7 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
+          "state_deficit",
           null,
           null
         ],
@@ -542,8 +558,8 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
+          "state_deficit",
+          "state_deficit",
           null
         ],
         "solved": false,
@@ -635,9 +651,9 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
-          "incorrect_patch"
+          "state_deficit",
+          "state_deficit",
+          "state_deficit"
         ],
         "solved": false,
         "trials": [
@@ -883,9 +899,9 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
-          "incorrect_patch"
+          "state_deficit",
+          "state_deficit",
+          "state_deficit"
         ],
         "solved": false,
         "trials": [
@@ -1216,12 +1232,12 @@
       "cost_equiv_usd_per_run": 0.1268,
       "labels": {
         "fault_localization_miss": 6,
-        "incorrect_patch": 15,
+        "incorrect_patch": 6,
         "invalid_repro": 0,
         "no_repro": 0,
         "regression_failure": 1,
         "scope_violation": 0,
-        "state_deficit": 0,
+        "state_deficit": 9,
         "syntax_or_import_error": 0,
         "tampered": 0
       },

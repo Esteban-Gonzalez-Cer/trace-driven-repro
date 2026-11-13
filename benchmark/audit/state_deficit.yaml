@@ -1,0 +1,116 @@
+# State Deficit labels (spec §8 category 6, Phase 5 step P5.5), one decision per bug.
+# Question: can the bug be fixed from what the agent was shown (the crash report with its frame
+# variables, and the library source), or does it need state the report does not contain:
+# configuration hidden inside an object, inputs that were not recorded, or earlier calls that
+# produced the bad state?
+# Judged from each bug's payload and the maintainers' fix, without the per-trial results.
+# Blinding is partial: the reviewer had already seen the per-bug summary (docs/AUDIT.md).
+# On deficit bugs, failed trials labelled regression_failure or incorrect_patch become
+# state_deficit (precedence 6 before 7 and 8); labels 1 to 5 are kept.
+run_id: final-935ffcd2-v2-claude-sonnet-5-5-cli2.1.308
+reviewer: claude-opus-5-5
+bugs:
+  attrs-1529:
+    deficit: false
+    why: The argument (an attrs instance) is in the frame variables.
+  click-3493:
+    deficit: false
+    why: The empty bytes message and the binary target file are in the frame variables.
+  click-3739:
+    deficit: false
+    why: The pager object is shown as a binary temporary file and the text being written is shown.
+  click-3781:
+    deficit: false
+    why: The Path argument is in the frame variables.
+  flask-5797:
+    deficit: true
+    missing: The earlier requests. The session lost its value while the test client followed a
+      redirect; the report shows only the final lookup of a missing key, not the redirect or the
+      preserved contexts that caused it.
+  marshmallow-2874:
+    deficit: true
+    missing: The validator's configured schemes. The object's repr omits them, so the report
+      cannot show that 'http' was rejected because the schemes were given in upper case; a
+      validator configured without http would raise the same error correctly.
+  marshmallow-2892:
+    deficit: false
+    why: The upper-case FILE URL, its parsed scheme and the regex are in the frame variables.
+  marshmallow-2901:
+    deficit: false
+    why: The constructor arguments (required=True with a constant) are in the frame variables.
+  marshmallow-2903:
+    deficit: false
+    why: The partial argument, the input data and the loaded result are in the frame variables.
+  marshmallow-2928:
+    deficit: false
+    why: The internationalised URL is in the frame variables.
+  marshmallow-2994:
+    deficit: true
+    missing: The enum and its settings. The field's repr is cut off before the enum class and
+      by_value, so the report shows an ordinary rejection of None; nothing reveals that the enum
+      has a member whose value is None.
+  more-itertools-1088:
+    deficit: false
+    why: The negative n is in the frame variables.
+  more-itertools-1118:
+    deficit: true
+    missing: The arguments. The frame carries no variables and the ValueError has no message, so
+      the report does not show which condition fired (r negative, or r larger than the pool).
+  more-itertools-1182:
+    deficit: false
+    why: The negative start and the non-sequence iterable are in the frame variables.
+  more-itertools-1193:
+    deficit: false
+    why: The empty inputs are in the frame variables.
+  more-itertools-1294:
+    deficit: true
+    missing: The iterator's configuration. The seekable object's repr is opaque, so the
+      zero-size cache (maxlen=0) that makes peek drop items is not visible.
+  more-itertools-1305:
+    deficit: false
+    why: n = 0 is in the frame variables.
+  requests-7308:
+    deficit: false
+    why: The header value with a trailing newline is in the frame variables.
+  starlette-3139:
+    deficit: false
+    why: The path with an encoded null byte is in the frame variables.
+  starlette-3317:
+    deficit: false
+    why: The URL without an authority and the empty hostname are in the frame variables.
+  starlette-3619:
+    deficit: false
+    why: Both form-data objects with their uploads are in the frame variables.
+  starlette-3783:
+    deficit: false
+    why: The functools.partial cast is in the frame variables.
+  tomlkit-565:
+    deficit: false
+    why: The whole TOML document is in the frame variables.
+  tomlkit-581:
+    deficit: true
+    missing: Where the text came from. The report shows a parse error on text that really is
+      invalid TOML; that tomlkit's own writer produced it (an array with a trailing comment) is
+      not in the report.
+  tomlkit-610:
+    deficit: false
+    why: The literal '0o7_7' is in the frame variables.
+  tomlkit-631:
+    deficit: false
+    why: The earlier slice assignment is not shown, but the code in the trace (the body delete
+      succeeds, the list delete fails) shows that the two stores disagree, which points to the
+      method that updates one without the other.
+  tomlkit-663:
+    deficit: false
+    why: The whole TOML document is in the frame variables.
+  tomlkit-701:
+    deficit: true
+    missing: Where the text came from. The report shows a parse error on a datetime with a
+      seconds offset, which really is invalid TOML; that tomlkit's own writer produced it from a
+      datetime with a sub-minute UTC offset is not in the report.
+  werkzeug-3078:
+    deficit: false
+    why: The constructor arguments (pin_security=False) and the failing delete are in the trace.
+  werkzeug-3238:
+    deficit: false
+    why: The over-long number in the URL is in the frame variables.

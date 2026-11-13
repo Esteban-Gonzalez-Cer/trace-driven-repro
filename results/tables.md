@@ -41,13 +41,15 @@ The list price is the CLI's estimate at API prices; the runs used a Claude plan,
 | no_repro | 1 | 0 |
 | invalid_repro | 16 | 0 |
 | fault_localization_miss | 0 | 6 |
-| state_deficit | 0 | 0 |
+| state_deficit | 0 | 9 |
 | regression_failure | 0 | 1 |
-| incorrect_patch | 8 | 15 |
+| incorrect_patch | 8 | 6 |
 | tampered | 0 | 0 |
 | **failed trials** | 25 | 22 |
 
 `no_repro` and `invalid_repro` apply to Pipeline A only, so the pipelines are compared on the other categories: scope_violation, syntax_or_import_error, fault_localization_miss, state_deficit, regression_failure, incorrect_patch, tampered. `state_deficit` is assigned by hand in the audit.
+
+State Deficit (by hand, first pass: claude-opus-5-5): 7 of 30 bugs need state the crash report does not contain (flask-5797, marshmallow-2874, marshmallow-2994, more-itertools-1118, more-itertools-1294, tomlkit-581, tomlkit-701). Failed trials relabelled from `regression_failure` or `incorrect_patch` to `state_deficit`: B 9.
 
 ## Audit of patches graded correct (spec §7.5)
 

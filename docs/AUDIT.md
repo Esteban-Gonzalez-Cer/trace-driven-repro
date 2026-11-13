@@ -129,7 +129,51 @@ negative)?
 
 ## 3. State Deficit labels (P5.5)
 
-To come.
+**Question (spec §8, category 6):** can the bug be fixed from what the agent was shown, meaning
+the crash report with its frame variables plus the library source? Or does it need state the
+report does not contain?
+
+**How:**
+- Judged once per bug, for all 30 bugs, from the payload and the maintainers' fix only, without
+  the per-trial results. Decisions are in `benchmark/audit/state_deficit.yaml`.
+- **Blinding was only partial:** the reviewer had already seen the per-bug summary when labelling.
+- A bug counts as a deficit when the deciding fact is missing from the report and cannot be
+  worked out from the code the trace shows. Typical cases are configuration hidden inside an
+  object, inputs that were not recorded, or earlier calls that produced the bad state.
+- On deficit bugs, a failed trial labelled `regression_failure` or `incorrect_patch` becomes
+  `state_deficit`. This follows the spec's precedence: 6 comes before 7 and 8, and labels 1 to 5
+  are never replaced.
+
+**Result: 7 of 30 bugs are State Deficit bugs.**
+
+| bug | what the crash report is missing |
+|---|---|
+| flask-5797 | The earlier requests: the session lost its value while the test client followed a redirect. |
+| marshmallow-2874 | The validator's configured schemes (its repr omits them). |
+| marshmallow-2994 | The enum and `by_value` (the field's repr is cut off). |
+| more-itertools-1118 | The arguments (no frame variables and an empty error message). |
+| more-itertools-1294 | The iterator's zero-size cache (`maxlen=0`; the repr is opaque). |
+| tomlkit-581 | That tomlkit's own writer produced the invalid text being parsed. |
+| tomlkit-701 | That tomlkit's own writer produced the invalid datetime being parsed. |
+
+Two borderline cases were judged *not* deficits:
+- **tomlkit-631:** the earlier call is missing, but the code in the trace shows that the two
+  internal stores disagree.
+- **marshmallow-2903:** the schema's field mapping can be worked out from the input and the
+  result.
+
+**Effect on the labels:**
+- Pipeline B: 9 failed trials move from `incorrect_patch` to `state_deficit` (marshmallow-2994
+  ×1, more-itertools-1118 ×2, more-itertools-1294 ×3, tomlkit-581 ×3).
+- Pipeline A: nothing changes, because its failures on these bugs already carry a higher-priority
+  label (`invalid_repro`).
+- The other failures on deficit bugs keep their automatic labels: flask-5797 and tomlkit-701 in
+  B are `fault_localization_miss`, a higher priority.
+- Accuracy does not change; only the reason given for failures does.
+
+**For H2** (does missing context outnumber syntax and tooling failures?): in Pipeline B, 15 of
+22 failures are missing context (6 `fault_localization_miss`, 9 `state_deficit`). None is a
+syntax, import or scope failure. In Pipeline A, 17 of 25 failures happen at the repro stage.
 
 ## 4. Second reviewer (P5.5)
 
