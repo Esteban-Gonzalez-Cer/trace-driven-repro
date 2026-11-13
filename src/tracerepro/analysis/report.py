@@ -255,6 +255,8 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
     ]
     if "audit" in n:
         out += audit_files.section(n["audit"], n["audit"].get("adjusted"))
+        if "incorrect_sample" in n["audit"]:
+            out += audit_files.incorrect_section(n["audit"]["incorrect_sample"])
     for key, title in (("kind", "By bug kind"), ("cohort", "By contamination cohort")):
         out += ["", f"## {title} (descriptive, no test)", "", head]
         for value, cells in n["groups"][key].items():
@@ -310,6 +312,9 @@ def write_all(
     if audit is not None and (audit / "correct.yaml").is_file():
         correct = audit_files.load_correct(audit / "correct.yaml", rows)
         numbers["audit"] = {"correct": correct}
+        if (audit / "incorrect_sample.yaml").is_file():
+            sample = audit_files.load_incorrect_sample(audit / "incorrect_sample.yaml", rows)
+            numbers["audit"]["incorrect_sample"] = sample
         if correct["not_a_fix"]:
             adj = analyze(audit_files.adjusted_rows(rows, correct["not_a_fix"]), bugs)
             numbers["audit"]["adjusted"] = {p: e["accuracy"] for p, e in adj["pipelines"].items()}
