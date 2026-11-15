@@ -129,8 +129,104 @@ negative)?
 
 ## 3. State Deficit labels (P5.5)
 
-To come.
+**Question (spec §8, category 6):** can the bug be fixed from what the agent was shown, meaning
+the crash report with its frame variables plus the library source? Or does it need state the
+report does not contain?
+
+**How:**
+- Judged once per bug, for all 30 bugs, from the payload and the maintainers' fix only, without
+  the per-trial results. Decisions are in `benchmark/audit/state_deficit.yaml`.
+- **Blinding was only partial:** the reviewer had already seen the per-bug summary when labelling.
+- A bug counts as a deficit when the deciding fact is missing from the report and cannot be
+  worked out from the code the trace shows. Typical cases are configuration hidden inside an
+  object, inputs that were not recorded, or earlier calls that produced the bad state.
+- On deficit bugs, a failed trial labelled `regression_failure` or `incorrect_patch` becomes
+  `state_deficit`. This follows the spec's precedence: 6 comes before 7 and 8, and labels 1 to 5
+  are never replaced.
+
+**Result: 7 of 30 bugs are State Deficit bugs.**
+
+| bug | what the crash report is missing |
+|---|---|
+| flask-5797 | The earlier requests: the session lost its value while the test client followed a redirect. |
+| marshmallow-2874 | The validator's configured schemes (its repr omits them). |
+| marshmallow-2994 | The enum and `by_value` (the field's repr is cut off). |
+| more-itertools-1118 | The arguments (no frame variables and an empty error message). |
+| more-itertools-1294 | The iterator's zero-size cache (`maxlen=0`; the repr is opaque). |
+| tomlkit-581 | That tomlkit's own writer produced the invalid text being parsed. |
+| tomlkit-701 | That tomlkit's own writer produced the invalid datetime being parsed. |
+
+Two borderline cases were judged *not* deficits:
+- **tomlkit-631:** the earlier call is missing, but the code in the trace shows that the two
+  internal stores disagree.
+- **marshmallow-2903:** the schema's field mapping can be worked out from the input and the
+  result.
+
+**Effect on the labels:**
+- Pipeline B: 9 failed trials move from `incorrect_patch` to `state_deficit` (marshmallow-2994
+  ×1, more-itertools-1118 ×2, more-itertools-1294 ×3, tomlkit-581 ×3).
+- Pipeline A: nothing changes, because its failures on these bugs already carry a higher-priority
+  label (`invalid_repro`).
+- The other failures on deficit bugs keep their automatic labels: flask-5797 and tomlkit-701 in
+  B are `fault_localization_miss`, a higher priority.
+- Accuracy does not change; only the reason given for failures does.
+
+**For H2** (does missing context outnumber syntax and tooling failures?): in Pipeline B, 15 of
+22 failures are missing context (6 `fault_localization_miss`, 9 `state_deficit`). None is a
+syntax, import or scope failure. In Pipeline A, 17 of 25 failures happen at the repro stage.
 
 ## 4. Second reviewer (P5.5)
 
-To come.
+**How:**
+- The project owner judged 20 decisions drawn at random (seed 20261111, by
+  `tracerepro.analysis.audit.draw_second_review`): 10 correct-patch decisions, 5 from the
+  incorrect sample and 5 State Deficit labels.
+- The owner used a private review page that described each case in plain language, with both
+  diffs available, and did not show the first pass's answers.
+- The answers and comments are in `benchmark/audit/second_review.yaml`. The first-pass files
+  were not changed afterwards, so agreement is measured against what the first pass decided.
+
+**Result: 18 of 20 decisions agree.**
+
+| part | cases | agree | Cohen's kappa |
+|---|---|---|---|
+| Patches graded correct | 10 | 9 | 0.80 |
+| Incorrect sample | 5 | 4 | 0.00 |
+| State Deficit | 5 | 5 | 1.00 |
+
+The kappa of 0 for the incorrect sample is an artefact of a tiny, lopsided sample: 4 of 5
+answers match, but the owner answered "not a fix" every time, so there is no agreement beyond
+chance left to measure. The raw count is the more useful figure there.
+
+**The two disagreements:**
+
+- **starlette-3619#1 (first pass `ok`, owner `ok_with_note`).** The owner noted that the patch
+  sorts twice when the first sort fails. **Accepted.** The same patch also applies two different
+  equality rules: for values that can be ordered, swapped values for one key compare equal; for
+  uploads they do not. It counts as `ok_with_note` from here on (recorded in `second_review.yaml`; `correct.yaml` keeps the first pass), which changes no number.
+- **starlette-3783/A/1 (first pass `real_fix`, owner `not_a_fix`).** The patch raises the
+  intended error, but its message no longer matches the maintainers' wording, and the owner
+  judged that the test was right to insist on it. **Both readings are reported.** The grader's
+  estimated false-negative rate is **2 of 12 (17%, 95% CI 2% to 48%)** on the first pass's
+  reading and **1 of 12 (8%, 95% CI 0.2% to 38%)** on the owner's. Either way, no bug's outcome
+  changes (section 2).
+
+On the State Deficit sample the owner agreed on all five. For marshmallow-2874 the owner added
+that a developer "could potentially discover the fix" from the report and the source, but not
+with confidence. That is the borderline nature of this label, and it matches the first pass's
+reason.
+
+## What the audit means for the results
+
+- The automatic grade stands as the headline. No patch graded correct cheated, so no audit
+  adjustment is needed.
+- "Correct" means the crash is fixed without breaking the baseline. One correct trial in four
+  differs from the maintainers' fix in a way a reviewer would mention.
+- The grader probably rejects some valid fixes: about 1 or 2 in 12 in this sample, with a wide
+  interval. Both cases came from tests that check a choice the crash report does not show.
+- Missing information, not broken code, is the main reason Pipeline B fails: 15 of 22 failures
+  are `fault_localization_miss` or `state_deficit`.
+- **Limitations of this audit:**
+  - The first pass is an AI from the same vendor as the model under test.
+  - The State Deficit labels were only partly blinded.
+  - The second review covers 20 decisions; the owner is not a maintainer of these libraries.

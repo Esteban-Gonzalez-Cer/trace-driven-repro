@@ -1,0 +1,81 @@
+# Second reviewer (spec §7.5, §8: second reviewer on a sample; Phase 5 step P5.5).
+# The project owner judged a random sample of the first pass's decisions without seeing them,
+# on a review page that described each case in plain language with the code alongside
+# (2026-11-15). The sample is `tracerepro.analysis.audit.draw_second_review` with the seed below;
+# `make analyze` checks it against a fresh draw and reports agreement and Cohen's kappa.
+# Decisions and comments are the owner's own, copied verbatim from the review page.
+# First-pass files are left as they were, so agreement is measured against the first pass;
+# how each disagreement is handled is recorded under `disagreements`.
+reviewer: project owner
+seed: 20261111
+date: '2026-11-15'
+parts:
+  correct:
+    click-3493#3:
+      decision: ok_with_note
+    click-3739#4:
+      decision: ok_with_note
+    click-3781#3:
+      decision: ok
+    marshmallow-2901#1:
+      decision: ok_with_note
+      comment: 'The alternative patch changes the configuration to satisfy the existing implementation.
+
+        The maintainers'' fix changes the implementation to support the requested configuration.'
+    marshmallow-2901#4:
+      decision: ok_with_note
+      comment: 'The alternative patch changes the configuration to satisfy the existing implementation.
+
+        The maintainers'' fix changes the implementation to support the requested configuration.'
+    more-itertools-1088#1:
+      decision: ok
+      comment: Here the difference is that beside fixing the n negatives values it made it more efficient,
+        but the main issue fix it correctly.
+    more-itertools-1182#3:
+      decision: ok
+    more-itertools-1193#1:
+      decision: ok
+      comment: Exactly how it was expected.
+    starlette-3619#1:
+      decision: ok_with_note
+      comment: AI is like doing a second iteration when we can just do an iteration.
+    starlette-3619#3:
+      decision: ok
+  incorrect:
+    marshmallow-2901/A/1:
+      decision: not_a_fix
+    marshmallow-2994/B/1:
+      decision: not_a_fix
+    more-itertools-1294/B/2:
+      decision: not_a_fix
+    starlette-3783/A/1:
+      decision: not_a_fix
+    tomlkit-663/A/2:
+      decision: not_a_fix
+  state_deficit:
+    marshmallow-2874:
+      decision: deficit
+      comment: 'A developer could potentially discover the fix using only the crash report and Marshmallow''s
+        source code, but the report does not contain enough information to identify the root cause with
+        confidence.
+
+
+        This is a case of insufficient diagnostic information, rather than a completely undiscoverable
+        bug.'
+    marshmallow-2903:
+      decision: no_deficit
+      comment: Yes. A developer could reasonably identify the root cause and develop the correct fix using
+        only this crash report and Marshmallow's source code
+    more-itertools-1088:
+      decision: no_deficit
+    more-itertools-1193:
+      decision: no_deficit
+    werkzeug-3078:
+      decision: no_deficit
+disagreements:
+  starlette-3619#1: 'First pass ok, owner ok_with_note (the patch sorts twice when the values cannot be
+    ordered). Accepted: the note is valid, and it also means the comparison rule differs between orderable
+    values and uploads. No number changes.'
+  starlette-3783/A/1: 'First pass real_fix, owner not_a_fix (the message no longer matches the maintainers''
+    wording). Not resolved: both readings are reported, giving a false-negative rate of 2/12 (first pass)
+    or 1/12 (owner).'

@@ -43,6 +43,56 @@
       "reviewer": "claude-opus-5-5",
       "sampled": 12,
       "seed": 20261111
+    },
+    "second_review": {
+      "agree": 18,
+      "n": 20,
+      "parts": {
+        "correct": {
+          "agree": 9,
+          "disagreements": [
+            "starlette-3619#1"
+          ],
+          "kappa": 0.8,
+          "n": 10
+        },
+        "incorrect": {
+          "agree": 4,
+          "disagreements": [
+            "starlette-3783/A/1"
+          ],
+          "kappa": 0.0,
+          "n": 5
+        },
+        "state_deficit": {
+          "agree": 5,
+          "disagreements": [],
+          "kappa": 1.0,
+          "n": 5
+        }
+      },
+      "resolutions": {
+        "starlette-3619#1": "First pass ok, owner ok_with_note (the patch sorts twice when the values cannot be ordered). Accepted: the note is valid, and it also means the comparison rule differs between orderable values and uploads. No number changes.",
+        "starlette-3783/A/1": "First pass real_fix, owner not_a_fix (the message no longer matches the maintainers' wording). Not resolved: both readings are reported, giving a false-negative rate of 2/12 (first pass) or 1/12 (owner)."
+      },
+      "reviewer": "project owner",
+      "seed": 20261111
+    },
+    "state_deficit": {
+      "bugs": [
+        "flask-5797",
+        "marshmallow-2874",
+        "marshmallow-2994",
+        "more-itertools-1118",
+        "more-itertools-1294",
+        "tomlkit-581",
+        "tomlkit-701"
+      ],
+      "judged": 30,
+      "relabelled": {
+        "B": 9
+      },
+      "reviewer": "claude-opus-5-5"
     }
   },
   "bugs": 30,
@@ -480,7 +530,7 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
+          "state_deficit",
           null,
           null
         ],
@@ -542,8 +592,8 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
+          "state_deficit",
+          "state_deficit",
           null
         ],
         "solved": false,
@@ -635,9 +685,9 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
-          "incorrect_patch"
+          "state_deficit",
+          "state_deficit",
+          "state_deficit"
         ],
         "solved": false,
         "trials": [
@@ -883,9 +933,9 @@
       },
       "B": {
         "labels": [
-          "incorrect_patch",
-          "incorrect_patch",
-          "incorrect_patch"
+          "state_deficit",
+          "state_deficit",
+          "state_deficit"
         ],
         "solved": false,
         "trials": [
@@ -1216,12 +1266,12 @@
       "cost_equiv_usd_per_run": 0.1268,
       "labels": {
         "fault_localization_miss": 6,
-        "incorrect_patch": 15,
+        "incorrect_patch": 6,
         "invalid_repro": 0,
         "no_repro": 0,
         "regression_failure": 1,
         "scope_violation": 0,
-        "state_deficit": 0,
+        "state_deficit": 9,
         "syntax_or_import_error": 0,
         "tampered": 0
       },

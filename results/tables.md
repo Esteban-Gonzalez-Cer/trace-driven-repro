@@ -41,13 +41,15 @@ The list price is the CLI's estimate at API prices; the runs used a Claude plan,
 | no_repro | 1 | 0 |
 | invalid_repro | 16 | 0 |
 | fault_localization_miss | 0 | 6 |
-| state_deficit | 0 | 0 |
+| state_deficit | 0 | 9 |
 | regression_failure | 0 | 1 |
-| incorrect_patch | 8 | 15 |
+| incorrect_patch | 8 | 6 |
 | tampered | 0 | 0 |
 | **failed trials** | 25 | 22 |
 
 `no_repro` and `invalid_repro` apply to Pipeline A only, so the pipelines are compared on the other categories: scope_violation, syntax_or_import_error, fault_localization_miss, state_deficit, regression_failure, incorrect_patch, tampered. `state_deficit` is assigned by hand in the audit.
+
+State Deficit (by hand, first pass: claude-opus-5-5): 7 of 30 bugs need state the crash report does not contain (flask-5797, marshmallow-2874, marshmallow-2994, more-itertools-1118, more-itertools-1294, tomlkit-581, tomlkit-701). Failed trials relabelled from `regression_failure` or `incorrect_patch` to `state_deficit`: B 9.
 
 ## Audit of patches graded correct (spec §7.5)
 
@@ -64,6 +66,22 @@ No patch was judged `not_a_fix`, so the audit changes no number.
 ## Sample of patches graded incorrect (spec §7.5)
 
 12 of 46 incorrect patches drawn at random (seed 20261111) and reviewed: 2 were real fixes the grader rejected. Estimated false-negative rate 17% (95% CI 2% to 48%); details in docs/AUDIT.md.
+
+## Second reviewer (project owner, random sample, seed 20261111)
+
+| part | cases | agree | Cohen's kappa |
+|---|---|---|---|
+| correct | 10 | 9 | 0.80 |
+| incorrect | 5 | 4 | 0.00 |
+| state_deficit | 5 | 5 | 1.00 |
+| **all** | 20 | 18 | |
+
+Disagreements and how they were handled:
+
+- starlette-3619#1: First pass ok, owner ok_with_note (the patch sorts twice when the values cannot be ordered). Accepted: the note is valid, and it also means the comparison rule differs between orderable values and uploads. No number changes.
+- starlette-3783/A/1: First pass real_fix, owner not_a_fix (the message no longer matches the maintainers' wording). Not resolved: both readings are reported, giving a false-negative rate of 2/12 (first pass) or 1/12 (owner).
+
+Kappa corrects agreement for chance; with few cases and one answer far more common than the other, it can be low even when nearly every answer matches.
 
 ## By bug kind (descriptive, no test)
 
