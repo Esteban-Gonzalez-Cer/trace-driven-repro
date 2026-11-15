@@ -50,7 +50,8 @@ make analyze
 ## Status
 
 Phase 5 complete (milestone M4, results final): the final run (180 trials), the analysis from
-logs, and the manual audit ([`docs/AUDIT.md`](docs/AUDIT.md)). Next: the demo and the write-up
+logs, and the manual audit ([`docs/AUDIT.md`](docs/AUDIT.md)). Now: Pipeline A is retired and
+Pipeline B is being improved (B2), to be measured on fresh bugs. Then: the demo and the write-up
 (Phase 6).
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)

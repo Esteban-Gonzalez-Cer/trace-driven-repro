@@ -118,7 +118,10 @@ test checks this), and a test checks that no oracle test id reaches the model.
 in a fresh container (`verdict.json`), with the review report for the manual audit
 (`review.md`).
 
-## Pipeline A: repro first (plan §6.5, spec §6)
+## Pipeline A: repro first (plan §6.5, spec §6), retired
+
+As run in the M4 study. Retired afterwards (DECISIONS.md, 2026-11-15); the code is kept at the
+`m3-freeze` tag. Its repro gate (`agent/repro_gate.py`) stays in use.
 
 1. **Ask for a repro test** (prompt `repro`): one pytest file reproducing the crash. The harness
    places it at `repro/test_repro.py` in the workspace. It is never part of the patch, so the

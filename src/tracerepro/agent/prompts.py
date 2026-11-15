@@ -28,8 +28,6 @@ from tracerepro.dataset.manifest import PROJECT_ROOT
 PROMPTS_DIR = PROJECT_ROOT / "prompts"
 SYSTEM = "system"
 PATCH = "patch"
-REPRO = "repro"
-REPRO_FEEDBACK = "repro_feedback"
 _NAME_RE = re.compile(r"^[a-z]+(_[a-z]+)?$")
 _VERSION_RE = re.compile(r"^v[0-9]+$")
 _LABEL_RE = re.compile(r"^[a-z][a-z-]{0,30}$")
@@ -136,20 +134,6 @@ def patch_message(
         blocks.append(DataBlock("repro-result", repro_result))
     if feedback is not None:
         blocks.append(DataBlock("test-results", feedback))
-    return build_message(prompt.text, blocks, token=token)
-
-
-def repro_message(
-    prompt: Prompt,
-    *,
-    payload: str,
-    context: str,
-    feedback: str | None = None,
-    token: Callable[[], str] | None = None,
-) -> Message:
-    blocks = [DataBlock("crash-report", payload), DataBlock("source", context)]
-    if feedback is not None:
-        blocks.append(DataBlock("repro-result", feedback))
     return build_message(prompt.text, blocks, token=token)
 
 

@@ -8,7 +8,7 @@ import pytest
 from tracerepro.agent.client import LLMClient, Settings
 from tracerepro.agent.edits import EditResult, apply_edits
 from tracerepro.agent.parse import Edit
-from tracerepro.agent.pipeline import Bug, PipelineConfig, run_pipeline_a, run_pipeline_b
+from tracerepro.agent.pipeline import Bug, PipelineConfig, run_pipeline_b
 from tracerepro.agent.providers.fake import FakeProvider
 from tracerepro.agent.workbench import DockerWorkbench, regressions_of
 from tracerepro.dataset.image_builder import build_image
@@ -87,19 +87,3 @@ def test_one_row():
     assert "TOTAL" in format_report([{"name": "a", "amount": 1}])
 ```
 """
-
-
-def test_pipeline_a_gate_and_patch_for_real(toy: tuple[Manifest, Path], tmp_path: Path) -> None:
-    manifest, work = toy
-    provider = FakeProvider.replying([NO_CRASH_TEST, REPRO_TEST, GOLD])
-    client = LLMClient(provider, log_path=tmp_path / "calls.jsonl")
-    config = PipelineConfig(settings=Settings("claude-haiku-5-5", "low", 4000))
-    with DockerWorkbench(manifest, tmp_path / "bench", limits=Limits(timeout_s=120),
-                         work_dir=work) as bench:  # fmt: skip
-        result = run_pipeline_a(Bug(manifest.id, payload()), client, bench, config)
-    outcomes = [(a.stage, a.outcome) for a in result.attempts]
-    assert outcomes == [("repro", "no_repro"), ("repro", "valid"), ("patch", "clean")]
-    assert result.status == "submitted" and result.repro is not None
-    assert "repro/" not in (result.final_diff or "")  # the repro test is never part of the patch
-    verdict = score_patch(manifest, result.final_diff or "", work_dir=work)
-    assert verdict.kind is VerdictKind.CORRECT, verdict.message

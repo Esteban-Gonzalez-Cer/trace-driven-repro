@@ -1,3 +1,5 @@
+# Record of a run made at the m3-freeze tag. It uses Pipeline A, retired afterwards
+# (DECISIONS.md, 2026-11-15): rerun it from that tag, not from main.
 # Usage measurement (plan §6.6): both pipelines on the 5 dev bugs with the main model, cache off,
 # and a token cap high enough not to cut runs short, so the natural usage per run is measured.
 name: measure

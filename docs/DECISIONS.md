@@ -327,6 +327,23 @@ from these rejections (28 trials × 5 tries, no tokens used) were removed by han
 `work/llm-usage.json` so the daily cap counted only real calls (a backup was kept). The caps
 themselves never changed.
 
+## 2026-11-15: Pipeline A retired; Pipeline B2 to be measured on fresh bugs
+
+The M4 study found no reliable difference between the pipelines (A 21/30, B 24/30 bugs; exact
+McNemar p = 0.375) while A used about twice the tokens and failed mostly at its strict repro
+gate (17 of 25 failures). The project owner decided to keep only Pipeline B and improve it.
+
+- **Pipeline A is retired** from main: its runner, prompts and tests are removed, and configs
+  that use it (`final.yaml`, `dry-run.yaml`, `measure-sonnet.yaml`, records of runs at the
+  `m3-freeze` tag) are refused with a pointer to that tag. The study, its committed results and
+  `make analyze` are unchanged. The repro gate stays: Pipeline B2 reuses it as a soft check.
+- **Pipeline B2** (plan Phase 5b): a crash check that never blocks a patch, fix rules from the
+  owner's second review, escalation on retry, harness-mediated file requests, and richer crash
+  reports. Old B stays runnable from the same code (B2's switches off, prompts v2).
+- **Fair measurement:** the 35 bugs already used become the practice set; B and B2 are compared
+  on a fresh, frozen set of bugs that no model has seen, under a new analysis plan written
+  before that run.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
