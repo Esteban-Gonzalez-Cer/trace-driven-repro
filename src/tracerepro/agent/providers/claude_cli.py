@@ -61,7 +61,13 @@ LOCKDOWN_ARGS = (
     "json",
 )
 RETRYABLE_STATUS = frozenset({408, 409, 429, 500, 502, 503, 504, 529})
-_LIMIT_RE = re.compile(r"usage limit|limit reached|limit will reset|out of (extra )?usage", re.I)
+# The plan's own limits stop the run (it resumes later); they are never retried. "You've hit
+# your session limit · resets 7:20pm" is the 5-hour window (seen in the final run, 2026-11-12).
+_LIMIT_RE = re.compile(
+    r"usage limit|limit reached|limit will reset|out of (extra )?usage"
+    r"|hit your [\w-]+ limit|(session|weekly) limit",
+    re.I,
+)
 _OVER_LIMIT_RE = re.compile(r"response exceeded the \d+ output token maximum")
 # The model's safety classifier declined the request. The CLI reports it as an error; it is the
 # model's answer (a refusal), not a failure of the call, so it is never retried.

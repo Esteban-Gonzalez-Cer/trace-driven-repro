@@ -33,3 +33,7 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
 - **Contamination is only described.** Cohorts split at the model's stated training cutoff
   (June 2026): 16 pre-cutoff and 14 post-cutoff bugs. Small groups, no test; a stated cutoff is
   approximate.
+- **Run interruptions.** The final run was spread over about 24 hours by plan limits and the
+  usage guard; 88 unfinished trial attempts were set aside and rerun from scratch (DECISIONS.md,
+  2026-11-13). A rerun trial is a fresh, independent trial, but the model service may have
+  changed slightly between the first and last trials.

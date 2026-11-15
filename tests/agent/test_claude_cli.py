@@ -139,6 +139,14 @@ def test_no_json_is_retryable() -> None:
         (429, "Rate limited", TransientError),
         (None, "Connection error", TransientError),
         (429, "Claude usage limit reached. Your limit will reset at 5pm", UsageLimitReached),
+        # Recorded during the final run (2026-11-12): the plan's 5-hour window. It used to be
+        # read as an ordinary rate limit, retried 4 times and set the trial aside.
+        (
+            429,
+            "You've hit your session limit · resets 7:20pm (America/Mexico_City)",
+            UsageLimitReached,
+        ),
+        (429, "You've hit your weekly limit · resets Nov 18", UsageLimitReached),
         (404, "There's an issue with the selected model", InfraFailure),
         (400, "Bad request", InfraFailure),
     ],
