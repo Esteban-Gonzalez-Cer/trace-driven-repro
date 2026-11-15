@@ -79,7 +79,53 @@ upstream patch.
 
 ## 2. Sample of patches graded incorrect (P5.4)
 
-To come: a 25% random sample, which gives the grader's false-negative rate.
+**Question:** how often does the grader reject a patch that actually fixes the bug (a false
+negative)?
+
+**Sample:**
+- Population: the 46 trials graded incorrect that produced a patch. The one Pipeline A trial
+  that stopped before patching (`no_repro`) has no patch for the grader to have wrongly
+  rejected.
+- 25% of the population, rounded up, gives 12 trials, drawn at random with the analysis plan's
+  seed (20261111) by `tracerepro.analysis.audit.draw_sample`. Anyone can redraw it:
+  `uv run python -m tracerepro.analysis.audit sample`. `make analyze` refuses a sample file that
+  does not match a fresh draw.
+- Decisions are in `benchmark/audit/incorrect_sample.yaml`.
+
+**How:**
+- Each patch was read next to the maintainers' fix and the failing oracle test.
+- Three borderline patches were also run. The patched module was placed in a copy of the bug's
+  image (no network) and the call from the crash report was made, along with the cases the
+  oracle checks.
+
+**Result: 2 of 12 were real fixes the grader rejected.** The estimated false-negative rate is
+**17%** (95% Clopper-Pearson interval 2% to 48%).
+
+| trial | decision | why |
+|---|---|---|
+| starlette-3619/A/2 | **real fix** | Compares form data as an unordered multiset: no `TypeError`, and the library's earlier rule kept (run: swapped values for one key compared equal before the fix too). The oracle asserts the maintainers' new rule that order within a key matters, which the crash report does not reveal. |
+| starlette-3783/A/1 | **real fix** | Raises the intended `ValueError` instead of the `AttributeError` (run), but names the cast with `repr()`; the oracle matches the exact message text. |
+| marshmallow-2994/A/3 | not a fix | Deserializing `None` returns the enum member whose value is `None`, even when `allow_none=False` was set explicitly (run), so it overrides the user's setting. |
+| flask-5797/A/2 | not a fix | Makes a missing session key return `None`, hiding the error; the real bug (context order in the test client) is untouched. |
+| flask-5797/B/1 | not a fix | Adds a comment only. |
+| marshmallow-2901/A/1 | not a fix | Restores `required=True` after construction, so loading fails with "Missing data" instead of returning the constant. |
+| marshmallow-2994/B/1 | not a fix | Moves `pre_load` hooks; unrelated to the check that raises. |
+| more-itertools-1294/B/2 | not a fix | Changes how `StopIteration` is re-raised; the memory growth remains. |
+| tomlkit-581/A/1, A/2, A/3 | not a fix | Change the parser's error for an unterminated array; the writer still puts the bracket on the comment line. |
+| tomlkit-663/A/2 | not a fix | Changes the dict view only; two of three oracle cases still fail. |
+
+**What this means:**
+- Both false negatives come from oracle tests that encode a choice the crash report does not
+  show: an exact error message, and a new equality rule. This is the over-specification risk
+  spec §7.5 names.
+- With 12 cases the interval is wide (2% to 48%), so the rate is a rough indication only.
+- Neither false negative changes a bug's outcome. starlette-3619/A/2 is a Pipeline A trial whose
+  repro was also judged invalid (Pipeline A fails it on that ground first), and B already solves
+  starlette-3619. starlette-3783 stays unsolved by either pipeline: one more correct A trial would
+  give it 1 of 3.
+- Applied to the whole population, the rate would suggest about 8 of the 46 rejected patches
+  might be valid. The headline is the grader's, as planned, and this estimate is reported next
+  to it.
 
 ## 3. State Deficit labels (P5.5)
 

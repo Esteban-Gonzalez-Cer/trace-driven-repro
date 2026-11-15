@@ -61,6 +61,10 @@ Every trial graded correct was reviewed next to the maintainers' fix (first pass
 
 No patch was judged `not_a_fix`, so the audit changes no number.
 
+## Sample of patches graded incorrect (spec §7.5)
+
+12 of 46 incorrect patches drawn at random (seed 20261111) and reviewed: 2 were real fixes the grader rejected. Estimated false-negative rate 17% (95% CI 2% to 48%); details in docs/AUDIT.md.
+
 ## By bug kind (descriptive, no test)
 
 | | Pipeline A | Pipeline B |

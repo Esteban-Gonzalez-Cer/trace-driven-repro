@@ -65,3 +65,55 @@ def test_committed_audit_covers_every_correct_trial() -> None:
     data = [json.loads(line) for line in results.read_text().splitlines()]
     found = audit.load_correct(ROOT / "benchmark" / "audit" / "correct.yaml", data)
     assert sum(x["trials"] for x in found["by_decision"].values()) == sum(r["solved"] for r in data)
+
+
+def failed_rows(n: int) -> list[dict]:
+    return [
+        {
+            "id": f"b{i:02}/A/1",
+            "bug": f"b{i:02}",
+            "pipeline": "A",
+            "trial": 1,
+            "solved": False,
+            "patch_sha": None if i == 0 else f"{i:012x}",
+        }
+        for i in range(n)
+    ]
+
+
+def test_population_excludes_trials_without_a_patch() -> None:
+    population = audit.incorrect_population(failed_rows(5) + rows())
+    assert population == ["b01/A/1", "b02/A/1", "b03/A/1", "b04/A/1"]
+
+
+def test_sample_is_reproducible_and_rounds_up() -> None:
+    ids = [f"t{i}" for i in range(46)]
+    first = audit.draw_sample(ids)
+    assert first == audit.draw_sample(list(ids)) and len(first) == 12  # ceil(0.25 * 46)
+    assert first == sorted(first) and audit.draw_sample(ids, seed=1) != first
+
+
+def test_incorrect_sample_must_match_the_draw(tmp_path: Path) -> None:
+    data = failed_rows(9)
+    expected = audit.draw_sample(audit.incorrect_population(data), 0.25, 7)
+    entries = [
+        {"trial": t, "decision": "real_fix" if i == 0 else "not_a_fix"}
+        for i, t in enumerate(expected)
+    ]
+    path = tmp_path / "incorrect_sample.yaml"
+    path.write_text(yaml.safe_dump({"seed": 7, "fraction": 0.25, "sample": entries}))
+    found = audit.load_incorrect_sample(path, data)
+    assert (found["population"], found["sampled"], found["false_negatives"]) == (8, 2, 1)
+    assert found["real_fix"] == [expected[0]]
+    path.write_text(yaml.safe_dump({"seed": 8, "fraction": 0.25, "sample": entries}))
+    with pytest.raises(audit.AuditError, match="does not match the draw"):
+        audit.load_incorrect_sample(path, data)
+
+
+def test_committed_incorrect_sample_matches_a_fresh_draw() -> None:
+    results = ROOT / "benchmark" / "results" / "final.jsonl"
+    data = [json.loads(line) for line in results.read_text().splitlines()]
+    found = audit.load_incorrect_sample(
+        ROOT / "benchmark" / "audit" / "incorrect_sample.yaml", data
+    )
+    assert found["sampled"] == 12 and found["population"] == 46

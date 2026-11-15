@@ -27,6 +27,22 @@
       "not_a_fix": [],
       "patches": 79,
       "reviewer": "claude-opus-5-5"
+    },
+    "incorrect_sample": {
+      "ci": [
+        0.0209,
+        0.4841
+      ],
+      "false_negative_rate": 0.1667,
+      "false_negatives": 2,
+      "population": 46,
+      "real_fix": [
+        "starlette-3619/A/2",
+        "starlette-3783/A/1"
+      ],
+      "reviewer": "claude-opus-5-5",
+      "sampled": 12,
+      "seed": 20261111
     }
   },
   "bugs": 30,

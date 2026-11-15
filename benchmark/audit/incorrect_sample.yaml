@@ -1,0 +1,75 @@
+# Manual audit of a random sample of patches graded incorrect (spec §7.5, Phase 5 step P5.4).
+# Population: trials graded incorrect that produced a patch (46). Sample: 25%, rounded up (12),
+# drawn by `tracerepro.analysis.audit.draw_sample` with the seed below; `make analyze` checks
+# that this list matches a fresh draw.
+# decision: real_fix (the grader rejected a patch that does fix the bug: a false negative)
+#           | not_a_fix (the rejection is right)
+# evidence: what the decision rests on; "ran" = the patched code was run in the bug's image
+# (no network) on the call in the crash report.
+run_id: final-935ffcd2-v2-claude-sonnet-5-5-cli2.1.308
+reviewer: claude-opus-5-5
+seed: 20261111
+fraction: 0.25
+sample:
+- trial: flask-5797/A/2
+  decision: not_a_fix
+  evidence: read
+  note: Makes session["missing"] return None instead of raising KeyError, which hides the error; the
+    real bug (preserved request contexts re-pushed in the wrong order) is untouched, so the session
+    value set after the redirect is still lost.
+- trial: flask-5797/B/1
+  decision: not_a_fix
+  evidence: read
+  note: Adds a comment only; no behaviour changes.
+- trial: marshmallow-2901/A/1
+  decision: not_a_fix
+  evidence: read
+  note: Sets required=True back after construction, so loading without the field now fails with
+    "Missing data for required field" instead of returning the constant.
+- trial: marshmallow-2994/A/3
+  decision: not_a_fix
+  evidence: ran
+  note: Deserializing None returns the enum member whose value is None (U.nothing) instead of None,
+    and does so even when allow_none=False was given explicitly, so it overrides the user's
+    setting.
+- trial: marshmallow-2994/B/1
+  decision: not_a_fix
+  evidence: read
+  note: Moves the pre_load hooks before the missing-value check; unrelated to the None check that
+    raises.
+- trial: more-itertools-1294/B/2
+  decision: not_a_fix
+  evidence: read
+  note: Re-raises StopIteration without its context; each peek on a zero-size cache still leaks
+    memory (the bug).
+- trial: starlette-3619/A/2
+  decision: real_fix
+  evidence: ran
+  note: Compares the two multi-dicts as unordered multisets, which removes the TypeError and keeps
+    the library's previous rule (before the fix, swapped values for one key also compared equal).
+    The oracle asserts the maintainers' new rule that the order of values within a key matters,
+    a design choice the crash report does not reveal.
+- trial: starlette-3783/A/1
+  decision: real_fix
+  evidence: ran
+  note: Raises the intended ValueError instead of the AttributeError, but names the cast with
+    repr(), giving "Not a valid functools.partial(<class 'int'>, base=16)." where the oracle
+    matches the exact text "Not a valid partial.".
+- trial: tomlkit-581/A/1
+  decision: not_a_fix
+  evidence: read
+  note: Changes the parser's error for an unterminated array; the array is still written with its
+    closing bracket on the comment line, so the output still does not parse.
+- trial: tomlkit-581/A/2
+  decision: not_a_fix
+  evidence: read
+  note: Same as A/1 at a different place in the parser; the writer is unchanged.
+- trial: tomlkit-581/A/3
+  decision: not_a_fix
+  evidence: read
+  note: Same as A/1 at a different place in the parser; the writer is unchanged.
+- trial: tomlkit-663/A/2
+  decision: not_a_fix
+  evidence: read
+  note: Changes which object is stored in the table's dict view; the indentation code still reads
+    .trivia from the out-of-order proxy, and two of the three oracle cases still fail.
