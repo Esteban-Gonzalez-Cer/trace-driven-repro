@@ -64,7 +64,7 @@ def toy_payload(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_the_dev_config_loads() -> None:
     dev = experiment.load_config(DEV)
-    assert dev.model == "claude-haiku-5-5" and dev.pipelines == ("A", "B")
+    assert dev.model == "claude-haiku-5-5" and dev.pipelines == ("B",)
     assert len(dev.manifests()) == 5 and dev.guard.max_calls_per_hour == 60
 
 
@@ -76,6 +76,10 @@ def test_bad_configs_are_refused(tmp_path: Path) -> None:
     path.write_text("name: x\nmodel: m\nbugs: [a]\npipelines: [Z]\n")
     with pytest.raises(ValueError, match="unknown pipelines"):
         experiment.load_config(path)
+    for retired in ("pipelines: [A, B]\n", "max_repro_attempts: 2\n"):
+        path.write_text("name: x\nmodel: m\nbugs: [a]\n" + retired)
+        with pytest.raises(ValueError, match="m3-freeze"):
+            experiment.load_config(path)
     path.write_text("name: x\nmodel: m\nbugs: [a]\neffort: extreme\n")
     with pytest.raises(ValueError, match="effort"):
         experiment.load_config(path)

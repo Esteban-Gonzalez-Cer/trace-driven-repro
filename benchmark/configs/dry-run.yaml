@@ -1,3 +1,5 @@
+# Record of a run made at the m3-freeze tag. It uses Pipeline A, retired afterwards
+# (DECISIONS.md, 2026-11-15): rerun it from that tag, not from main.
 # Dress rehearsal (plan §7.3): the final run's exact settings, on the dev set only.
 # Both pipelines, the main model, 3 trials, cache off, the measured token cap.
 name: dry-run

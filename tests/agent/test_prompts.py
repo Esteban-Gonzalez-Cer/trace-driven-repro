@@ -8,14 +8,12 @@ import pytest
 
 from tracerepro.agent.prompts import (
     PATCH,
-    REPRO,
     SYSTEM,
     DataBlock,
     build_message,
     leak_check,
     load_prompt,
     patch_message,
-    repro_message,
 )
 
 INJECTION = (
@@ -31,7 +29,7 @@ def counter_tokens(*values: str) -> Iterator[str]:
 
 
 def test_prompts_load_with_a_stable_version_and_hash() -> None:
-    for name in (SYSTEM, PATCH, REPRO):
+    for name in (SYSTEM, PATCH, "feedback"):
         prompt = load_prompt(name, "v1")
         assert prompt.id == f"{name}_v1" and len(prompt.sha256) == 64
         assert prompt.sha256 == load_prompt(name, "v1").sha256
@@ -42,7 +40,7 @@ def test_prompts_load_with_a_stable_version_and_hash() -> None:
 
 
 def test_prompts_reveal_nothing_about_the_harness() -> None:
-    text = " ".join(load_prompt(n).text for n in (SYSTEM, PATCH, REPRO)).lower()
+    text = " ".join(load_prompt(n).text for n in (SYSTEM, PATCH, "feedback")).lower()
     for secret in ("oracle", "held-out", "/out", "results.json", "canary", "tracerepro", "/users/"):
         assert secret not in text, secret
 
@@ -83,7 +81,6 @@ def test_optional_blocks_appear_in_a_fixed_order() -> None:
     )
     order = [m.group(1) for m in re.finditer(r"<data-([a-z-]+)-[0-9a-f]{8}>", message.text)]
     assert order == ["crash-report", "source", "repro-test", "repro-result", "test-results"]
-    assert len(repro_message(load_prompt(REPRO), payload="{}", context="c").tags) == 2
 
 
 def test_leak_check_finds_our_own_text_in_a_reply() -> None:

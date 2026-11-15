@@ -47,3 +47,4 @@ One line per merged task (plan §2, definition of done).
 - Audit of a 25% random sample of patches graded incorrect (12 of 46, fixed seed, redrawable): 2 real fixes rejected by over-specified oracle tests, estimated false-negative rate 17% (95% CI 2% to 48%) (#60).
 - State Deficit labels for all 30 bugs (7 deficit; 9 Pipeline B failures relabelled by the spec's precedence) and the owner's blind second review of 20 random decisions (18 agree; both readings of the one false-negative disagreement reported) (#61).
 - Final results written up: `docs/RESULTS.md`, README results table and status, methodology (audit, results pipeline), limitations, status note (M4) (#62).
+- Pipeline A retired after the M4 study: runner, prompts and tests removed; configs that use it are refused with a pointer to the `m3-freeze` tag; the repro gate stays for Pipeline B2 (#69).

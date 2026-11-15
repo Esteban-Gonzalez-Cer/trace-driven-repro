@@ -1,3 +1,5 @@
+# Record of a run made at the m3-freeze tag. It uses Pipeline A, retired afterwards
+# (DECISIONS.md, 2026-11-15): rerun it from that tag, not from main.
 # Final run (spec §5.7, §6; plan §8.1): the frozen test set, after the m3-freeze tag.
 # Settings identical to the dress rehearsal (dry-run.yaml); only the split and the bugs differ.
 name: final

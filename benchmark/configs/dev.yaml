@@ -1,11 +1,12 @@
-# Dev-set run (plan §6.4, §6.5): Pipelines A and B on the 5 dev bugs, cheap model, cache on.
+# Dev-set run (plan §6.4): Pipeline B on the 5 dev bugs, cheap model, cache on. (Pipeline A was
+# retired after the M4 study; DECISIONS.md, 2026-11-15.)
 # Used while building and tuning; never part of the reported results.
 name: dev
 model: claude-haiku-5-5
 effort: medium
 max_output_tokens: 16000
 prompt_version: v2
-pipelines: [A, B]
+pipelines: [B]
 trials: 1
 bugs:                      # the dev set only (split: dev); never test bugs before the freeze
   - benchmark/manifests/flask-6096.yaml
@@ -14,7 +15,6 @@ bugs:                      # the dev set only (split: dev); never test bugs befo
   - benchmark/manifests/marshmallow-3082.yaml
   - benchmark/manifests/more-itertools-1342.yaml
 max_patch_attempts: 2
-max_repro_attempts: 2       # Pipeline A only
 token_cap: 400000          # set from the Sonnet 5.5 measurement (DECISIONS.md)
 context_budget: 250000     # characters (about 60k tokens)
 cache: true                # identical requests reuse the stored answer (dev only)

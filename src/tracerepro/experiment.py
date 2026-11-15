@@ -40,7 +40,6 @@ from tracerepro.agent.pipeline import (
     AgentResult,
     Bug,
     PipelineConfig,
-    run_pipeline_a,
     run_pipeline_b,
 )
 from tracerepro.agent.prompts import CURRENT_VERSION
@@ -53,7 +52,10 @@ from tracerepro.dataset.manifest import PROJECT_ROOT, Manifest, load_manifest
 
 RUNS_DIR = PROJECT_ROOT / "runs"
 WORK_DIR = PROJECT_ROOT / "work"
-PIPELINES: dict[str, Callable[..., AgentResult]] = {"A": run_pipeline_a, "B": run_pipeline_b}
+PIPELINES: dict[str, Callable[..., AgentResult]] = {"B": run_pipeline_b}
+# Retired after the M4 study (DECISIONS.md, 2026-11-15). Configs that used them are records of
+# runs made at the `m3-freeze` tag; rerun them from that tag.
+RETIRED = {"pipelines": {"A"}, "keys": {"max_repro_attempts"}}
 EXIT_PAUSED = 3
 
 
@@ -68,7 +70,6 @@ class RunConfig:
     max_output_tokens: int = 16_000
     prompt_version: str = CURRENT_VERSION
     max_patch_attempts: int = 2
-    max_repro_attempts: int = 2
     token_cap: int = 400_000
     context_budget: int = DEFAULT_BUDGET_CHARS
     cache: bool = True
@@ -86,7 +87,6 @@ class RunConfig:
             settings=self.settings,
             prompt_version=self.prompt_version,
             max_patch_attempts=self.max_patch_attempts,
-            max_repro_attempts=self.max_repro_attempts,
             token_cap=self.token_cap,
             context_budget=self.context_budget,
         )
@@ -116,6 +116,12 @@ def load_config(path: Path) -> RunConfig:
     data = yaml.safe_load(path.read_text())
     if not isinstance(data, dict):
         raise ValueError(f"{path}: a run config is a mapping")
+    retired = set(data) & RETIRED["keys"] | set(data.get("pipelines") or ()) & RETIRED["pipelines"]
+    if retired:
+        raise ValueError(
+            f"{path}: uses {sorted(retired)}, retired with Pipeline A after the M4 study; "
+            "rerun this config from the m3-freeze tag"
+        )
     known = {f.name for f in dataclasses.fields(RunConfig)}
     unknown = set(data) - known
     if unknown:
