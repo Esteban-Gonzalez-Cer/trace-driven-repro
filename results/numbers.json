@@ -44,6 +44,40 @@
       "sampled": 12,
       "seed": 20261111
     },
+    "second_review": {
+      "agree": 18,
+      "n": 20,
+      "parts": {
+        "correct": {
+          "agree": 9,
+          "disagreements": [
+            "starlette-3619#1"
+          ],
+          "kappa": 0.8,
+          "n": 10
+        },
+        "incorrect": {
+          "agree": 4,
+          "disagreements": [
+            "starlette-3783/A/1"
+          ],
+          "kappa": 0.0,
+          "n": 5
+        },
+        "state_deficit": {
+          "agree": 5,
+          "disagreements": [],
+          "kappa": 1.0,
+          "n": 5
+        }
+      },
+      "resolutions": {
+        "starlette-3619#1": "First pass ok, owner ok_with_note (the patch sorts twice when the values cannot be ordered). Accepted: the note is valid, and it also means the comparison rule differs between orderable values and uploads. No number changes.",
+        "starlette-3783/A/1": "First pass real_fix, owner not_a_fix (the message no longer matches the maintainers' wording). Not resolved: both readings are reported, giving a false-negative rate of 2/12 (first pass) or 1/12 (owner)."
+      },
+      "reviewer": "project owner",
+      "seed": 20261111
+    },
     "state_deficit": {
       "bugs": [
         "flask-5797",

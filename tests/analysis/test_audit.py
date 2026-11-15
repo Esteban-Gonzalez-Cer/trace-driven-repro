@@ -197,3 +197,11 @@ def test_committed_state_deficit_covers_every_bug() -> None:
     bugs = {json.loads(line)["bug"] for line in results.read_text().splitlines()}
     found = audit.load_state_deficit(ROOT / "benchmark" / "audit" / "state_deficit.yaml", bugs)
     assert found["judged"] == 30
+
+
+def test_committed_second_review_matches_the_draw() -> None:
+    audit_dir = ROOT / "benchmark" / "audit"
+    found = audit.load_second_review(audit_dir / "second_review.yaml", audit.first_pass(audit_dir))
+    assert found["n"] == 20 and set(found["resolutions"]) == {
+        ref for x in found["parts"].values() for ref in x["disagreements"]
+    }

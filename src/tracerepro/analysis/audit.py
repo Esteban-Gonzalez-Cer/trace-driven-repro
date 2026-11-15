@@ -270,6 +270,7 @@ def load_second_review(path: Path, decisions: dict[str, dict[str, str]]) -> dict
         }
         all_pairs += pairs
     out["n"] = len(all_pairs)
+    out["resolutions"] = dict(sorted((data.get("disagreements") or {}).items()))
     out["agree"] = sum(a == b for a, b in all_pairs)
     return out
 
@@ -286,6 +287,14 @@ def second_review_section(s: dict[str, Any]) -> list[str]:
         kappa = "n/a" if x["kappa"] is None else f"{x['kappa']:.2f}"
         lines.append(f"| {part} | {x['n']} | {x['agree']} | {kappa} |")
     lines.append(f"| **all** | {s['n']} | {s['agree']} | |")
+    if s["resolutions"]:
+        lines += ["", "Disagreements and how they were handled:", ""]
+        lines += [f"- {ref}: {text}" for ref, text in s["resolutions"].items()]
+    lines += [
+        "",
+        "Kappa corrects agreement for chance; with few cases and one answer far more common "
+        "than the other, it can be low even when nearly every answer matches.",
+    ]
     return lines
 
 

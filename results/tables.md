@@ -67,6 +67,22 @@ No patch was judged `not_a_fix`, so the audit changes no number.
 
 12 of 46 incorrect patches drawn at random (seed 20261111) and reviewed: 2 were real fixes the grader rejected. Estimated false-negative rate 17% (95% CI 2% to 48%); details in docs/AUDIT.md.
 
+## Second reviewer (project owner, random sample, seed 20261111)
+
+| part | cases | agree | Cohen's kappa |
+|---|---|---|---|
+| correct | 10 | 9 | 0.80 |
+| incorrect | 5 | 4 | 0.00 |
+| state_deficit | 5 | 5 | 1.00 |
+| **all** | 20 | 18 | |
+
+Disagreements and how they were handled:
+
+- starlette-3619#1: First pass ok, owner ok_with_note (the patch sorts twice when the values cannot be ordered). Accepted: the note is valid, and it also means the comparison rule differs between orderable values and uploads. No number changes.
+- starlette-3783/A/1: First pass real_fix, owner not_a_fix (the message no longer matches the maintainers' wording). Not resolved: both readings are reported, giving a false-negative rate of 2/12 (first pass) or 1/12 (owner).
+
+Kappa corrects agreement for chance; with few cases and one answer far more common than the other, it can be low even when nearly every answer matches.
+
 ## By bug kind (descriptive, no test)
 
 | | Pipeline A | Pipeline B |
