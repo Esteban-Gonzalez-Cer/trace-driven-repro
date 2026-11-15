@@ -166,7 +166,7 @@ Every failed run gets exactly one label (`tracerepro.evaluate.taxonomy`), the fi
 3. **No-Repro** (A only): the repro test passes on `c_bug`.
 4. **Invalid Repro** (A only): wrong exception or frame, or fails on the fix.
 5. **Fault Localization Miss:** the lines the fix changes were not shown (Amendment 5).
-6. **State Deficit:** by hand, in Phase 5.
+6. **State Deficit:** by hand, once per bug, during the audit (`benchmark/audit/state_deficit.yaml`; see below).
 7. **Regression Failure:** the patch breaks a stable baseline test.
 8. **Incorrect Patch:** applies, keeps the baseline, fails the oracle.
 
@@ -176,6 +176,30 @@ patch, the labels of the stage that ended the run are compared by precedence. Tw
 outside the list and are reported separately: `tampered` (Amendment 4, counted as a failure) and
 `infra_error` (no label; the trial is rerun). `verdict.json` holds `label`, `solved` and, for
 Pipeline A, `repro_oracle`.
+
+## Audit (spec §7.5) and State Deficit labels
+
+- **First pass:** an AI reviewer (Claude Opus 5.5), with fixed checklists.
+  - Every patch graded correct is read next to the crash report and the maintainers' fix.
+  - A 25% random sample of the patches graded incorrect is read the same way. Borderline cases
+    are run in the bug's image.
+  - Each bug gets a State Deficit decision from its payload alone.
+- **Second pass:** the project owner judges a random sample of 20 of those decisions without
+  seeing them.
+- Samples are drawn by `tracerepro.analysis.audit` with the analysis plan's seed, and
+  `make analyze` checks each file against a fresh draw and against the results.
+- State Deficit replaces only labels 7 and 8, by the spec's precedence.
+- The automatic grade stays the headline; audit findings are reported next to it.
+- Findings: `docs/AUDIT.md`.
+
+## Results pipeline (plan §8.2)
+
+- `tracerepro.analysis.export` turns the private run folder into
+  `benchmark/results/final.jsonl`: one row per trial, with no prompts or replies. A privacy scan
+  stops the export if anything personal appears.
+- `make analyze` (`tracerepro.analysis.report`) rebuilds `results/` (tables, CSV, numbers,
+  figures) from that file, the manifests and `benchmark/audit/` only. The output is
+  deterministic, and CI checks that the committed `results/` matches.
 
 ## Screening the test set (plan §7.2)
 

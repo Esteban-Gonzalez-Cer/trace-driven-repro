@@ -37,3 +37,16 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
   usage guard; 88 unfinished trial attempts were set aside and rerun from scratch (DECISIONS.md,
   2026-11-13). A rerun trial is a fresh, independent trial, but the model service may have
   changed slightly between the first and last trials.
+- **Oracle false negatives.** The maintainers' tests sometimes check a choice the crash report
+  does not reveal (an exact message, a new rule). In the audit sample, 1 or 2 of 12 rejected
+  patches were valid fixes (8% to 17%, wide intervals). "Correct" means the crash is fixed
+  without breaking the baseline; a quarter of correct patches differ from the maintainers' fix
+  in a way a reviewer would mention.
+- **AI first-pass auditor.** The audit's first pass was done by an AI from the same vendor as
+  the model under test; the project owner, not a maintainer of these libraries, reviewed a
+  sample of 20 decisions (18 agree). State Deficit labels were only partly blinded.
+- **Cohorts are confounded.** The post-cutoff cohort holds all six tomlkit bugs; library, bug
+  age and difficulty cannot be separated, so the cohort difference is not evidence of
+  contamination.
+- **Low power.** With 30 bugs and 5 discordant pairs, a difference of 10 to 15 points between
+  the pipelines would go undetected.
