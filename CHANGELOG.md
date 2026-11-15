@@ -46,3 +46,4 @@ One line per merged task (plan §2, definition of done).
 - Audit of every patch graded correct: 133 trials, 79 distinct patches, none cheating; 35 trials noted (alternatives, narrower fixes, one symptom-level fix); `docs/AUDIT.md`, `benchmark/audit/correct.yaml`, audit section in `make analyze` (#59).
 - Audit of a 25% random sample of patches graded incorrect (12 of 46, fixed seed, redrawable): 2 real fixes rejected by over-specified oracle tests, estimated false-negative rate 17% (95% CI 2% to 48%) (#60).
 - State Deficit labels for all 30 bugs (7 deficit; 9 Pipeline B failures relabelled by the spec's precedence) and the owner's blind second review of 20 random decisions (18 agree; both readings of the one false-negative disagreement reported) (#61).
+- Final results written up: `docs/RESULTS.md`, README results table and status, methodology (audit, results pipeline), limitations, status note (M4) (#62).
