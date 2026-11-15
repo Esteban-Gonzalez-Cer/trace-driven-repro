@@ -1,0 +1,752 @@
+# Manual audit of every patch graded correct (spec §7.5, Phase 5 step P5.3).
+# One entry per distinct patch (trials whose patches change the same lines share an entry).
+# First pass: Claude Opus 5.5 (claude-opus-5-5), reading each patch next to the crash report
+# and the maintainers' source fix; second reviewer on a sample: the project owner (P5.5).
+# Checklist: special-cases tests or oracle inputs; hides the error (broad except, early return,
+# deleted check); changes behaviour beyond the fix; fixes the root cause or only the symptom;
+# touches anything outside the library.
+# decision: ok | ok_with_note | not_a_fix
+run_id: final-935ffcd2-v2-claude-sonnet-5-5-cli2.1.308
+reviewer: claude-opus-5-5
+patches:
+- bug: attrs-1529
+  patch: 1
+  decision: ok
+  note: 'Same approach as the maintainers'' fix: an attrs instance is replaced by its class; other objects
+    still raise TypeError.'
+  trials:
+  - attrs-1529/A/2
+  - attrs-1529/A/3
+  - attrs-1529/B/2
+  patch_shas:
+  - ad18abe6518f
+- bug: attrs-1529
+  patch: 2
+  decision: ok
+  note: 'Same approach as the maintainers'' fix: an attrs instance is replaced by its class; other objects
+    still raise TypeError.'
+  trials:
+  - attrs-1529/A/1
+  patch_shas:
+  - 06443f0c6e6a
+- bug: attrs-1529
+  patch: 3
+  decision: ok
+  note: Reads __attrs_attrs__ before the class check, so attrs instances pass and other objects still
+    raise TypeError.
+  trials:
+  - attrs-1529/B/3
+  patch_shas:
+  - 7212f0f28b52
+- bug: click-3493
+  patch: 1
+  decision: ok
+  note: Only None becomes an empty string, so empty bytes keep their type, as in the maintainers' fix.
+  trials:
+  - click-3493/B/1
+  - click-3493/B/2
+  - click-3493/B/3
+  patch_shas:
+  - c489c2e66842
+- bug: click-3493
+  patch: 2
+  decision: ok
+  note: Only None becomes an empty string, so empty bytes keep their type, as in the maintainers' fix.
+  trials:
+  - click-3493/A/1
+  - click-3493/A/2
+  patch_shas:
+  - c2cc0bf5b6d0
+- bug: click-3493
+  patch: 3
+  decision: ok_with_note
+  note: 'Turns the empty message into b'''' when the target is a binary io stream: fixes the crash by
+    checking the file''s type rather than keeping the message''s type, so file objects outside the io
+    classes are not covered.'
+  trials:
+  - click-3493/A/3
+  patch_shas:
+  - dbd592905bad
+- bug: click-3739
+  patch: 1
+  decision: ok_with_note
+  note: Wraps any binary-mode pager stream in the existing text encoder (get_pager_file) instead of opening
+    the temp file in text mode as the maintainers did; a valid alternative in a different place.
+  trials:
+  - click-3739/A/1
+  patch_shas:
+  - 7b78309f3eea
+- bug: click-3739
+  patch: 2
+  decision: ok_with_note
+  note: Wraps any binary-mode pager stream in the existing text encoder (get_pager_file) instead of opening
+    the temp file in text mode as the maintainers did; a valid alternative in a different place.
+  trials:
+  - click-3739/A/2
+  patch_shas:
+  - 5883189ccc3c
+- bug: click-3739
+  patch: 3
+  decision: ok_with_note
+  note: Wraps the binary temp file in a TextIOWrapper and detaches it after use; a valid alternative to
+    opening the file in text mode as the maintainers did.
+  trials:
+  - click-3739/A/3
+  patch_shas:
+  - e6612747b9d8
+- bug: click-3739
+  patch: 4
+  decision: ok_with_note
+  note: Wraps any binary-mode pager stream in the existing text encoder (get_pager_file) instead of opening
+    the temp file in text mode as the maintainers did; a valid alternative in a different place.
+  trials:
+  - click-3739/B/1
+  patch_shas:
+  - 3f6ef495597d
+- bug: click-3739
+  patch: 5
+  decision: ok_with_note
+  note: Wraps any binary-mode pager stream in the existing text encoder (get_pager_file) instead of opening
+    the temp file in text mode as the maintainers did; a valid alternative in a different place.
+  trials:
+  - click-3739/B/2
+  patch_shas:
+  - 4537f19eab4f
+- bug: click-3739
+  patch: 6
+  decision: ok_with_note
+  note: Wraps any binary-mode pager stream in the existing text encoder (get_pager_file) instead of opening
+    the temp file in text mode as the maintainers did; a valid alternative in a different place.
+  trials:
+  - click-3739/B/3
+  patch_shas:
+  - 890ceb1f58e4
+- bug: click-3781
+  patch: 1
+  decision: ok
+  note: Same runtime change as the maintainers' fix (a PathLike is wrapped in a tuple); type hints not
+    updated.
+  trials:
+  - click-3781/A/1
+  - click-3781/A/2
+  - click-3781/A/3
+  patch_shas:
+  - 978c775feaf2
+- bug: click-3781
+  patch: 2
+  decision: ok
+  note: Converts a PathLike to a string with os.fspath before editing; same behaviour.
+  trials:
+  - click-3781/B/1
+  - click-3781/B/2
+  patch_shas:
+  - 7694cb4078d2
+- bug: click-3781
+  patch: 3
+  decision: ok
+  note: Same runtime change as the maintainers' fix, with the import inside the function.
+  trials:
+  - click-3781/B/3
+  patch_shas:
+  - 4fe48e45afed
+- bug: marshmallow-2874
+  patch: 1
+  decision: ok
+  note: Lower-cases the allowed schemes when checking instead of when constructing; same behaviour.
+  trials:
+  - marshmallow-2874/A/2
+  - marshmallow-2874/A/3
+  - marshmallow-2874/B/1
+  - marshmallow-2874/B/2
+  patch_shas:
+  - e28286a2803b
+- bug: marshmallow-2874
+  patch: 2
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - marshmallow-2874/A/1
+  - marshmallow-2874/B/3
+  patch_shas:
+  - 68512989f5fc
+- bug: marshmallow-2892
+  patch: 1
+  decision: ok
+  note: Case-insensitive check for file:/// URLs, as in the maintainers' fix.
+  trials:
+  - marshmallow-2892/A/2
+  - marshmallow-2892/B/2
+  - marshmallow-2892/B/3
+  patch_shas:
+  - b8da703ce3b8
+- bug: marshmallow-2892
+  patch: 2
+  decision: ok
+  note: Case-insensitive check for file:/// URLs, as in the maintainers' fix.
+  trials:
+  - marshmallow-2892/A/1
+  - marshmallow-2892/A/3
+  patch_shas:
+  - 2ac0d5e3da8b
+- bug: marshmallow-2892
+  patch: 3
+  decision: ok
+  note: Case-insensitive check for file:/// URLs, as in the maintainers' fix.
+  trials:
+  - marshmallow-2892/B/1
+  patch_shas:
+  - d4d0388e2586
+- bug: marshmallow-2901
+  patch: 1
+  decision: ok_with_note
+  note: Drops required=True for Constant fields (set to False or removed). Loading works as the maintainers
+    intended, but field.required now reads False, so schema introspection (for example OpenAPI generation)
+    differs from the maintainers' fix, which keeps required=True.
+  trials:
+  - marshmallow-2901/A/2
+  patch_shas:
+  - 27f109530c4d
+- bug: marshmallow-2901
+  patch: 2
+  decision: ok_with_note
+  note: Drops required=True for Constant fields (set to False or removed). Loading works as the maintainers
+    intended, but field.required now reads False, so schema introspection (for example OpenAPI generation)
+    differs from the maintainers' fix, which keeps required=True.
+  trials:
+  - marshmallow-2901/A/3
+  patch_shas:
+  - cc31b747df1f
+- bug: marshmallow-2901
+  patch: 3
+  decision: ok_with_note
+  note: Drops required=True for Constant fields (set to False or removed). Loading works as the maintainers
+    intended, but field.required now reads False, so schema introspection (for example OpenAPI generation)
+    differs from the maintainers' fix, which keeps required=True.
+  trials:
+  - marshmallow-2901/B/1
+  patch_shas:
+  - 3f21c0d038be
+- bug: marshmallow-2901
+  patch: 4
+  decision: ok_with_note
+  note: Drops required=True for Constant fields (set to False or removed). Loading works as the maintainers
+    intended, but field.required now reads False, so schema introspection (for example OpenAPI generation)
+    differs from the maintainers' fix, which keeps required=True.
+  trials:
+  - marshmallow-2901/B/2
+  patch_shas:
+  - ca5e14867cbc
+- bug: marshmallow-2901
+  patch: 5
+  decision: ok_with_note
+  note: Drops required=True for Constant fields (set to False or removed). Loading works as the maintainers
+    intended, but field.required now reads False, so schema introspection (for example OpenAPI generation)
+    differs from the maintainers' fix, which keeps required=True.
+  trials:
+  - marshmallow-2901/B/3
+  patch_shas:
+  - 42e34bcb3d64
+- bug: marshmallow-2903
+  patch: 1
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - marshmallow-2903/A/1
+  - marshmallow-2903/A/2
+  - marshmallow-2903/A/3
+  - marshmallow-2903/B/1
+  - marshmallow-2903/B/2
+  - marshmallow-2903/B/3
+  patch_shas:
+  - 1672c3153450
+- bug: marshmallow-2928
+  patch: 1
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/A/1
+  patch_shas:
+  - b7b4032c2caf
+- bug: marshmallow-2928
+  patch: 2
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/A/2
+  patch_shas:
+  - 71ad3dffc45c
+- bug: marshmallow-2928
+  patch: 3
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/A/3
+  patch_shas:
+  - 9d76f4910bf5
+- bug: marshmallow-2928
+  patch: 4
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/B/1
+  patch_shas:
+  - 6683b803523e
+- bug: marshmallow-2928
+  patch: 5
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/B/2
+  patch_shas:
+  - 4821c4b9a67b
+- bug: marshmallow-2928
+  patch: 6
+  decision: ok_with_note
+  note: Retries validation with the host converted to punycode (IDNA) instead of widening the hostname
+    pattern to non-ASCII letters; a valid alternative that also rejects hosts IDNA cannot encode.
+  trials:
+  - marshmallow-2928/B/3
+  patch_shas:
+  - afc71763957d
+- bug: marshmallow-2994
+  patch: 1
+  decision: ok
+  note: Same rule as the maintainers' fix (None allowed when a member's value is None and allow_none was
+    not given), placed earlier in __init__.
+  trials:
+  - marshmallow-2994/B/2
+  patch_shas:
+  - 9a04617b62dc
+- bug: marshmallow-2994
+  patch: 2
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - marshmallow-2994/B/3
+  patch_shas:
+  - 6b653b2cefb0
+- bug: more-itertools-1088
+  patch: 1
+  decision: ok
+  note: Returns False for negative n, the crash case; the maintainers also rewrote the loop for speed.
+  trials:
+  - more-itertools-1088/A/1
+  - more-itertools-1088/A/2
+  - more-itertools-1088/A/3
+  - more-itertools-1088/B/1
+  - more-itertools-1088/B/2
+  - more-itertools-1088/B/3
+  patch_shas:
+  - f278e3f6341a
+- bug: more-itertools-1118
+  patch: 1
+  decision: ok
+  note: r greater than the pool size now raises IndexError, as in the maintainers' fix; negative r still
+    raises ValueError.
+  trials:
+  - more-itertools-1118/A/1
+  - more-itertools-1118/A/3
+  patch_shas:
+  - fbcdefee7f7a
+- bug: more-itertools-1118
+  patch: 2
+  decision: ok
+  note: r greater than the pool size now raises IndexError, as in the maintainers' fix; negative r still
+    raises ValueError.
+  trials:
+  - more-itertools-1118/A/2
+  patch_shas:
+  - 5fa82353de0f
+- bug: more-itertools-1118
+  patch: 3
+  decision: ok
+  note: The number of combinations is 0 when r > n, so the index check raises IndexError, as in the maintainers'
+    fix.
+  trials:
+  - more-itertools-1118/B/3
+  patch_shas:
+  - e1592c460b29
+- bug: more-itertools-1182
+  patch: 1
+  decision: ok
+  note: Materialises the iterable when start or stop is negative, as in the maintainers' fix.
+  trials:
+  - more-itertools-1182/A/1
+  patch_shas:
+  - 142a1a9603fd
+- bug: more-itertools-1182
+  patch: 2
+  decision: ok
+  note: Materialises the iterable when start or stop is negative, as in the maintainers' fix.
+  trials:
+  - more-itertools-1182/A/2
+  patch_shas:
+  - 787c88333cb1
+- bug: more-itertools-1182
+  patch: 3
+  decision: ok
+  note: Materialises the iterable and normalises negative start and stop with slice.indices; same results.
+  trials:
+  - more-itertools-1182/A/3
+  patch_shas:
+  - 2a5fb646020d
+- bug: more-itertools-1182
+  patch: 4
+  decision: ok
+  note: Materialises the iterable and normalises negative start and stop with slice.indices; same results.
+  trials:
+  - more-itertools-1182/B/1
+  patch_shas:
+  - 8485110659d4
+- bug: more-itertools-1182
+  patch: 5
+  decision: ok
+  note: Materialises the iterable when start or stop is negative, as in the maintainers' fix.
+  trials:
+  - more-itertools-1182/B/2
+  patch_shas:
+  - f826983ec029
+- bug: more-itertools-1182
+  patch: 6
+  decision: ok
+  note: Materialises the iterable and clamps negative start and stop by hand; same results.
+  trials:
+  - more-itertools-1182/B/3
+  patch_shas:
+  - b77356c326cb
+- bug: more-itertools-1193
+  patch: 1
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - more-itertools-1193/A/1
+  - more-itertools-1193/A/2
+  - more-itertools-1193/A/3
+  - more-itertools-1193/B/1
+  - more-itertools-1193/B/2
+  - more-itertools-1193/B/3
+  patch_shas:
+  - b958c1c671da
+- bug: more-itertools-1294
+  patch: 1
+  decision: ok_with_note
+  note: Keeps a one-item lookahead when the cache size is 0, instead of the maintainers' peekable source;
+    seek() does not clear the lookahead, which only matters with a zero-size cache where there is nothing
+    to seek through.
+  trials:
+  - more-itertools-1294/A/2
+  patch_shas:
+  - 5bbcc9388f89
+- bug: more-itertools-1305
+  patch: 1
+  decision: ok_with_note
+  note: Returns nothing for n = 0 (the crash case); negative n still fails with islice's ValueError instead
+    of the maintainers' explicit message (same exception type).
+  trials:
+  - more-itertools-1305/A/1
+  - more-itertools-1305/B/1
+  patch_shas:
+  - b6c6819804f2
+- bug: more-itertools-1305
+  patch: 2
+  decision: ok_with_note
+  note: Returns nothing for n = 0 (the crash case); negative n still fails with islice's ValueError instead
+    of the maintainers' explicit message (same exception type).
+  trials:
+  - more-itertools-1305/A/2
+  - more-itertools-1305/A/3
+  patch_shas:
+  - b82021fe0548
+- bug: more-itertools-1305
+  patch: 3
+  decision: ok
+  note: Same as the maintainers' fix.
+  trials:
+  - more-itertools-1305/B/2
+  patch_shas:
+  - 680b4a0d3c86
+- bug: more-itertools-1305
+  patch: 4
+  decision: ok
+  note: Same as the maintainers' fix.
+  trials:
+  - more-itertools-1305/B/3
+  patch_shas:
+  - 14258e828cf7
+- bug: requests-7308
+  patch: 1
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - requests-7308/A/1
+  - requests-7308/A/2
+  - requests-7308/A/3
+  - requests-7308/B/1
+  - requests-7308/B/2
+  - requests-7308/B/3
+  patch_shas:
+  - 494b0de8205f
+- bug: starlette-3139
+  patch: 1
+  decision: ok
+  note: 'Same as the maintainers'' fix: a ValueError from the path lookup becomes a 404.'
+  trials:
+  - starlette-3139/A/1
+  - starlette-3139/A/3
+  - starlette-3139/B/1
+  - starlette-3139/B/2
+  patch_shas:
+  - 8988721a2090
+- bug: starlette-3139
+  patch: 2
+  decision: ok
+  note: 'Same as the maintainers'' fix: a ValueError from the path lookup becomes a 404.'
+  trials:
+  - starlette-3139/A/2
+  patch_shas:
+  - 60d381d2109e
+- bug: starlette-3139
+  patch: 3
+  decision: ok
+  note: 'Same as the maintainers'' fix: a ValueError from the path lookup becomes a 404.'
+  trials:
+  - starlette-3139/B/3
+  patch_shas:
+  - 8f441b5ea376
+- bug: starlette-3317
+  patch: 1
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - starlette-3317/A/1
+  - starlette-3317/A/2
+  - starlette-3317/A/3
+  - starlette-3317/B/2
+  - starlette-3317/B/3
+  patch_shas:
+  - 4d0e4779fe84
+- bug: starlette-3317
+  patch: 2
+  decision: ok
+  note: endswith(']') is safe on an empty hostname; same behaviour as the maintainers' fix.
+  trials:
+  - starlette-3317/B/1
+  patch_shas:
+  - 80bcd7cd7198
+- bug: starlette-3619
+  patch: 1
+  decision: ok
+  note: Sorts by key only when the values cannot be ordered, as the maintainers do always; otherwise unchanged.
+  trials:
+  - starlette-3619/B/1
+  patch_shas:
+  - 79c996b454e9
+- bug: starlette-3619
+  patch: 2
+  decision: ok
+  note: Same as the maintainers' fix (sort by key).
+  trials:
+  - starlette-3619/B/2
+  patch_shas:
+  - e391161473c2
+- bug: starlette-3619
+  patch: 3
+  decision: ok
+  note: Same as the maintainers' fix (sort by key).
+  trials:
+  - starlette-3619/B/3
+  patch_shas:
+  - 412ff2ba2e6e
+- bug: tomlkit-565
+  patch: 1
+  decision: ok
+  note: Same as the maintainers' fix, with an extra check that the new value is a table.
+  trials:
+  - tomlkit-565/A/1
+  - tomlkit-565/A/3
+  patch_shas:
+  - a6f9bba6e061
+- bug: tomlkit-565
+  patch: 2
+  decision: ok
+  note: Same as the maintainers' fix, with an extra check that the new value is a table.
+  trials:
+  - tomlkit-565/A/2
+  patch_shas:
+  - 861abf3d528c
+- bug: tomlkit-565
+  patch: 3
+  decision: ok_with_note
+  note: Allows the dotted key only when the existing super-table was not itself created by a dotted key
+    (reads the container's private index); stricter than the maintainers' fix.
+  trials:
+  - tomlkit-565/B/1
+  patch_shas:
+  - d5b9b9eec355
+- bug: tomlkit-565
+  patch: 4
+  decision: ok_with_note
+  note: Allows the dotted key only when the existing super-table was not itself created by a dotted key
+    (reads the container's private index); stricter than the maintainers' fix.
+  trials:
+  - tomlkit-565/B/2
+  patch_shas:
+  - c61a599f1249
+- bug: tomlkit-565
+  patch: 5
+  decision: ok_with_note
+  note: Allows the dotted key only when the existing super-table was not itself created by a dotted key
+    (reads the container's private index); stricter than the maintainers' fix.
+  trials:
+  - tomlkit-565/B/3
+  patch_shas:
+  - c3f2ac9ad5af
+- bug: tomlkit-610
+  patch: 1
+  decision: ok_with_note
+  note: Falls back to tomlkit's number parser when int() fails, so prefixed literals such as 0o7_7 work;
+    decimal strings with underscores still go through int() and lose their grouping in dumps(), which
+    the maintainers' fix keeps.
+  trials:
+  - tomlkit-610/A/1
+  patch_shas:
+  - edb2157e22cd
+- bug: tomlkit-610
+  patch: 2
+  decision: ok
+  note: Parses prefixed or underscored literals with tomlkit's own number parser, keeping their text.
+  trials:
+  - tomlkit-610/A/2
+  patch_shas:
+  - 1607d69c1706
+- bug: tomlkit-610
+  patch: 3
+  decision: ok_with_note
+  note: Falls back to tomlkit's number parser when int() fails, so prefixed literals such as 0o7_7 work;
+    decimal strings with underscores still go through int() and lose their grouping in dumps(), which
+    the maintainers' fix keeps.
+  trials:
+  - tomlkit-610/A/3
+  patch_shas:
+  - 352592cb9275
+- bug: tomlkit-610
+  patch: 4
+  decision: ok
+  note: Parses the string with tomlkit's value parser first, keeping its text, and falls back to int().
+  trials:
+  - tomlkit-610/B/1
+  patch_shas:
+  - 2f40b7a35eea
+- bug: tomlkit-610
+  patch: 5
+  decision: ok_with_note
+  note: Falls back to tomlkit's number parser when int() fails, so prefixed literals such as 0o7_7 work;
+    decimal strings with underscores still go through int() and lose their grouping in dumps(), which
+    the maintainers' fix keeps.
+  trials:
+  - tomlkit-610/B/3
+  patch_shas:
+  - 97191f3cdd63
+- bug: tomlkit-631
+  patch: 1
+  decision: ok_with_note
+  note: Keeps the list storage in sync on item assignment, which fixes the delete crash; slice assignment
+    still wraps the whole list in one item as before, which the maintainers also fixed (outside the crash
+    oracle).
+  trials:
+  - tomlkit-631/A/1
+  patch_shas:
+  - 5e40fd128c7b
+- bug: tomlkit-631
+  patch: 2
+  decision: ok_with_note
+  note: 'Symptom-level: re-syncs the list storage after a delete, which removes the crash, but item assignment
+    still leaves the list view stale until the next delete; the maintainers fixed assignment itself.'
+  trials:
+  - tomlkit-631/B/1
+  patch_shas:
+  - 68cb50dab159
+- bug: tomlkit-631
+  patch: 3
+  decision: ok_with_note
+  note: Keeps the list storage in sync on item assignment, which fixes the delete crash; slice assignment
+    still wraps the whole list in one item as before, which the maintainers also fixed (outside the crash
+    oracle).
+  trials:
+  - tomlkit-631/B/2
+  patch_shas:
+  - 9e1c3404046c
+- bug: tomlkit-663
+  patch: 1
+  decision: ok
+  note: Identical to the maintainers' fix.
+  trials:
+  - tomlkit-663/A/1
+  - tomlkit-663/B/2
+  - tomlkit-663/B/3
+  patch_shas:
+  - 5cfdeed4c8d0
+- bug: werkzeug-3078
+  patch: 1
+  decision: ok
+  note: Stores None instead of deleting the attribute, as in the maintainers' fix.
+  trials:
+  - werkzeug-3078/A/1
+  - werkzeug-3078/B/2
+  - werkzeug-3078/B/3
+  patch_shas:
+  - af74421bc139
+- bug: werkzeug-3078
+  patch: 2
+  decision: ok_with_note
+  note: Same fix, and pin_cookie_name no longer overwrites a PIN that was set or disabled; a small improvement
+    beyond the maintainers' fix.
+  trials:
+  - werkzeug-3078/A/2
+  patch_shas:
+  - c4f7ffc868e4
+- bug: werkzeug-3078
+  patch: 3
+  decision: ok_with_note
+  note: Same fix, and pin_cookie_name no longer overwrites a PIN that was set or disabled; a small improvement
+    beyond the maintainers' fix.
+  trials:
+  - werkzeug-3078/A/3
+  patch_shas:
+  - d727fb246cd7
+- bug: werkzeug-3078
+  patch: 4
+  decision: ok_with_note
+  note: Stores None for both the PIN and its cookie name, so the cookie name reads None while the PIN
+    is disabled (it is not used in that mode).
+  trials:
+  - werkzeug-3078/B/1
+  patch_shas:
+  - f23cf05da91c
+- bug: werkzeug-3238
+  patch: 1
+  decision: ok
+  note: 'Same as the maintainers'' fix: a ValueError from int() becomes a validation error, so the route
+    does not match (404).'
+  trials:
+  - werkzeug-3238/A/1
+  - werkzeug-3238/A/2
+  - werkzeug-3238/B/1
+  - werkzeug-3238/B/2
+  - werkzeug-3238/B/3
+  patch_shas:
+  - 594cec025436
+- bug: werkzeug-3238
+  patch: 2
+  decision: ok
+  note: 'Same as the maintainers'' fix: a ValueError from int() becomes a validation error, so the route
+    does not match (404).'
+  trials:
+  - werkzeug-3238/A/3
+  patch_shas:
+  - d66dcce8070f

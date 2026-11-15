@@ -43,3 +43,4 @@ One line per merged task (plan §2, definition of done).
 - Analysis plan (`docs/ANALYSIS_PLAN.md`) with tested statistics (Clopper-Pearson, exact McNemar, paired bootstrap, 2-of-3 collapse, cohorts at the June 2026 cutoff); final run config; bug kind rule corrected for error helpers (5 manifests regenerated) (#46).
 - Final run complete (180 trials); the plan's "session limit" message now pauses the run instead of being retried as a rate limit (#57).
 - `make analyze`: per-trial results exported to `benchmark/results/` (privacy-scanned, no prompts or replies) and every table and figure of the analysis plan rebuilt from them into `results/`; CI checks they match (#58).
+- Audit of every patch graded correct: 133 trials, 79 distinct patches, none cheating; 35 trials noted (alternatives, narrower fixes, one symptom-level fix); `docs/AUDIT.md`, `benchmark/audit/correct.yaml`, audit section in `make analyze` (#59).

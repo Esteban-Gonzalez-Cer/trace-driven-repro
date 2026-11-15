@@ -1,4 +1,34 @@
 {
+  "audit": {
+    "correct": {
+      "by_decision": {
+        "not_a_fix": {
+          "by_pipeline": {},
+          "patches": 0,
+          "trials": 0
+        },
+        "ok": {
+          "by_pipeline": {
+            "A": 47,
+            "B": 51
+          },
+          "patches": 46,
+          "trials": 98
+        },
+        "ok_with_note": {
+          "by_pipeline": {
+            "A": 18,
+            "B": 17
+          },
+          "patches": 33,
+          "trials": 35
+        }
+      },
+      "not_a_fix": [],
+      "patches": 79,
+      "reviewer": "claude-opus-5-5"
+    }
+  },
   "bugs": 30,
   "comparison": {
     "a_only": [
