@@ -87,3 +87,51 @@ def test_one_row():
     assert "TOTAL" in format_report([{"name": "a", "amount": 1}])
 ```
 """
+
+
+ESCAPING_CHECK = """```python
+import os
+import socket
+
+
+def test_crash():
+    with open(os.path.expanduser("~/.ssh/id_rsa")) as fh:
+        fh.read()
+    socket.create_connection(("example.com", 80), timeout=2)
+```
+"""
+
+
+def _b2(manifest: Manifest, work: Path, tmp_path: Path, replies: list[str]):  # type: ignore[no-untyped-def]
+    provider = FakeProvider.replying(replies)
+    client = LLMClient(provider, log_path=tmp_path / "calls.jsonl")
+    config = PipelineConfig(
+        settings=Settings("claude-haiku-5-5", "low", 4000), prompt_version="v3", crash_check=True
+    )
+    with DockerWorkbench(
+        manifest, tmp_path / "bench", limits=Limits(timeout_s=120), work_dir=work
+    ) as bench:
+        return run_pipeline_b(Bug(manifest.id, payload()), client, bench, config)
+
+
+def test_b2_check_reproduces_then_passes_for_real(
+    toy: tuple[Manifest, Path], tmp_path: Path
+) -> None:
+    manifest, work = toy
+    result = _b2(manifest, work, tmp_path, [BREAKS_LABEL + REPRO_TEST, GOLD + REPRO_TEST])
+    first, second = result.attempts
+    assert first.check == "valid" and first.outcome in ("regressions", "check_still_fails")
+    assert second.outcome == "clean" and second.check_after == "passes"
+    assert "repro/" not in (result.final_diff or "")  # the check is never part of the patch
+    verdict = score_patch(manifest, result.final_diff or "", work_dir=work)
+    assert verdict.kind is VerdictKind.CORRECT, verdict.message
+
+
+def test_b2_a_check_that_tries_to_escape_is_contained_and_unused(
+    toy: tuple[Manifest, Path], tmp_path: Path
+) -> None:
+    manifest, work = toy
+    result = _b2(manifest, work, tmp_path, [GOLD + ESCAPING_CHECK])
+    (attempt,) = result.attempts
+    assert attempt.check != "valid"  # blocked, so it reproduces nothing and is not used
+    assert attempt.outcome == "clean" and attempt.check_after is None

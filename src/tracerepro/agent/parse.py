@@ -28,7 +28,7 @@ FILE_PREFIX = "FILE:"
 SEARCH = "<<<<<<< SEARCH"
 DIVIDER = "======="
 REPLACE = ">>>>>>> REPLACE"
-_FENCE_RE = re.compile(r"^```[ \t]*([A-Za-z0-9_+-]*)[ \t]*$")
+FENCE_RE = re.compile(r"^```[ \t]*([A-Za-z0-9_+-]*)[ \t]*$")
 PYTHON_TAGS = frozenset({"python", "py", "python3", ""})
 MAX_REPLY_CHARS = 400_000
 
@@ -84,7 +84,7 @@ def parse_repro(reply: str) -> str | ContractFailure:
     current: list[str] | None = None
     python = False
     for line in _lines(reply):
-        match = _FENCE_RE.match(line.strip())
+        match = FENCE_RE.match(line.strip())
         if current is None:
             if match:
                 current, python = [], match.group(1).lower() in PYTHON_TAGS

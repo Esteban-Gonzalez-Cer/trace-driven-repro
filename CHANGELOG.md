@@ -48,3 +48,4 @@ One line per merged task (plan §2, definition of done).
 - State Deficit labels for all 30 bugs (7 deficit; 9 Pipeline B failures relabelled by the spec's precedence) and the owner's blind second review of 20 random decisions (18 agree; both readings of the one false-negative disagreement reported) (#61).
 - Final results written up: `docs/RESULTS.md`, README results table and status, methodology (audit, results pipeline), limitations, status note (M4) (#62).
 - Pipeline A retired after the M4 study: runner, prompts and tests removed; configs that use it are refused with a pointer to the `m3-freeze` tag; the repro gate stays for Pipeline B2 (#69).
+- Pipeline B2, part 1: the model's own crash check as a soft signal (run on the buggy code and with the patch; never blocks a patch), fix rules from the owner's second review (prompts v3), and escalation on retry (`retry_model`, `retry_effort`); old B unchanged with the switches off (#70).
