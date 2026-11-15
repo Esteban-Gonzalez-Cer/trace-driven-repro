@@ -40,12 +40,19 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from tracerepro.sandbox.paths import is_library_frame, is_test_path
+from tracerepro.sandbox.paths import (
+    is_config_path,
+    is_dependency_or_ci_path,
+    is_library_frame,
+    is_test_path,
+)
 
 DEFAULT_BUDGET_CHARS = 250_000
 # (lines on each side of a frame, keep the file outline too), tried in order
 WINDOWS = ((40, True), (15, True), (15, False))
 STAGES = ("full", "outline", "drop", "window", "cut")
+MAX_REQUESTED_FILES = 3  # Pipeline B2: files the model may ask for, in one request
+REQUEST_BUDGET_CHARS = 80_000  # their own allowance, on top of the context budget
 GAP = "      ..."
 
 
@@ -449,6 +456,86 @@ def _refill(
 
 
 # --- command line -------------------------------------------------------------------------
+
+
+# --- files the model asks for (Pipeline B2, Phase 5b) --------------------------------------
+
+
+def requested_files(
+    root: Path,
+    paths: Sequence[str],
+    shown: Mapping[str, list[list[int]]],
+    *,
+    budget: int = REQUEST_BUDGET_CHARS,
+) -> tuple[list[ContextFile], dict[str, str]]:
+    """The library files the model asked for, checked like trace files, and why any was refused.
+
+    A path is granted only if it is library source (`.py`, not a test, configuration,
+    packaging or CI file, no hidden segment, no `..`, no backslash), exists inside the source
+    tree as a regular file (never a symlink), and was not already shown whole. At most
+    `MAX_REQUESTED_FILES` are considered. Each is shown whole while it fits the allowance,
+    else as an outline, else refused. Nothing outside the read-only source tree is ever read.
+    """
+    granted: list[ContextFile] = []
+    refused: dict[str, str] = {}
+    used = 0
+    for raw in paths[:MAX_REQUESTED_FILES]:
+        path = raw.strip().strip("`'\"")
+        parts = PurePosixPath(path).parts
+        if (
+            not _safe_source(path)
+            or is_config_path(path)
+            or is_dependency_or_ci_path(path)
+            or any(part.startswith(".") for part in parts)
+        ):
+            refused[raw] = "not a library source file that may be shown"
+            continue
+        lines = _read(root, path)
+        if lines is None:
+            refused[raw] = "no such file in the library"
+            continue
+        if shown.get(path) == ([[1, len(lines)]] if lines else []):
+            refused[raw] = "already shown in full"
+            continue
+        whole = ContextFile(path, "requested", _numbered(lines), len(lines))
+        candidate = whole
+        if used + len(whole.render()) > budget:
+            keep = _outline_lines(lines)
+            outline = (
+                ContextFile(path, "requested", _numbered(lines, keep), len(lines), "outline")
+                if keep is not None
+                else None
+            )
+            if outline is None or used + len(outline.render()) > budget:
+                refused[raw] = "too large to show"
+                continue
+            candidate = outline
+        granted.append(candidate)
+        used += len(candidate.render()) + 2
+    for raw in paths[MAX_REQUESTED_FILES:]:
+        refused[raw] = f"at most {MAX_REQUESTED_FILES} files can be requested"
+    return granted, refused
+
+
+def merge_shown(
+    shown: Mapping[str, list[list[int]]], files: Iterable[ContextFile]
+) -> dict[str, list[list[int]]]:
+    """`shown` plus the lines of `files`, as sorted, merged [first, last] ranges per file."""
+    lines: dict[str, set[int]] = {}
+    for path, spans in shown.items():
+        lines.setdefault(path, set()).update(n for a, b in spans for n in range(a, b + 1))
+    for f in files:
+        lines.setdefault(f.path, set()).update(n for n, _ in f.lines)
+    merged: dict[str, list[list[int]]] = {}
+    for path, numbers in lines.items():
+        ranges: list[list[int]] = []
+        for n in sorted(numbers):
+            if ranges and ranges[-1][1] == n - 1:
+                ranges[-1][1] = n
+            else:
+                ranges.append([n, n])
+        merged[path] = ranges
+    return merged
 
 
 def _materialized(manifest_path: Path, tmp: Path) -> tuple[dict[str, Any], Path]:

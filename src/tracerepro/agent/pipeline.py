@@ -54,10 +54,19 @@ from tracerepro.agent.prompts import (
 from tracerepro.agent.repro_gate import Target, payload_target
 from tracerepro.agent.usage_guard import TokenBudget
 from tracerepro.agent.workbench import TrialRun, Workbench
-from tracerepro.context.assembler import DEFAULT_BUDGET_CHARS, Context, assemble
+from tracerepro.context.assembler import (
+    DEFAULT_BUDGET_CHARS,
+    Context,
+    assemble,
+    merge_shown,
+    requested_files,
+)
 from tracerepro.sandbox.validator import validate
 
 FEEDBACK = "feedback"
+REQUEST = "request"  # B2: the file-request option, added to the first message
+FILES = "files"  # B2: the message that brings the requested files
+REQUEST_PREFIX = "REQUEST FILES:"
 REGRESSION_FAILURE = "regression_failure"
 MODEL_FAILURE = "model_failure"
 DECLINED = "declined"  # a readable reply with no fix in it
@@ -76,6 +85,7 @@ class PipelineConfig:
     context_budget: int = DEFAULT_BUDGET_CHARS
     # Pipeline B2 switches (Phase 5b). All off reproduces Pipeline B as run in the M4 study.
     crash_check: bool = False  # the model's own crash check, a soft signal (agent/crash_check.py)
+    file_requests: bool = False  # the model may ask once for up to 3 more library files
     retry_settings: Settings | None = (
         None  # escalation: model and effort for attempts after the first
     )
@@ -113,6 +123,8 @@ class AgentResult:
     prompts: dict[str, str] = field(default_factory=dict)  # prompt id -> sha256
     repro: str | None = None
     check: str | None = None  # B2: the last crash check the model sent
+    # B2: the one file request, if any: {"requested": [...], "granted": [...], "refused": {...}}
+    file_request: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -136,8 +148,10 @@ def describe_trial(trial: TrialRun) -> str:
         return f"The patch could not be applied to the code:\n{trial.message}"
     if not trial.finished:
         return f"{trial.message}.\n\nLast lines of the output:\n{trial.output_tail}"
-    lines = [f"The patch applied, but {len(trial.regressions)} visible tests that passed before "
-             "now fail:"]  # fmt: skip
+    lines = [
+        f"The patch applied, but {len(trial.regressions)} visible tests that passed before "
+        "now fail:"
+    ]
     lines += [f"- {t}" for t in trial.regressions[:30]]
     if len(trial.regressions) > 30:
         lines.append(f"- ... and {len(trial.regressions) - 30} more")
@@ -185,9 +199,14 @@ class _Session:
 
 
 def _patch_attempt(
-    n: int, reply: str, stop: str, tokens: int, bench: Workbench, extra: dict[str, bytes],
+    n: int,
+    reply: str,
+    stop: str,
+    tokens: int,
+    bench: Workbench,
+    extra: dict[str, bytes],
     tests: Sequence[str],
-) -> tuple[Attempt, TrialRun | None]:  # fmt: skip
+) -> tuple[Attempt, TrialRun | None]:
     attempt = Attempt(n=n, stage="patch", outcome="", stop_reason=stop, reply=reply, tokens=tokens)
     if stop in ("max_tokens", "refusal"):
         attempt.outcome, attempt.label = MODEL_FAILURE, MODEL_FAILURE
@@ -212,8 +231,9 @@ def _patch_attempt(
     validation = validate(made.diff)
     if not validation.ok:
         attempt.outcome, attempt.label = SCOPE_VIOLATION, SCOPE_VIOLATION
-        attempt.detail = "; ".join(f"{v.rule}: {v.path} {v.message}".strip()
-                                   for v in validation.violations)  # fmt: skip
+        attempt.detail = "; ".join(
+            f"{v.rule}: {v.path} {v.message}".strip() for v in validation.violations
+        )
         return attempt, None
     trial = bench.try_patch(made.diff, extra_files=extra, tests=tests)
     if not trial.applied:
@@ -328,13 +348,22 @@ def run_pipeline_b(
     context = context_for(bug, bench, config)
     patch_prompt = load_prompt(PATCH, config.prompt_version)
     result = AgentResult(pipeline="B", status="", context=context.summary())
-    result.prompts = {
-        p.id: p.sha256
-        for p in (session.system, patch_prompt, load_prompt(FEEDBACK, config.prompt_version))
-    }
+    prompts = [session.system, patch_prompt, load_prompt(FEEDBACK, config.prompt_version)]
+    if config.file_requests:
+        prompts += [
+            load_prompt(REQUEST, config.prompt_version),
+            load_prompt(FILES, config.prompt_version),
+        ]
+        # The request option is offered in the first message, after the patch instructions.
+        patch_prompt = Prompt(
+            patch_prompt.name,
+            patch_prompt.version,
+            patch_prompt.text.rstrip() + "\n\n" + prompts[3].text,
+        )
+    result.prompts = {p.id: load_prompt(p.name, p.version).sha256 for p in prompts}
     message = patch_message(patch_prompt, payload=bug.payload_text, context=context.render())
-    if config.crash_check:
-        checked_patch_loop(
+    if config.crash_check or config.file_requests:
+        b2_patch_loop(
             session, result, bench, (message.text, list(message.tags)), payload_target(bug.payload)
         )
     else:
@@ -342,15 +371,54 @@ def run_pipeline_b(
     return _finish(session, result)
 
 
-def checked_patch_loop(
+def parse_file_request(reply: str) -> list[str] | None:
+    """The paths of a `REQUEST FILES:` line, or None when the reply makes no request."""
+    for line in reply.splitlines():
+        stripped = line.replace("*", "").strip()
+        if stripped.upper().startswith(REQUEST_PREFIX):
+            paths = [p.strip() for p in stripped[len(REQUEST_PREFIX) :].split(",")]
+            return [p for p in paths if p]
+    return None
+
+
+def _grant_files(
+    session: _Session, result: AgentResult, bench: Workbench, paths: list[str]
+) -> tuple[str, list[str]]:
+    """Check the requested paths, add the granted files to what the agent was shown, and
+    return the next message: the files, and why any was refused."""
+    shown = result.context.get("shown_lines", {})
+    granted, refused = requested_files(bench.source_tree(), paths, shown)
+    result.file_request = {
+        "requested": paths,
+        "granted": [f"{f.path} ({f.shape})" for f in granted],
+        "refused": refused,
+    }
+    result.context["shown_lines"] = merge_shown(shown, granted)
+    result.context["files"] = [
+        *result.context.get("files", []),
+        *(f"{f.path} (requested, {f.shape})" for f in granted),
+    ]
+    body = "\n\n".join(f.render() for f in granted) or "(no file could be shown)"
+    if refused:
+        body += "\n\nNot shown:\n" + "\n".join(f"- {p}: {why}" for p, why in refused.items())
+    message = build_message(
+        load_prompt(FILES, session.config.prompt_version).text,
+        [DataBlock("requested-files", body)],
+    )
+    return message.text, list(message.tags)
+
+
+def b2_patch_loop(
     session: _Session,
     result: AgentResult,
     bench: Workbench,
     first_message: tuple[str, list[str]],
     target: Target,
 ) -> None:
-    """Pipeline B2's loop: like `patch_loop`, plus the model's own crash check as a soft
-    signal (agent/crash_check.py) and, on a retry, `retry_settings` (escalation).
+    """Pipeline B2's loop: like `patch_loop`, plus, as its switches say, the model's own crash
+    check as a soft signal (agent/crash_check.py), one request for up to 3 more library files
+    (checked by `requested_files`; it costs tokens but no attempt), and, on a retry,
+    `retry_settings` (escalation).
 
     A clean patch whose usable check still fails is sent back once more, like a regression. A
     check that does not reproduce the crash on the buggy code is not used, and the model is told
@@ -359,14 +427,24 @@ def checked_patch_loop(
     prompt = load_prompt(PATCH, config.prompt_version)
     text, tags = first_message
     check: Check | None = None
-    for n in range(1, config.max_patch_attempts + 1):
-        settings = config.retry_settings if n > 1 and config.retry_settings else None
+    requests_left = 1 if config.file_requests else 0
+    n = 0
+    while n < config.max_patch_attempts:
+        settings = config.retry_settings if n > 0 and config.retry_settings else None
         try:
             reply, stop, tokens = session.ask(prompt, text, tags, settings)
         except TokenCapReached:
             result.stopped_by = "token_cap"
             break
-        code = parse_check(reply) if stop not in ("max_tokens", "refusal") else None
+        ok = stop not in ("max_tokens", "refusal")
+        paths = parse_file_request(reply) if requests_left and ok else None
+        if paths is not None and isinstance(parse_edits(reply), ContractFailure):
+            requests_left = 0
+            text, tags = _grant_files(session, result, bench, paths)
+            prompt = load_prompt(FILES, config.prompt_version)
+            continue
+        n += 1
+        code = parse_check(reply) if config.crash_check and ok else None
         if code is not None and (check is None or code != check.code):
             check = run_on_bug(code, bench, target)
             result.check = code

@@ -144,6 +144,19 @@ B2 is Pipeline B with three switches on (`crash_check`, prompts `v3`, optional `
     is judged exactly as in Pipeline B. **A bad check never blocks a patch.**
   - The check is model-written code and runs in the same sandbox and audit hook as every test
     run. It is saved as `crash_check.py` in the trial folder and is never part of the patch.
+- **File requests (`file_requests`).**
+  - Once per trial, instead of a fix, the model may reply `REQUEST FILES: a.py, b.py` to ask
+    for up to 3 library files it was not shown. The request costs tokens but no attempt.
+  - The harness checks every path itself (`context.assembler.requested_files`). Only library
+    source is shown: `.py` files that are not tests, configuration, packaging or CI files, with
+    no hidden segment, no `..`, and no symlink, read from the read-only source tree.
+  - Files are shown whole within an 80,000-character allowance, otherwise as an outline,
+    otherwise refused, and the model is told why. A second request is treated as a reply
+    without a fix.
+  - The requested lines are added to `shown_lines`, so context coverage (Amendment 5) counts
+    them. Every request is recorded in `record.json` (`file_request`: requested, granted,
+    refused).
+  - No CLI tool is enabled: the model never reads files itself.
 - **Escalation.** Attempts after the first may use another model or effort (`retry_model`,
   `retry_effort`). Retries happen only after a failed attempt. Each attempt records the model
   that answered it.

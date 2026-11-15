@@ -79,6 +79,9 @@ def test_bad_configs_are_refused(tmp_path: Path) -> None:
     path.write_text("name: x\nmodel: m\nbugs: [a]\ncrash_check: true\n")
     with pytest.raises(ValueError, match="v3"):
         experiment.load_config(path)
+    path.write_text("name: x\nmodel: m\nbugs: [a]\nfile_requests: true\n")
+    with pytest.raises(ValueError, match="v3"):
+        experiment.load_config(path)
     path.write_text("name: x\nmodel: m\nbugs: [a]\nretry_effort: extreme\n")
     with pytest.raises(ValueError, match="effort"):
         experiment.load_config(path)

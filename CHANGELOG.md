@@ -49,3 +49,4 @@ One line per merged task (plan §2, definition of done).
 - Final results written up: `docs/RESULTS.md`, README results table and status, methodology (audit, results pipeline), limitations, status note (M4) (#62).
 - Pipeline A retired after the M4 study: runner, prompts and tests removed; configs that use it are refused with a pointer to the `m3-freeze` tag; the repro gate stays for Pipeline B2 (#69).
 - Pipeline B2, part 1: the model's own crash check as a soft signal (run on the buggy code and with the patch; never blocks a patch), fix rules from the owner's second review (prompts v3), and escalation on retry (`retry_model`, `retry_effort`); old B unchanged with the switches off (#70).
+- Pipeline B2, part 2: one harness-mediated request for up to 3 more library files (paths checked against the read-only source tree; tests, configuration, packaging, hidden files and symlinks refused; shown lines counted for coverage) (#71).
