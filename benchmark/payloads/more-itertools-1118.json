@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "6630689489678064c400148b6ba15848",
   "platform": "python",
@@ -35,7 +35,14 @@
                 "    k = min(r, n - r)",
                 "    for i in range(1, k + 1):",
                 "        c = c * (n - k + i) // i"
-              ]
+              ],
+              "vars": {
+                "index": "0",
+                "iterable": "'abc'",
+                "n": "3",
+                "pool": "('a', 'b', 'c')",
+                "r": "5"
+              }
             }
           ]
         }

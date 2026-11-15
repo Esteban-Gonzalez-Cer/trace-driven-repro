@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "04a1d92a1a0009c96b354879f830fa42",
   "platform": "python",
@@ -37,8 +37,8 @@
                 "        return f\"{class_name}({items!r})\""
               ],
               "vars": {
-                "other": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}... UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])",
-                "self": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}... UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])"
+                "other": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}))), ('files', UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])",
+                "self": "FormData([('files', UploadFile(filename='a.txt', size=None, headers=Headers({}))), ('files', UploadFile(filename='b.txt', size=None, headers=Headers({}))), ('name', 'x')])"
               }
             }
           ]

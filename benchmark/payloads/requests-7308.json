@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "0907f89aaf011bff0378b6f7aa71a96a",
   "platform": "python",
@@ -39,7 +39,7 @@
               "vars": {
                 "kwargs": "{'headers': {'foo': '\\n'}}",
                 "params": "None",
-                "url": "'http://127.0.0.1:36145/get'"
+                "url": "'http://127.0.0.1:34671/get'"
               }
             },
             {
@@ -66,7 +66,7 @@
                 "kwargs": "{'headers': {'foo': '\\n'}, 'params': None}",
                 "method": "'get'",
                 "session": "<requests.sessions.Session object at 0x…>",
-                "url": "'http://127.0.0.1:36145/get'"
+                "url": "'http://127.0.0.1:34671/get'"
               }
             },
             {
@@ -109,7 +109,7 @@
                 "settings": "{'cert': None, 'proxies': OrderedDict(), 'stream': False, 'verify': True}",
                 "stream": "None",
                 "timeout": "None",
-                "url": "'http://127.0.0.1:36145/get'",
+                "url": "'http://127.0.0.1:34671/get'",
                 "verify": "None"
               }
             },
@@ -140,7 +140,7 @@
                 "kwargs": "{'cert': None, 'proxies': OrderedDict(), 'stream': False, 'timeout': None, 'verify': True}",
                 "request": "<PreparedRequest [GET]>",
                 "self": "<requests.sessions.Session object at 0x…>",
-                "start": "1794427180.323118",
+                "start": "1794784051.9647596",
                 "stream": "False"
               }
             },

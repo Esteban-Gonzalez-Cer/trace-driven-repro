@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "d33dcb16faf1cbdead1c1b16180e0946",
   "platform": "python",
@@ -40,7 +40,7 @@
                 "attr": "None",
                 "data": "None",
                 "kwargs": "{}",
-                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None...validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
+                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
                 "value": "None"
               }
             },
@@ -65,7 +65,7 @@
                 "        obj: typing.Any,"
               ],
               "vars": {
-                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None...validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
+                "self": "<fields.Enum(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'unknown': 'Must be one of: {choices}.'})>",
                 "value": "None"
               }
             }

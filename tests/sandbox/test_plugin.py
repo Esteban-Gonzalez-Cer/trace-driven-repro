@@ -54,17 +54,18 @@ def _run(tmp_path: Path, files: dict[str, str]) -> dict[str, Any]:
 
 
 def _run_with_audit(
-    tmp_path: Path, files: dict[str, str]
+    tmp_path: Path, files: dict[str, str], extra: tuple[str, ...] = ()
 ) -> tuple[dict[str, Any], tuple[AuditEvent, ...]]:
     """Run pytest with the plugin in a subprocess: its audit hook can never be removed, so it
     must not be installed in this test process."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
     for name, body in files.items():
         (tmp_path / name).write_text(textwrap.dedent(body))
     out = tmp_path / "results.json"
     env = {**os.environ, "PYTHONPATH": str(PLUGIN_DIR), "PYTHONDONTWRITEBYTECODE": "1"}
     proc = subprocess.run(
         [sys.executable, "-m", "pytest", "-p", "no:cacheprovider", "-p", PLUGIN_NAME,
-         f"--tracerepro-json={out}", "-q", "--rootdir", str(tmp_path), str(tmp_path)],
+         f"--tracerepro-json={out}", *extra, "-q", "--rootdir", str(tmp_path), str(tmp_path)],
         cwd=tmp_path, env=env, capture_output=True, check=False, timeout=120,
     )  # fmt: skip
     data: dict[str, Any] = json.loads(out.read_text())
@@ -236,3 +237,36 @@ def test_python_install_dirs_are_not_sensitive() -> None:
     out = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True)
     assert out.returncode == 0, out.stderr
     assert json.loads(out.stdout.splitlines()[-1]) == [False, True, True, True, True]
+
+
+UNITTEST_CLEARS = """
+import unittest
+
+
+class T(unittest.TestCase):
+    def test_locals_survive_assert_raises(self):
+        def boom():
+            kept = 42
+            raise ValueError("not the expected error")
+
+        try:
+            with self.assertRaises(KeyError):
+                boom()
+        except ValueError as exc:
+            tb = exc.__traceback__
+            while tb.tb_next:
+                tb = tb.tb_next
+            assert tb.tb_frame.f_locals.get("kept") == 42
+"""
+
+
+def test_payload_runs_keep_locals_that_unittest_would_clear(tmp_path: Path) -> None:
+    """Amendment 6: assertRaises clears the frames of an exception it does not expect, which
+    emptied more-itertools-1118's crash report. Only the payload run (locals on) keeps them."""
+    node = "test_clears.py::T::test_locals_survive_assert_raises"
+    plain = _run_with_audit(tmp_path / "plain", {"test_clears.py": UNITTEST_CLEARS})[0]
+    kept = _run_with_audit(
+        tmp_path / "kept", {"test_clears.py": UNITTEST_CLEARS}, ("--tracerepro-locals",)
+    )[0]
+    assert _by_id(plain)[node]["outcome"] == "failed"
+    assert _by_id(kept)[node]["outcome"] == "passed"

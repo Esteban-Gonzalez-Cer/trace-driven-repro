@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "318309181c7e3dfd51a586afe7ad1241",
   "platform": "python",
@@ -159,7 +159,7 @@
                 "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
                 "response_started": "True",
                 "scheme": "'http'",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.testclient._TestClientTransport object at 0x…>",
                 "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
                 "template": "None"
@@ -203,7 +203,7 @@
                 "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
                 "response_started": "True",
                 "scheme": "'http'",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.testclient._TestClientTransport object at 0x…>",
                 "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
                 "template": "None"
@@ -255,7 +255,7 @@
               ],
               "vars": {
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.applications.Starlette object at 0x…>",
                 "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
               }
@@ -286,7 +286,7 @@
                 "request": "<starlette.requests.Request object at 0x…>",
                 "response": "<starlette.responses.PlainTextResponse object at 0x…>",
                 "response_started": "False",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.middleware.errors.ServerErrorMiddleware object at 0x…>",
                 "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
               }
@@ -317,7 +317,7 @@
                 "request": "<starlette.requests.Request object at 0x…>",
                 "response": "<starlette.responses.PlainTextResponse object at 0x…>",
                 "response_started": "False",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.middleware.errors.ServerErrorMiddleware object at 0x…>",
                 "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>"
               }
@@ -345,7 +345,7 @@
               "vars": {
                 "conn": "<starlette.requests.Request object at 0x…>",
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>",
                 "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>"
               }
@@ -377,7 +377,7 @@
                 "handler": "None",
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
                 "response_started": "False",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
                 "sender": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>",
                 "status_handlers": "{}"
@@ -410,7 +410,7 @@
                 "handler": "None",
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
                 "response_started": "False",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "send": "<function ServerErrorMiddleware.__call__.<locals>._send at 0x…>",
                 "sender": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>",
                 "status_handlers": "{}"
@@ -438,7 +438,7 @@
               ],
               "vars": {
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.routing.Router object at 0x…>",
                 "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
               }
@@ -469,7 +469,7 @@
                 "partial": "None",
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
                 "route": "Mount(path='', name='static', app=<starlette.staticfiles.StaticFiles object at 0x…>)",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.routing.Router object at 0x…>",
                 "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
               }
@@ -496,7 +496,7 @@
               ],
               "vars": {
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "Mount(path='', name='static', app=<starlette.staticfiles.StaticFiles object at 0x…>)",
                 "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
               }
@@ -524,7 +524,7 @@
               "vars": {
                 "path": "'example\\x00.txt'",
                 "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.staticfiles.StaticFiles object at 0x…>",
                 "send": "<function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x…>"
               }
@@ -551,7 +551,7 @@
               ],
               "vars": {
                 "path": "'example\\x00.txt'",
-                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', ...}",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'app_root_path': '', 'client': ('testclient', 50000), 'endpoint': <starlette.staticfiles.StaticFiles object at 0x…>, 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/example\\x00.txt', 'path_params': {}, ...}",
                 "self": "<starlette.staticfiles.StaticFiles object at 0x…>"
               }
             },

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "e61a56e3b11775bae02dd73f82f68851",
   "platform": "python",
@@ -40,7 +40,7 @@
                 "attr": "None",
                 "data": "None",
                 "kwargs": "{}",
-                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate... period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
+                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
                 "value": "'nan'"
               }
             },
@@ -68,7 +68,7 @@
                 "attr": "None",
                 "data": "None",
                 "kwargs": "{'days': nan}",
-                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate... period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
+                "self": "<fields.TimeDelta(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid period of time.', 'format': '{input!r} cannot be formatted as a timedelta.'})>",
                 "value": "nan"
               }
             }
