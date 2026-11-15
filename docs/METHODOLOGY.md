@@ -118,6 +118,36 @@ test checks this), and a test checks that no oracle test id reaches the model.
 in a fresh container (`verdict.json`), with the review report for the manual audit
 (`review.md`).
 
+## Pipeline B2: B with a crash check, fix rules and escalation (Phase 5b)
+
+B2 is Pipeline B with three switches on (`crash_check`, prompts `v3`, optional `retry_model` or
+`retry_effort`). With every switch off the code runs exactly as Pipeline B did in the M4 study.
+
+- **Fix rules (prompt `patch_v3`).** Five general points on how to judge a fix, taken from the
+  project owner's second review of the audit:
+  1. remove the mechanism that causes the bug, rather than undoing its effect for one case;
+  2. keep what the caller asked for, never dropping or weakening an argument to avoid the error;
+  3. make the fix hold for neighbouring inputs;
+  4. fix it at the interface where it belongs;
+  5. do not silence the exception.
+- **Crash check (`agent/crash_check.py`), a soft signal.**
+  - With each patch the model may send one pytest file: `test_crash`, which makes the call from
+    the crash report, plus two or three tests of neighbouring inputs.
+  - The harness runs it on the buggy code first. It must reproduce the crash by the repro
+    gate's rule (`repro_gate.judge`), and the tests that do so are recorded.
+  - It then runs with the patch, alongside the visible tests. The reproducing tests must pass,
+    and no test of the check may fail with the reported error. Neighbouring tests are not held
+    to their own expected values, since those are the model's guesses.
+  - A clean patch whose check still fails is sent back with the failure (outcome
+    `check_still_fails`, label `incorrect_patch`).
+  - A check that does not reproduce the crash is not used: the model is told why, and the patch
+    is judged exactly as in Pipeline B. **A bad check never blocks a patch.**
+  - The check is model-written code and runs in the same sandbox and audit hook as every test
+    run. It is saved as `crash_check.py` in the trial folder and is never part of the patch.
+- **Escalation.** Attempts after the first may use another model or effort (`retry_model`,
+  `retry_effort`). Retries happen only after a failed attempt. Each attempt records the model
+  that answered it.
+
 ## Pipeline A: repro first (plan §6.5, spec §6), retired
 
 As run in the M4 study. Retired afterwards (DECISIONS.md, 2026-11-15); the code is kept at the

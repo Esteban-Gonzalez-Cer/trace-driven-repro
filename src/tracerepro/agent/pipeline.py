@@ -30,6 +30,8 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from tracerepro.agent.client import LLMClient, Message, Request, Settings
+from tracerepro.agent.crash_check import CHECK_PATH, Check, after_patch, parse_check, run_on_bug
+from tracerepro.agent.crash_check import NONE as NO_CHECK
 from tracerepro.agent.edits import EditResult, apply_edits
 from tracerepro.agent.errors import TokenCapReached
 from tracerepro.agent.parse import (
@@ -49,6 +51,7 @@ from tracerepro.agent.prompts import (
     load_prompt,
     patch_message,
 )
+from tracerepro.agent.repro_gate import Target, payload_target
 from tracerepro.agent.usage_guard import TokenBudget
 from tracerepro.agent.workbench import TrialRun, Workbench
 from tracerepro.context.assembler import DEFAULT_BUDGET_CHARS, Context, assemble
@@ -58,6 +61,7 @@ FEEDBACK = "feedback"
 REGRESSION_FAILURE = "regression_failure"
 MODEL_FAILURE = "model_failure"
 DECLINED = "declined"  # a readable reply with no fix in it
+CHECK_STILL_FAILS = "check_still_fails"  # B2: clean, but the model's own crash check still fails
 
 
 @dataclass(frozen=True)
@@ -70,6 +74,11 @@ class PipelineConfig:
     system_suffix: str = ""
     token_cap: int = 400_000
     context_budget: int = DEFAULT_BUDGET_CHARS
+    # Pipeline B2 switches (Phase 5b). All off reproduces Pipeline B as run in the M4 study.
+    crash_check: bool = False  # the model's own crash check, a soft signal (agent/crash_check.py)
+    retry_settings: Settings | None = (
+        None  # escalation: model and effort for attempts after the first
+    )
 
 
 @dataclass
@@ -85,6 +94,9 @@ class Attempt:
     regressions: tuple[str, ...] = ()
     feedback: str | None = None  # what was sent back afterwards
     tokens: int = 0
+    check: str | None = None  # B2: the crash check's verdict on the buggy code, or "none"
+    check_after: str | None = None  # B2: "passes" or "still_fails" with this patch
+    model: str | None = None  # the model that answered, when it differs by attempt (escalation)
 
 
 @dataclass
@@ -100,6 +112,7 @@ class AgentResult:
     context: dict[str, Any] = field(default_factory=dict)
     prompts: dict[str, str] = field(default_factory=dict)  # prompt id -> sha256
     repro: str | None = None
+    check: str | None = None  # B2: the last crash check the model sent
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -144,14 +157,17 @@ class _Session:
         self.tags: list[str] = []
         self.leaks: list[str] = []
 
-    def ask(self, prompt: Prompt, text: str, tags: Sequence[str]) -> tuple[str, str, int]:
-        """Send `text` as the next user turn; return (reply, stop reason, tokens used)."""
+    def ask(
+        self, prompt: Prompt, text: str, tags: Sequence[str], settings: Settings | None = None
+    ) -> tuple[str, str, int]:
+        """Send `text` as the next user turn; return (reply, stop reason, tokens used).
+        `settings` overrides the run's model and effort for this call (escalation)."""
         self.messages.append(Message("user", text))
         self.tags.extend(tags)
         request = Request(
             system=self.system.text + self.config.system_suffix,
             messages=tuple(self.messages),
-            settings=self.config.settings,
+            settings=settings or self.config.settings,
             prompt_version=prompt.id,
             prompt_hash=prompt.sha256,
         )
@@ -239,7 +255,8 @@ def _feedback_text(attempt: Attempt, trial: TrialRun | None) -> str:
 def best_patch(attempts: Sequence[Attempt]) -> Attempt | None:
     """The last attempt that ran clean, else the last whose patch applied."""
     patches = [a for a in attempts if a.stage == "patch" and a.diff is not None]
-    for wanted in (("clean",), ("clean", "regressions", "no_results", "repro_still_fails")):
+    fallback = ("clean", "regressions", "no_results", "repro_still_fails", CHECK_STILL_FAILS)
+    for wanted in (("clean",), fallback):
         found = [a for a in patches if a.outcome in wanted]
         if found:
             return found[-1]
@@ -316,5 +333,73 @@ def run_pipeline_b(
         for p in (session.system, patch_prompt, load_prompt(FEEDBACK, config.prompt_version))
     }
     message = patch_message(patch_prompt, payload=bug.payload_text, context=context.render())
-    patch_loop(session, result, bench, (message.text, list(message.tags)))
+    if config.crash_check:
+        checked_patch_loop(
+            session, result, bench, (message.text, list(message.tags)), payload_target(bug.payload)
+        )
+    else:
+        patch_loop(session, result, bench, (message.text, list(message.tags)))
     return _finish(session, result)
+
+
+def checked_patch_loop(
+    session: _Session,
+    result: AgentResult,
+    bench: Workbench,
+    first_message: tuple[str, list[str]],
+    target: Target,
+) -> None:
+    """Pipeline B2's loop: like `patch_loop`, plus the model's own crash check as a soft
+    signal (agent/crash_check.py) and, on a retry, `retry_settings` (escalation).
+
+    A clean patch whose usable check still fails is sent back once more, like a regression. A
+    check that does not reproduce the crash on the buggy code is not used, and the model is told
+    why. No check, or no usable one, means the patch is judged exactly as Pipeline B judges it."""
+    config = session.config
+    prompt = load_prompt(PATCH, config.prompt_version)
+    text, tags = first_message
+    check: Check | None = None
+    for n in range(1, config.max_patch_attempts + 1):
+        settings = config.retry_settings if n > 1 and config.retry_settings else None
+        try:
+            reply, stop, tokens = session.ask(prompt, text, tags, settings)
+        except TokenCapReached:
+            result.stopped_by = "token_cap"
+            break
+        code = parse_check(reply) if stop not in ("max_tokens", "refusal") else None
+        if code is not None and (check is None or code != check.code):
+            check = run_on_bug(code, bench, target)
+            result.check = code
+        usable = check is not None and check.usable
+        extra = {CHECK_PATH: check.code.encode()} if usable and check else {}
+        attempt, trial = _patch_attempt(
+            n, reply, stop, tokens, bench, extra, [CHECK_PATH] if usable else []
+        )
+        attempt.check = check.gate.verdict if check else NO_CHECK
+        if settings is not None:
+            attempt.model = settings.model
+        if attempt.outcome == "clean" and usable and check and trial is not None:
+            reason = after_patch(check, trial, target)
+            attempt.check_after = "still_fails" if reason else "passes"
+            if reason:
+                attempt.outcome, attempt.label, attempt.detail = (
+                    CHECK_STILL_FAILS,
+                    "incorrect_patch",
+                    reason,
+                )
+        result.attempts.append(attempt)
+        if attempt.outcome == "clean":
+            break
+        if n < config.max_patch_attempts:
+            if attempt.outcome == CHECK_STILL_FAILS:
+                body = attempt.detail
+            else:
+                body = _feedback_text(attempt, trial)
+            if check is not None and not check.usable:
+                body += (
+                    "\n\nYour crash check was not used: "
+                    f"{check.gate.detail} Fix it if you can, or leave it out."
+                )
+            attempt.feedback = body
+            text, tags = session.feedback(body)
+            prompt = load_prompt(FEEDBACK, config.prompt_version)

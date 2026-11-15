@@ -76,6 +76,10 @@ class RunConfig:
     evaluate: bool = True
     guard: GuardLimits = field(default_factory=GuardLimits)
     split: str = "dev"  # "test" only for the final run, after the freeze
+    # Pipeline B2 switches (Phase 5b); all unset reproduces Pipeline B as run in the M4 study.
+    crash_check: bool = False
+    retry_model: str | None = None  # escalation: the model for attempts after the first
+    retry_effort: str | None = None  # escalation: the effort for attempts after the first
 
     @property
     def settings(self) -> Settings:
@@ -89,6 +93,16 @@ class RunConfig:
             max_patch_attempts=self.max_patch_attempts,
             token_cap=self.token_cap,
             context_budget=self.context_budget,
+            crash_check=self.crash_check,
+            retry_settings=self.retry_settings,
+        )
+
+    @property
+    def retry_settings(self) -> Settings | None:
+        if self.retry_model is None and self.retry_effort is None:
+            return None
+        return Settings(
+            self.retry_model or self.model, self.retry_effort or self.effort, self.max_output_tokens
         )
 
     def manifests(self, root: Path = PROJECT_ROOT) -> list[Path]:
@@ -135,6 +149,9 @@ def load_config(path: Path) -> RunConfig:
     if bad:
         raise ValueError(f"{path}: unknown pipelines {sorted(bad)}")
     config.settings  # validates effort and output limit  # noqa: B018
+    config.retry_settings  # validates the escalation's effort  # noqa: B018
+    if config.crash_check and config.prompt_version in ("v1", "v2"):
+        raise ValueError(f"{path}: crash_check needs prompts that ask for it (v3 or later)")
     if config.split not in ("dev", "test"):
         raise ValueError(f"{path}: split must be 'dev' or 'test'")
     return config

@@ -48,6 +48,8 @@ def write_record(folder: Path, result: AgentResult, meta: dict[str, Any]) -> Non
             (folder / f"{stem}.feedback.md").write_text(a.feedback, encoding="utf-8")
     if result.repro is not None:
         (folder / "repro_test.py").write_text(result.repro, encoding="utf-8")
+    if result.check is not None:
+        (folder / "crash_check.py").write_text(result.check, encoding="utf-8")
     if result.final_diff is not None:
         (folder / "final.diff").write_text(result.final_diff, encoding="utf-8")
     body = {"meta": meta, "result": result.to_dict()}

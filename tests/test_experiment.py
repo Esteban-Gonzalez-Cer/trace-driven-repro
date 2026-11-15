@@ -76,6 +76,12 @@ def test_bad_configs_are_refused(tmp_path: Path) -> None:
     path.write_text("name: x\nmodel: m\nbugs: [a]\npipelines: [Z]\n")
     with pytest.raises(ValueError, match="unknown pipelines"):
         experiment.load_config(path)
+    path.write_text("name: x\nmodel: m\nbugs: [a]\ncrash_check: true\n")
+    with pytest.raises(ValueError, match="v3"):
+        experiment.load_config(path)
+    path.write_text("name: x\nmodel: m\nbugs: [a]\nretry_effort: extreme\n")
+    with pytest.raises(ValueError, match="effort"):
+        experiment.load_config(path)
     for retired in ("pipelines: [A, B]\n", "max_repro_attempts: 2\n"):
         path.write_text("name: x\nmodel: m\nbugs: [a]\n" + retired)
         with pytest.raises(ValueError, match="m3-freeze"):
@@ -189,3 +195,16 @@ def test_a_dev_config_never_reaches_a_test_bug(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="not in the dev split"):
         every.manifests(root=tmp_path)
     assert len(config(bugs=("benchmark/manifests/flask-6096.yaml",)).manifests(tmp_path)) == 1
+
+
+def test_b2_switches_reach_the_pipeline(tmp_path: Path) -> None:
+    path = tmp_path / "b2.yaml"
+    path.write_text(
+        "name: b2\nmodel: claude-sonnet-5-5\nbugs: [a]\nprompt_version: v3\n"
+        "crash_check: true\nretry_model: claude-opus-5-5\n"
+    )
+    pipeline = experiment.load_config(path).pipeline_config
+    assert pipeline.crash_check and pipeline.retry_settings is not None
+    assert pipeline.retry_settings.model == "claude-opus-5-5"
+    assert pipeline.retry_settings.effort == "medium"  # inherited when only the model is set
+    assert experiment.load_config(DEV).pipeline_config.retry_settings is None
