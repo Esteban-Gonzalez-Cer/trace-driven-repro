@@ -25,7 +25,7 @@ from typing import Any
 from tracerepro.sandbox.paths import is_library_frame
 from tracerepro.sandbox.runner import FailureInfo
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 2: longer, deeper variable reprs; unittest no longer clears them (Amendment 6)
 CONTEXT_LINES = 5
 _ADDRESS_RE = re.compile(r"0x[0-9a-fA-F]{6,}")
 

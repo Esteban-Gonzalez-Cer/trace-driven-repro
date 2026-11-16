@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "e9e72e7f06d6dfe02bb675a3a6a69c1b",
   "platform": "python",
@@ -39,7 +39,7 @@
               "vars": {
                 "matched": "None",
                 "message": "'Not a valid URL.'",
-                "regex": "re.compile(\"^(?:[a-z0-9\\\\.\\\\-\\\\+]*)://(?:(?:[a-z0-9\\\\-._~!$&'()*+,;=:]|%[0-9a-...fff])?\\\\.)+(?:[A-Z¡-\\uffff]{2,6}\\\\.?|[A-Z0-9¡-\\uffff-]{2,}\\\\.?), re.IGNORECASE)",
+                "regex": "re.compile(\"^(?:[a-z0-9\\\\.\\\\-\\\\+]*)://(?:(?:[a-z0-9\\\\-._~!$&'()*+,;=:]|%[0-9a-f]{2})*@)?(?:(?:[A-Z0-9¡-\\uffff](?:[A-Z0-9¡-\\uffff-]{0,61}[A-Z0-9¡-\\uffff])?\\\\.)+(?:[A-Z¡-\\uffff]{2,6}\\\\.?|[A-Z0-9¡-\\uffff-]{2,}\\\\.?), re.IGNORECASE)",
                 "scheme": "'http'",
                 "self": "<URL(relative=False, absolute=True, error='Not a valid URL.')>",
                 "value": "'http://example.org#fragment'"

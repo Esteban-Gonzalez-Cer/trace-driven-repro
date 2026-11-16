@@ -50,11 +50,15 @@ MAX_LONGREPR = 8000
 REPO_ROOT = "/repo/"
 MAX_LOCALS = 25
 
+# Local-variable reprs for the synthetic crash report (payload schema 2, Amendment 6), close to
+# what the Sentry Python SDK records: 5 levels deep and 10 items per container like Sentry
+# (MAX_DATABAG_DEPTH, MAX_DATABAG_BREADTH). Sentry does not shorten values by default
+# (DEFAULT_MAX_VALUE_LENGTH = None); 1024 characters keeps a report a manageable size.
 _repr = reprlib.Repr()
-_repr.maxlevel = 3
-_repr.maxstring = 160
-_repr.maxother = 160
-_repr.maxlist = _repr.maxtuple = _repr.maxset = _repr.maxdict = 8
+_repr.maxlevel = 5
+_repr.maxstring = 1024
+_repr.maxother = 1024
+_repr.maxlist = _repr.maxtuple = _repr.maxset = _repr.maxdict = 10
 
 _records: list[dict[str, Any]] = []
 
@@ -355,6 +359,14 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=False,
         help="also record truncated reprs of local variables for repo frames of each failure",
     )
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    if config.getoption("--tracerepro-locals"):
+        # unittest's assertRaises clears the frames of every exception that passes through it,
+        # even one it does not expect, which would empty the local variables a real crash
+        # report keeps (more-itertools-1118). Only the payload run records locals.
+        traceback.clear_frames = lambda tb: None
 
 
 def _path(filename: str) -> str:

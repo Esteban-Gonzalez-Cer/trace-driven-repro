@@ -50,3 +50,6 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
   contamination.
 - **Low power.** With 30 bugs and 5 discordant pairs, a difference of 10 to 15 points between
   the pipelines would go undetected.
+- **Crash reports differ between the two studies.** The M4 study used payload schema 1 (values
+  cut at 160 characters, one report with no variables); the Phase 5b study uses schema 2
+  (Amendment 6). Results of the two studies are not directly comparable on that account.

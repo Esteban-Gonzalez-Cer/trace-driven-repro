@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": true,
   "event_id": "51ab04dd27900d7f7a0102f94aa25f37",
   "platform": "python",
