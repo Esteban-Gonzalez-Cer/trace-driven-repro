@@ -162,3 +162,39 @@ def test_report_is_deterministic(run: Path, tmp_path: Path) -> None:
     assert outputs[0] == outputs[1] and len(outputs[0]) == 6
     svg = outputs[0][Path("figures/per_bug.svg")].decode()
     assert "<dc:date>" not in svg and "✓" in svg  # no date; marks are text, not colour alone
+
+
+def test_b2_facts_from_a_record() -> None:
+    record = {
+        "final_from": 2,
+        "attempts": [
+            {
+                "n": 1,
+                "check": "valid",
+                "outcome": "check_still_fails",
+                "check_after": "still_fails",
+            },
+            {
+                "n": 2,
+                "check": "valid",
+                "outcome": "clean",
+                "check_after": "passes",
+                "model": "claude-opus-5-5",
+            },
+        ],
+        "file_request": {
+            "requested": ["a.py", "b.py"],
+            "granted": ["a.py (whole)"],
+            "refused": {"b.py": "no such file in the library"},
+        },
+    }
+    assert export.b2_facts(record) == {
+        "check": "valid",
+        "check_usable": True,
+        "check_caught": True,
+        "check_final": "passes",
+        "files_requested": 2,
+        "files_granted": 1,
+        "escalated": True,
+    }
+    assert export.b2_facts({"attempts": [{"n": 1, "outcome": "clean"}]}) == {}

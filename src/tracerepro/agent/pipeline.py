@@ -471,6 +471,13 @@ def b2_patch_loop(
         if n < config.max_patch_attempts:
             if attempt.outcome == CHECK_STILL_FAILS:
                 body = attempt.detail
+            elif attempt.outcome == DECLINED and requests_left:
+                body = (
+                    "Your reply contained no edit block, so nothing was tried. If the code you "
+                    "need is in a library file that was not shown, ask for it now with one "
+                    f"`{REQUEST_PREFIX}` line, as described in the first message; otherwise "
+                    "give your best fix from the code you have."
+                )
             else:
                 body = _feedback_text(attempt, trial)
             if check is not None and not check.usable:

@@ -344,6 +344,40 @@ gate (17 of 25 failures). The project owner decided to keep only Pipeline B and 
   on a fresh, frozen set of bugs that no model has seen, under a new analysis plan written
   before that run.
 
+## 2026-11-16: Pipeline B2 settings, chosen on the practice set
+
+Three tuning rounds (the fixed maximum), one trial per practice bug (35), Sonnet 5.5 at medium
+effort, crash check and file requests on. None of these runs is a reported result.
+
+| Round | Change | Bugs fixed | Tokens |
+|---|---|---|---|
+| 1 (`practice-b2-r1`) | retries at Sonnet high effort | 28/35 | 2.30M |
+| 2 (`practice-b2-r2`) | retries with Opus 5.5 (first attempts reused from the cache) | 28/35 | 2.29M |
+| 3 (`practice-b2-r3`) | round 1 plus the file-request fixes below | 24/35 | 2.67M |
+
+- **Escalation: Sonnet at high effort on retries.** Only 4 of 35 trials retried; Opus wrote
+  different patches but no outcome changed, at about twice the cost-equivalent for those calls.
+  One model is also simpler to describe. Opus on retries is not used.
+- **File requests: kept, with fixes.** In rounds 1 and 2 the model never asked for a file, even
+  when it wrote that it could not see the code its fix relied on (tomlkit-701), and a reply
+  with no fix was told "no more files can be shown" while its one request was unused (a harness
+  bug, flask-5797). `request_v3` now says to ask rather than guess, and that feedback reminds
+  the model of an unused request. In round 3 the request was used once (flask-5797: 3 files
+  granted, still no fix).
+- **Round 3's lower count is run-to-run variation, not the change.** None of the 6 bugs whose
+  outcome flipped asked for files or mentioned them; 3 of the 5 that got worse (attrs-1529,
+  marshmallow-2994, more-itertools-1118) already gave mixed results over old B's 3 trials in M4.
+  One trial per bug cannot separate a difference of 4 bugs from noise, which is why the
+  decision rests on the fresh set and 3 trials per bug.
+- **Frozen for the fresh-set run (B2 arm):** Sonnet 5.5, effort medium, prompts v3 as in
+  practice round 3, `crash_check: true`, `file_requests: true`, `retry_effort: high`, at most 2
+  patch attempts. Old B arm: same harness, switches off, prompts v2. Both arms use schema 2
+  crash reports.
+- **Seen but not tuned for:** the fix rules do not reliably stop symptom fixes. In round 3
+  marshmallow-2901 kept `required=True` but now skips the constant's default when it is set, a
+  special case that fails the maintainers' `test_constant_with_required`. The fix-quality
+  measures in the analysis plan are there to show this, not to hide it.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

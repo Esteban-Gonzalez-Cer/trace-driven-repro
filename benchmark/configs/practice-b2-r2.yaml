@@ -1,0 +1,60 @@
+# Phase 5b, step 5: tuning round 2 of at most 3. Pipeline B2 on the practice set (the 5 dev bugs
+# and the 30 bugs spent by the M4 study), one trial each. Never part of the reported results.
+# Rounds 1 and 2 differ only in the escalation on retries; with the cache on, their first
+# attempts are the same replies, so the comparison isolates the escalation.
+name: practice-b2-r2
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v3
+pipelines: [B]
+crash_check: true
+file_requests: true
+retry_model: claude-opus-5-5  # escalation variant 2: Opus on retries
+trials: 1
+split: practice
+bugs:
+  - benchmark/manifests/attrs-1529.yaml
+  - benchmark/manifests/click-3493.yaml
+  - benchmark/manifests/click-3739.yaml
+  - benchmark/manifests/click-3781.yaml
+  - benchmark/manifests/flask-5797.yaml
+  - benchmark/manifests/flask-6096.yaml
+  - benchmark/manifests/marshmallow-2874.yaml
+  - benchmark/manifests/marshmallow-2892.yaml
+  - benchmark/manifests/marshmallow-2901.yaml
+  - benchmark/manifests/marshmallow-2903.yaml
+  - benchmark/manifests/marshmallow-2928.yaml
+  - benchmark/manifests/marshmallow-2994.yaml
+  - benchmark/manifests/marshmallow-3004.yaml
+  - benchmark/manifests/marshmallow-3016.yaml
+  - benchmark/manifests/marshmallow-3082.yaml
+  - benchmark/manifests/more-itertools-1088.yaml
+  - benchmark/manifests/more-itertools-1118.yaml
+  - benchmark/manifests/more-itertools-1182.yaml
+  - benchmark/manifests/more-itertools-1193.yaml
+  - benchmark/manifests/more-itertools-1294.yaml
+  - benchmark/manifests/more-itertools-1305.yaml
+  - benchmark/manifests/more-itertools-1342.yaml
+  - benchmark/manifests/requests-7308.yaml
+  - benchmark/manifests/starlette-3139.yaml
+  - benchmark/manifests/starlette-3317.yaml
+  - benchmark/manifests/starlette-3619.yaml
+  - benchmark/manifests/starlette-3783.yaml
+  - benchmark/manifests/tomlkit-565.yaml
+  - benchmark/manifests/tomlkit-581.yaml
+  - benchmark/manifests/tomlkit-610.yaml
+  - benchmark/manifests/tomlkit-631.yaml
+  - benchmark/manifests/tomlkit-663.yaml
+  - benchmark/manifests/tomlkit-701.yaml
+  - benchmark/manifests/werkzeug-3078.yaml
+  - benchmark/manifests/werkzeug-3238.yaml
+max_patch_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: true
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0

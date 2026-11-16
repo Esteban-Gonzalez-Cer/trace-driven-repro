@@ -22,6 +22,7 @@ import argparse
 import dataclasses
 import glob
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -55,6 +56,11 @@ WORK_DIR = PROJECT_ROOT / "work"
 PIPELINES: dict[str, Callable[..., AgentResult]] = {"B": run_pipeline_b}
 # Retired after the M4 study (DECISIONS.md, 2026-11-15). Configs that used them are records of
 # runs made at the `m3-freeze` tag; rerun them from that tag.
+SPLITS = ("dev", "test", "practice", "test2")
+# A config's split admits manifests of these splits. The M4 test set was spent by the M4 study,
+# so it joins the dev bugs as the practice set for Pipeline B2.
+SPLIT_MEMBERS = {"practice": {"dev", "test"}}
+_SPLIT_RE = re.compile(r"\[split: ([a-z0-9]+)\]")
 RETIRED = {"pipelines": {"A"}, "keys": {"max_repro_attempts"}}
 EXIT_PAUSED = 3
 
@@ -75,7 +81,9 @@ class RunConfig:
     cache: bool = True
     evaluate: bool = True
     guard: GuardLimits = field(default_factory=GuardLimits)
-    split: str = "dev"  # "test" only for the final run, after the freeze
+    # dev: the 5 dev bugs; test: the M4 test set (spent); practice: dev + M4 test, for tuning
+    # Pipeline B2 (Phase 5b); test2: the fresh held-out set, only after its freeze.
+    split: str = "dev"
     # Pipeline B2 switches (Phase 5b); all unset reproduces Pipeline B as run in the M4 study.
     crash_check: bool = False
     file_requests: bool = False  # the model may ask once for up to 3 more library files
@@ -116,7 +124,8 @@ class RunConfig:
             if not found:
                 raise ValueError(f"no manifest matches {pattern!r}")
             paths += [p for p in found if p not in paths]
-        wrong = [p.stem for p in paths if manifest_split(load_manifest(p)) != self.split]
+        allowed = SPLIT_MEMBERS.get(self.split, {self.split})
+        wrong = [p.stem for p in paths if manifest_split(load_manifest(p)) not in allowed]
         if wrong:
             raise ValueError(f"not in the {self.split} split: {wrong}")
         return paths
@@ -125,7 +134,9 @@ class RunConfig:
 def manifest_split(manifest: Manifest) -> str:
     """The split preflight recorded in the manifest's notes (`[split: test]`); dev otherwise
     (the toy fixture and manifests written before splits existed)."""
-    return "test" if "[split: test]" in manifest.notes else "dev"
+    # Any held-out mark wins over dev, so a bug marked test anywhere is never treated as dev.
+    held_out = [s for s in _SPLIT_RE.findall(manifest.notes) if s != "dev"]
+    return held_out[-1] if held_out else "dev"
 
 
 def load_config(path: Path) -> RunConfig:
@@ -154,8 +165,8 @@ def load_config(path: Path) -> RunConfig:
     config.retry_settings  # validates the escalation's effort  # noqa: B018
     if (config.crash_check or config.file_requests) and config.prompt_version in ("v1", "v2"):
         raise ValueError(f"{path}: crash_check and file_requests need prompts v3 or later")
-    if config.split not in ("dev", "test"):
-        raise ValueError(f"{path}: split must be 'dev' or 'test'")
+    if config.split not in SPLITS:
+        raise ValueError(f"{path}: split must be one of {list(SPLITS)}")
     return config
 
 
