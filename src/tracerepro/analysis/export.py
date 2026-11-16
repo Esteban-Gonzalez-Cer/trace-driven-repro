@@ -119,9 +119,33 @@ def trial_row(folder: Path) -> dict[str, Any]:
         "flags": list(ver.get("flags") or []),
         "prompt_leaks": len(result.get("prompt_leaks") or []),
     }
+    row |= b2_facts(result)
     diff = (folder / "final.diff").read_text() if (folder / "final.diff").is_file() else ""
     row |= diff_stats(diff or result.get("final_diff") or "")
     return row
+
+
+def b2_facts(result: dict[str, Any]) -> dict[str, Any]:
+    """Pipeline B2's own measures from a record (Phase 5b); empty for runs without its switches:
+    the crash check's verdict on the buggy code, whether it caught a bad patch, whether the
+    submitted patch passed it, the file request, and escalation."""
+    attempts = result.get("attempts") or []
+    checks = [a.get("check") for a in attempts if a.get("check") is not None]
+    request = result.get("file_request")
+    if not checks and request is None:
+        return {}
+    final: dict[str, Any] = next(
+        (a for a in attempts if a.get("n") == result.get("final_from")), {}
+    )
+    return {
+        "check": checks[0] if checks else None,
+        "check_usable": any(c == "valid" for c in checks),
+        "check_caught": any(a.get("outcome") == "check_still_fails" for a in attempts),
+        "check_final": final.get("check_after"),
+        "files_requested": len(request["requested"]) if request else 0,
+        "files_granted": len(request["granted"]) if request else 0,
+        "escalated": any(a.get("model") for a in attempts),
+    }
 
 
 def _set_aside_reason(folder: Path) -> str:

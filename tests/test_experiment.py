@@ -211,3 +211,22 @@ def test_b2_switches_reach_the_pipeline(tmp_path: Path) -> None:
     assert pipeline.retry_settings.model == "claude-opus-5-5"
     assert pipeline.retry_settings.effort == "medium"  # inherited when only the model is set
     assert experiment.load_config(DEV).pipeline_config.retry_settings is None
+
+
+def test_the_practice_split_admits_dev_and_spent_test_bugs(tmp_path: Path) -> None:
+    manifests = tmp_path / "benchmark" / "manifests"
+    manifests.mkdir(parents=True)
+    source = (PROJECT_ROOT / "benchmark" / "manifests" / "flask-6096.yaml").read_text()
+    (manifests / "flask-6096.yaml").write_text(source)
+    data = yaml.safe_load(source)
+    for bug, mark in (("flask-9998", "test"), ("flask-9999", "test2")):
+        extra = {"id": bug, "image_tag": f"bug_env:{bug}", "notes": f"x [split: {mark}]"}
+        (manifests / f"{bug}.yaml").write_text(yaml.safe_dump(data | extra))
+    practice = config(
+        bugs=("benchmark/manifests/flask-6096.yaml", "benchmark/manifests/flask-9998.yaml"),
+        split="practice",
+    )
+    assert len(practice.manifests(tmp_path)) == 2
+    fresh = config(bugs=("benchmark/manifests/flask-9999.yaml",), split="practice")
+    with pytest.raises(ValueError, match="not in the practice split"):
+        fresh.manifests(tmp_path)  # a fresh held-out bug never reaches a practice run
