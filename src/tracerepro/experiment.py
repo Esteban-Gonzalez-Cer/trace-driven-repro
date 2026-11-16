@@ -78,6 +78,7 @@ class RunConfig:
     split: str = "dev"  # "test" only for the final run, after the freeze
     # Pipeline B2 switches (Phase 5b); all unset reproduces Pipeline B as run in the M4 study.
     crash_check: bool = False
+    file_requests: bool = False  # the model may ask once for up to 3 more library files
     retry_model: str | None = None  # escalation: the model for attempts after the first
     retry_effort: str | None = None  # escalation: the effort for attempts after the first
 
@@ -94,6 +95,7 @@ class RunConfig:
             token_cap=self.token_cap,
             context_budget=self.context_budget,
             crash_check=self.crash_check,
+            file_requests=self.file_requests,
             retry_settings=self.retry_settings,
         )
 
@@ -150,8 +152,8 @@ def load_config(path: Path) -> RunConfig:
         raise ValueError(f"{path}: unknown pipelines {sorted(bad)}")
     config.settings  # validates effort and output limit  # noqa: B018
     config.retry_settings  # validates the escalation's effort  # noqa: B018
-    if config.crash_check and config.prompt_version in ("v1", "v2"):
-        raise ValueError(f"{path}: crash_check needs prompts that ask for it (v3 or later)")
+    if (config.crash_check or config.file_requests) and config.prompt_version in ("v1", "v2"):
+        raise ValueError(f"{path}: crash_check and file_requests need prompts v3 or later")
     if config.split not in ("dev", "test"):
         raise ValueError(f"{path}: split must be 'dev' or 'test'")
     return config
