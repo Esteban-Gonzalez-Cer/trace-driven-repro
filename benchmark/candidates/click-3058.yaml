@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/click/core.py'] (25 lines).
+id: click-3058
+repo: pallets/click
+c_fix: 36deba8a95a2585de1a2aa4475b7f054f52830ac
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3058
+fix_date: '2025-09-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Forward exception information to resources registered in a context
+split: test2

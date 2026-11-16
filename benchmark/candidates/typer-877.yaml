@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/completion.py', 'typer/rich_utils.py'] (22 lines).
+id: typer-877
+repo: fastapi/typer
+c_fix: 603f39d2bfbe283b6138ff87188022d5535ae772
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/877
+fix_date: '2024-11-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Remove Rich tags when showing completion text
+split: test2

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/recipes.py'] (54 lines).
+id: more-itertools-1137
+repo: more-itertools/more-itertools
+c_fix: b5506dfe29f70ee913c3eab8761ccc400108a03c
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1137
+fix_date: '2026-04-01'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-04-01'
+notes: 'Major wishlist: Issue: #898: Sync unique_everseen recipe with main docs. Eliminate quadratic fallback.'
+split: test2

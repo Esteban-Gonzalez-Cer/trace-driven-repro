@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/exceptions.py', 'src/werkzeug/http.py', 'src/werkzeug/sansio/response.py'] (32 lines).
+id: werkzeug-3139
+repo: pallets/werkzeug
+c_fix: 9029a1ec49170a0a1f2908b7732ae9e4390c2ce3
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3139
+fix_date: '2026-03-24'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate `HTTP_STATUS_CODES`
+split: test2

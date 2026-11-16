@@ -1,0 +1,298 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "3a5d0ba67685ce3927ccc4def1dd2439",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "'async_generator' object is not iterable",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "render",
+              "lineno": 1285,
+              "in_app": true,
+              "pre_context": [
+                "        This will return the rendered template as a string.",
+                "        \"\"\"",
+                "        if self.environment.is_async:",
+                "            import asyncio",
+                ""
+              ],
+              "context_line": "            return asyncio.run(self.render_async(*args, **kwargs))",
+              "post_context": [
+                "",
+                "        ctx = self.new_context(dict(*args, **kwargs))",
+                "",
+                "        try:",
+                "            return self.environment.concat(self.root_render_func(ctx))  # type: ignore"
+              ],
+              "vars": {
+                "args": "()",
+                "asyncio": "<module 'asyncio' from '/usr/local/lib/python3.11/asyncio/__init__.py'>",
+                "kwargs": "{'items': ['a', 'b', 'c', 'c', 'a', 'd', 'z']}",
+                "self": "<Template memory:ffffb17b90d0>"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/asyncio/runners.py",
+              "function": "run",
+              "lineno": 190,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/asyncio/runners.py",
+              "function": "run",
+              "lineno": 118,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/asyncio/base_events.py",
+              "function": "run_until_complete",
+              "lineno": 654,
+              "in_app": false
+            },
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "render_async",
+              "lineno": 1315,
+              "in_app": true,
+              "pre_context": [
+                "        try:",
+                "            return self.environment.concat(  # type: ignore",
+                "                [n async for n in self.root_render_func(ctx)]  # type: ignore",
+                "            )",
+                "        except Exception:"
+              ],
+              "context_line": "            return self.environment.handle_exception()",
+              "post_context": [
+                "",
+                "    def stream(self, *args: t.Any, **kwargs: t.Any) -> \"TemplateStream\":",
+                "        \"\"\"Works exactly like :meth:`generate` but returns a",
+                "        :class:`TemplateStream`.",
+                "        \"\"\""
+              ],
+              "vars": {
+                "args": "()",
+                "ctx": "<Context {'range': <class 'range'>, 'dict': <class 'dict'>, 'lipsum': <function generate_lorem_ipsum at 0x…>, 'cycler': <class 'jinja2.utils.Cycler'>, 'joiner': <class 'jinja2.utils.Joiner'>, 'namespace': <class 'jinja2.utils.Namespace'>, 'items': ['a', 'b', 'c', 'c', 'a', 'd', 'z']} of None>",
+                "kwargs": "{'items': ['a', 'b', 'c', 'c', 'a', 'd', 'z']}",
+                "self": "<Template memory:ffffb17b90d0>"
+              }
+            },
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "handle_exception",
+              "lineno": 939,
+              "in_app": true,
+              "pre_context": [
+                "        \"\"\"Exception handling helper.  This is used internally to either raise",
+                "        rewritten exceptions or return a rendered traceback for the template.",
+                "        \"\"\"",
+                "        from .debug import rewrite_traceback_stack",
+                ""
+              ],
+              "context_line": "        raise rewrite_traceback_stack(source=source)",
+              "post_context": [
+                "",
+                "    def join_path(self, template: str, parent: str) -> str:",
+                "        \"\"\"Join a template with the parent.  By default all the lookups are",
+                "        relative to the loader root so this method returns the `template`",
+                "        parameter unchanged, but if the paths should be relative to the"
+              ],
+              "vars": {
+                "rewrite_traceback_stack": "<function rewrite_traceback_stack at 0x…>",
+                "self": "<jinja2.environment.Environment object at 0x…>",
+                "source": "None"
+              }
+            },
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "<listcomp>",
+              "lineno": 1312,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        ctx = self.new_context(dict(*args, **kwargs))",
+                "",
+                "        try:",
+                "            return self.environment.concat(  # type: ignore"
+              ],
+              "context_line": "                [n async for n in self.root_render_func(ctx)]  # type: ignore",
+              "post_context": [
+                "            )",
+                "        except Exception:",
+                "            return self.environment.handle_exception()",
+                "",
+                "    def stream(self, *args: t.Any, **kwargs: t.Any) -> \"TemplateStream\":"
+              ],
+              "vars": {
+                ".0": "<async_generator object root at 0x…>"
+              }
+            },
+            {
+              "filename": "<template>",
+              "function": "top-level template code",
+              "lineno": 1,
+              "in_app": false
+            },
+            {
+              "filename": "src/jinja2/async_utils.py",
+              "function": "auto_await",
+              "lineno": 68,
+              "in_app": true,
+              "pre_context": [
+                "    # Avoid a costly call to isawaitable",
+                "    if type(value) in _common_primitives:",
+                "        return t.cast(\"V\", value)",
+                "",
+                "    if inspect.isawaitable(value):"
+              ],
+              "context_line": "        return await t.cast(\"t.Awaitable[V]\", value)",
+              "post_context": [
+                "",
+                "    return value",
+                "",
+                "",
+                "class _IteratorToAsyncIterator(t.Generic[V]):"
+              ],
+              "vars": {
+                "value": "<coroutine object do_list at 0x…>"
+              }
+            },
+            {
+              "filename": "src/jinja2/filters.py",
+              "function": "do_list",
+              "lineno": 1357,
+              "in_app": true,
+              "pre_context": [
+                "    return list(value)",
+                "",
+                "",
+                "@async_variant(sync_do_list)  # type: ignore",
+                "async def do_list(value: \"t.Union[t.AsyncIterable[V], t.Iterable[V]]\") -> \"t.List[V]\":"
+              ],
+              "context_line": "    return await auto_to_list(value)",
+              "post_context": [
+                "",
+                "",
+                "def do_mark_safe(value: str) -> Markup:",
+                "    \"\"\"Mark the value as safe which means that in an environment with automatic",
+                "    escaping enabled this variable will not be escaped."
+              ],
+              "vars": {
+                "value": "<generator object do_unique at 0x…>"
+              }
+            },
+            {
+              "filename": "src/jinja2/async_utils.py",
+              "function": "auto_to_list",
+              "lineno": 99,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "",
+                "async def auto_to_list(",
+                "    value: \"t.Union[t.AsyncIterable[V], t.Iterable[V]]\",",
+                ") -> t.List[\"V\"]:"
+              ],
+              "context_line": "    return [x async for x in auto_aiter(value)]",
+              "post_context": [],
+              "vars": {
+                "value": "<generator object do_unique at 0x…>"
+              }
+            },
+            {
+              "filename": "src/jinja2/async_utils.py",
+              "function": "<listcomp>",
+              "lineno": 99,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "",
+                "async def auto_to_list(",
+                "    value: \"t.Union[t.AsyncIterable[V], t.Iterable[V]]\",",
+                ") -> t.List[\"V\"]:"
+              ],
+              "context_line": "    return [x async for x in auto_aiter(value)]",
+              "post_context": [],
+              "vars": {
+                ".0": "<jinja2.async_utils._IteratorToAsyncIterator object at 0x…>"
+              }
+            },
+            {
+              "filename": "src/jinja2/async_utils.py",
+              "function": "__anext__",
+              "lineno": 82,
+              "in_app": true,
+              "pre_context": [
+                "    def __aiter__(self) -> \"te.Self\":",
+                "        return self",
+                "",
+                "    async def __anext__(self) -> V:",
+                "        try:"
+              ],
+              "context_line": "            return next(self._iterator)",
+              "post_context": [
+                "        except StopIteration as e:",
+                "            raise StopAsyncIteration(e.value) from e",
+                "",
+                "",
+                "def auto_aiter("
+              ],
+              "vars": {
+                "self": "<jinja2.async_utils._IteratorToAsyncIterator object at 0x…>"
+              }
+            },
+            {
+              "filename": "src/jinja2/filters.py",
+              "function": "do_unique",
+              "lineno": 465,
+              "in_app": true,
+              "pre_context": [
+                "    getter = make_attrgetter(",
+                "        environment, attribute, postprocess=ignore_case if not case_sensitive else None",
+                "    )",
+                "    seen = set()",
+                ""
+              ],
+              "context_line": "    for item in value:",
+              "post_context": [
+                "        key = getter(item)",
+                "",
+                "        if key not in seen:",
+                "            seen.add(key)",
+                "            yield item"
+              ],
+              "vars": {
+                "attribute": "None",
+                "case_sensitive": "False",
+                "environment": "<jinja2.environment.Environment object at 0x…>",
+                "getter": "<function make_attrgetter.<locals>.attrgetter at 0x…>",
+                "seen": "set()",
+                "value": "<async_generator object async_select_or_reject at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

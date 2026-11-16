@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (13 lines).
+id: more-itertools-1085
+repo: more-itertools/more-itertools
+c_fix: da2457e66b17da2859078770079ed3efb284cd0d
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1085
+fix_date: '2025-10-14'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-10-14'
+notes: Add baseset to powerset_of_sets()
+split: test2

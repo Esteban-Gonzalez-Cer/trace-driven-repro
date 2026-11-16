@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['typer/rich_utils.py'] (4 lines).
+id: typer-1278
+repo: fastapi/typer
+c_fix: c7d957c4104fa9f642496426fa4a1f57bfeedced
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1278
+fix_date: '2025-08-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Avoid printing additional output with `no_args_is_help=True` and Click 8.2
+split: test2

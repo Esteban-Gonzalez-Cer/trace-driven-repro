@@ -1,0 +1,50 @@
+# Phase 5b final run, arm B (old B): docs/ANALYSIS_PLAN_B2.md, after the m5b-freeze tag.
+# Pipeline B exactly as in the M4 study (prompts v2; crash check, file requests and escalation
+# off), on the fresh test2 set with crash reports schema 2. Run with scripts/final-b2.sh, which
+# alternates the two arms bug by bug. Identical to final-b2-arm-b2.yaml except the B2 switches.
+name: final-b2-arm-b
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v2
+pipelines: [B]
+trials: 3
+split: test2
+bugs:                      # the 28 frozen test2 bugs
+  - benchmark/manifests/click-3482.yaml
+  - benchmark/manifests/jinja2-1702.yaml
+  - benchmark/manifests/jinja2-1762.yaml
+  - benchmark/manifests/jinja2-1782.yaml
+  - benchmark/manifests/jinja2-1852.yaml
+  - benchmark/manifests/jinja2-1984.yaml
+  - benchmark/manifests/jinja2-2026.yaml
+  - benchmark/manifests/marshmallow-2730.yaml
+  - benchmark/manifests/marshmallow-2800.yaml
+  - benchmark/manifests/marshmallow-2861.yaml
+  - benchmark/manifests/marshmallow-2894.yaml
+  - benchmark/manifests/more-itertools-1028.yaml
+  - benchmark/manifests/more-itertools-1082.yaml
+  - benchmark/manifests/more-itertools-1125.yaml
+  - benchmark/manifests/more-itertools-1153.yaml
+  - benchmark/manifests/more-itertools-1260.yaml
+  - benchmark/manifests/more-itertools-1276.yaml
+  - benchmark/manifests/starlette-3130.yaml
+  - benchmark/manifests/starlette-3372.yaml
+  - benchmark/manifests/starlette-3510.yaml
+  - benchmark/manifests/starlette-3520.yaml
+  - benchmark/manifests/starlette-3622.yaml
+  - benchmark/manifests/tomlkit-677.yaml
+  - benchmark/manifests/tomlkit-698.yaml
+  - benchmark/manifests/werkzeug-3071.yaml
+  - benchmark/manifests/werkzeug-3110.yaml
+  - benchmark/manifests/werkzeug-3136.yaml
+  - benchmark/manifests/werkzeug-3148.yaml
+max_patch_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: false                # trials must be independent
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0

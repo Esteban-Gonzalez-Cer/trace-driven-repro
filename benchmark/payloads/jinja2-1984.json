@@ -1,0 +1,118 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "82470ac46730ad1c8f8e5f3d54945d83",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "OverflowError",
+        "module": "builtins",
+        "value": "cannot convert float infinity to integer",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "render",
+              "lineno": 1292,
+              "in_app": true,
+              "pre_context": [
+                "        ctx = self.new_context(dict(*args, **kwargs))",
+                "",
+                "        try:",
+                "            return self.environment.concat(self.root_render_func(ctx))  # type: ignore",
+                "        except Exception:"
+              ],
+              "context_line": "            self.environment.handle_exception()",
+              "post_context": [
+                "",
+                "    async def render_async(self, *args: t.Any, **kwargs: t.Any) -> str:",
+                "        \"\"\"This works similar to :meth:`render` but returns a coroutine",
+                "        that when awaited returns the entire rendered template string.  This",
+                "        requires the async feature to be enabled."
+              ],
+              "vars": {
+                "args": "()",
+                "ctx": "<Context {'range': <class 'range'>, 'dict': <class 'dict'>, 'lipsum': <function generate_lorem_ipsum at 0x…>, 'cycler': <class 'jinja2.utils.Cycler'>, 'joiner': <class 'jinja2.utils.Joiner'>, 'namespace': <class 'jinja2.utils.Namespace'>, 'value': '1e10000'} of None>",
+                "kwargs": "{'value': '1e10000'}",
+                "self": "<Template memory:ffffb4d15a50>"
+              }
+            },
+            {
+              "filename": "src/jinja2/environment.py",
+              "function": "handle_exception",
+              "lineno": 939,
+              "in_app": true,
+              "pre_context": [
+                "        \"\"\"Exception handling helper.  This is used internally to either raise",
+                "        rewritten exceptions or return a rendered traceback for the template.",
+                "        \"\"\"",
+                "        from .debug import rewrite_traceback_stack",
+                ""
+              ],
+              "context_line": "        raise rewrite_traceback_stack(source=source)",
+              "post_context": [
+                "",
+                "    def join_path(self, template: str, parent: str) -> str:",
+                "        \"\"\"Join a template with the parent.  By default all the lookups are",
+                "        relative to the loader root so this method returns the `template`",
+                "        parameter unchanged, but if the paths should be relative to the"
+              ],
+              "vars": {
+                "rewrite_traceback_stack": "<function rewrite_traceback_stack at 0x…>",
+                "self": "<jinja2.environment.Environment object at 0x…>",
+                "source": "None"
+              }
+            },
+            {
+              "filename": "<template>",
+              "function": "top-level template code",
+              "lineno": 1,
+              "in_app": false
+            },
+            {
+              "filename": "src/jinja2/filters.py",
+              "function": "do_int",
+              "lineno": 1001,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        return int(value)",
+                "    except (TypeError, ValueError):",
+                "        # this quirk is necessary so that \"42.23\"|int gives 42.",
+                "        try:"
+              ],
+              "context_line": "            return int(float(value))",
+              "post_context": [
+                "        except (TypeError, ValueError):",
+                "            return default",
+                "",
+                "",
+                "def do_float(value: t.Any, default: float = 0.0) -> float:"
+              ],
+              "vars": {
+                "base": "10",
+                "default": "0",
+                "value": "'1e10000'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/_termui_impl.py'] (38 lines).
+id: click-3330
+repo: pallets/click
+c_fix: 452935115a4073a074069d5428db998766886b8b
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3330
+fix_date: '2026-04-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Path normalization documentation clean-up + `shlex.split` extensive tests
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/types.py'] (3 lines).
+id: click-3471
+repo: pallets/click
+c_fix: 3c12ce7050bf63c9fa522e5d7b95543037da0f63
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3471
+fix_date: '2026-05-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'shell autocomplete uses normalize_choice() '
+split: test2

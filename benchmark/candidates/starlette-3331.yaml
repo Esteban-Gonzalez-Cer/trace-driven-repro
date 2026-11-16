@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/formparsers.py'] (20 lines).
+id: starlette-3331
+repo: Kludex/starlette
+c_fix: 25b8e179d8d7ed86769c02f648772dd5fb43dc3c
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3331
+fix_date: '2026-06-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Enforce `FormParser` limits in parser callbacks
+split: test2

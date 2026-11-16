@@ -1,0 +1,286 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "65a400265a4fce8413c2724661fced89",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "KeyError",
+        "module": "builtins",
+        "value": "'template'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/testclient.py",
+              "function": "get",
+              "lineno": 482,
+              "in_app": true,
+              "pre_context": [
+                "        auth: httpx._types.AuthTypes | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        follow_redirects: bool | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        timeout: httpx._types.TimeoutTypes | httpx._client.UseClientDefault = httpx._client.USE_CLIENT_DEFAULT,",
+                "        extensions: dict[str, Any] | None = None,",
+                "    ) -> httpx.Response:"
+              ],
+              "context_line": "        return super().get(",
+              "post_context": [
+                "            url,",
+                "            params=params,",
+                "            headers=headers,",
+                "            cookies=cookies,",
+                "            auth=auth,"
+              ],
+              "vars": {
+                "auth": "<httpx2._client.UseClientDefault object at 0x…>",
+                "cookies": "None",
+                "extensions": "None",
+                "follow_redirects": "<httpx2._client.UseClientDefault object at 0x…>",
+                "headers": "None",
+                "params": "None",
+                "self": "<starlette.testclient.TestClient object at 0x…>",
+                "timeout": "<httpx2._client.UseClientDefault object at 0x…>",
+                "url": "'/'"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "get",
+              "lineno": 1118,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "request",
+              "lineno": 454,
+              "in_app": true,
+              "pre_context": [
+                "                \"See https://github.com/Kludex/starlette/issues/1108 for more information.\",",
+                "                StarletteDeprecationWarning,",
+                "                stacklevel=2,",
+                "            )",
+                "        url = self._merge_url(url)"
+              ],
+              "context_line": "        return super().request(",
+              "post_context": [
+                "            method,",
+                "            url,",
+                "            content=content,",
+                "            data=data,",
+                "            files=files,"
+              ],
+              "vars": {
+                "auth": "<httpx2._client.UseClientDefault object at 0x…>",
+                "content": "None",
+                "cookies": "None",
+                "data": "None",
+                "extensions": "None",
+                "files": "None",
+                "follow_redirects": "<httpx2._client.UseClientDefault object at 0x…>",
+                "headers": "None",
+                "json": "None",
+                "method": "'GET'",
+                "params": "None",
+                "self": "<starlette.testclient.TestClient object at 0x…>",
+                "timeout": "<httpx2._client.UseClientDefault object at 0x…>",
+                "url": "URL('http://testserver/')"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "request",
+              "lineno": 803,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "send",
+              "lineno": 985,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "_send_handling_auth",
+              "lineno": 1013,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "_send_handling_redirects",
+              "lineno": 1048,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/httpx2/_client.py",
+              "function": "_send_single_request",
+              "lineno": 1081,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "handle_request",
+              "lineno": 356,
+              "in_app": true,
+              "pre_context": [
+                "            with self.portal_factory() as portal:",
+                "                response_complete = portal.call(anyio.Event)",
+                "                portal.call(self.app, scope, receive, send)",
+                "        except BaseException as exc:",
+                "            if self.raise_server_exceptions:"
+              ],
+              "context_line": "                raise exc",
+              "post_context": [
+                "",
+                "        if self.raise_server_exceptions:",
+                "            assert response_started, \"TestClient did not receive any response.\"",
+                "        elif not response_started:",
+                "            raw_kwargs = {"
+              ],
+              "vars": {
+                "context": "None",
+                "default_port": "80",
+                "headers": "[(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate, zstd'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')]",
+                "host": "'testserver'",
+                "netloc": "'testserver'",
+                "path": "'/'",
+                "port": "80",
+                "portal": "<anyio.from_thread.BlockingPortal object at 0x…>",
+                "query": "''",
+                "raw_kwargs": "{'headers': [('content-type', 'text/plain')], 'status_code': 200, 'stream': <_io.BytesIO object at 0x…>}",
+                "raw_path": "b'/'",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<Request('GET', 'http://testserver/')>",
+                "request_complete": "False",
+                "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
+                "response_started": "True",
+                "scheme": "'http'",
+                "scope": "{'client': ('testclient', 50000), 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate, zstd'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/', 'query_string': b'', 'raw_path': b'/', 'root_path': '', 'scheme': 'http', ...}",
+                "self": "<starlette.testclient._TestClientTransport object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
+                "template": "None"
+              }
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "handle_request",
+              "lineno": 353,
+              "in_app": true,
+              "pre_context": [
+                "                context = message[\"info\"][\"context\"]",
+                "",
+                "        try:",
+                "            with self.portal_factory() as portal:",
+                "                response_complete = portal.call(anyio.Event)"
+              ],
+              "context_line": "                portal.call(self.app, scope, receive, send)",
+              "post_context": [
+                "        except BaseException as exc:",
+                "            if self.raise_server_exceptions:",
+                "                raise exc",
+                "",
+                "        if self.raise_server_exceptions:"
+              ],
+              "vars": {
+                "context": "None",
+                "default_port": "80",
+                "headers": "[(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate, zstd'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')]",
+                "host": "'testserver'",
+                "netloc": "'testserver'",
+                "path": "'/'",
+                "port": "80",
+                "portal": "<anyio.from_thread.BlockingPortal object at 0x…>",
+                "query": "''",
+                "raw_kwargs": "{'headers': [('content-type', 'text/plain')], 'status_code': 200, 'stream': <_io.BytesIO object at 0x…>}",
+                "raw_path": "b'/'",
+                "receive": "<function _TestClientTransport.handle_request.<locals>.receive at 0x…>",
+                "request": "<Request('GET', 'http://testserver/')>",
+                "request_complete": "False",
+                "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
+                "response_started": "True",
+                "scheme": "'http'",
+                "scope": "{'client': ('testclient', 50000), 'extensions': {'http.response.debug': {}}, 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate, zstd'), (b'connection', b'keep-alive'), (b'user-agent', b'testclient')], 'http_version': '1.1', 'method': 'GET', 'path': '/', 'query_string': b'', 'raw_path': b'/', 'root_path': '', 'scheme': 'http', ...}",
+                "self": "<starlette.testclient._TestClientTransport object at 0x…>",
+                "send": "<function _TestClientTransport.handle_request.<locals>.send at 0x…>",
+                "template": "None"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/from_thread.py",
+              "function": "call",
+              "lineno": 338,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "result",
+              "lineno": 449,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "__get_result",
+              "lineno": 401,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/from_thread.py",
+              "function": "_call_func",
+              "lineno": 263,
+              "in_app": false
+            },
+            {
+              "filename": "tests/test_testclient.py",
+              "function": "app",
+              "lineno": 242,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "send",
+              "lineno": 347,
+              "in_app": true,
+              "pre_context": [
+                "                    raw_kwargs[\"stream\"].write(body)",
+                "                if not more_body:",
+                "                    raw_kwargs[\"stream\"].seek(0)",
+                "                    response_complete.set()",
+                "            elif message[\"type\"] == \"http.response.debug\":"
+              ],
+              "context_line": "                template = message[\"info\"][\"template\"]",
+              "post_context": [
+                "                context = message[\"info\"][\"context\"]",
+                "",
+                "        try:",
+                "            with self.portal_factory() as portal:",
+                "                response_complete = portal.call(anyio.Event)"
+              ],
+              "vars": {
+                "context": "None",
+                "message": "{'info': {'blocks': ['nav', 'title'], 'fragment': 'header'}, 'type': 'http.response.debug'}",
+                "raw_kwargs": "{'headers': [('content-type', 'text/plain')], 'status_code': 200, 'stream': <_io.BytesIO object at 0x…>}",
+                "request": "<Request('GET', 'http://testserver/')>",
+                "response_complete": "<anyio._backends._asyncio.Event object at 0x…>",
+                "response_started": "True",
+                "template": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

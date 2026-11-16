@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/termui.py'] (36 lines).
+id: click-2969
+repo: pallets/click
+c_fix: 2468b70997a6ec27ced4b4867954c90da3f92075
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/2969
+fix_date: '2026-04-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix readline backspace/line-wrapping on linux
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py', 'src/attr/converters.pyi', 'src/attrs/__init__.pyi'] (47 lines).
+id: attrs-1380
+repo: python-attrs/attrs
+c_fix: 1e07f46897488350bb44ed88f1c70d4d7461dde0
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1380
+fix_date: '2024-12-10'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Make attrs.converters.pipe only return a Converter instance if one is passed
+split: test2

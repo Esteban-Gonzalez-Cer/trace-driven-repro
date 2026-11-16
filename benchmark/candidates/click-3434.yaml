@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/formatting.py'] (8 lines).
+id: click-3434
+repo: pallets/click
+c_fix: 3bb230dcd5d751f8605b46e9df5a541639d5fd4e
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3434
+fix_date: '2026-05-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix `HelpFormatter.write_usage` producing spurious characters
+split: test2

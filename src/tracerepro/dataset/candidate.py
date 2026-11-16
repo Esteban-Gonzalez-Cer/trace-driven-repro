@@ -40,6 +40,9 @@ from tracerepro.dataset.manifest import (
 from tracerepro.dataset.repo import materialize
 
 STRATEGIES = ("uv-lock", "compile", "file")
+# Held-out splits: `test` was spent by the M4 study; `test2` is the fresh set of Phase 5b.
+HELD_OUT_SPLITS = ("test", "test2")
+CANDIDATE_SPLITS = ("dev", *HELD_OUT_SPLITS)
 KNOWN = {
     "id", "repo", "c_fix", "python_version", "issue_url", "fix_pr_url", "fix_date", "deps",
     "pytest_args", "test_paths", "notes", "split",
@@ -140,8 +143,8 @@ def parse_candidate(data: Any, source_path: Path | None = None) -> Candidate:
     if isinstance(fix_date, dt.date):
         fix_date = fix_date.isoformat()
     split = data.get("split", "dev")
-    if split not in ("dev", "test"):
-        raise CandidateError("split must be 'dev' or 'test'")
+    if split not in CANDIDATE_SPLITS:
+        raise CandidateError(f"split must be one of {list(CANDIDATE_SPLITS)}")
     return Candidate(
         id=data["id"],
         repo=data["repo"],

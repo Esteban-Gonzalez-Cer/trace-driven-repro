@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/panel.py'] (7 lines).
+id: rich-3718
+repo: Textualize/rich
+c_fix: 21b3800894f6a81d3f68a0e34796be67e3ccd39f
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3718
+fix_date: '2025-06-24'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: 'fix(panel): fix title missing panel background'
+split: test2

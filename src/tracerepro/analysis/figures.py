@@ -24,10 +24,10 @@ from matplotlib.patches import Rectangle
 
 from tracerepro.evaluate.taxonomy import PRECEDENCE, TAMPERED
 
-SERIES = {"A": "#2a78d6", "B": "#eb6834"}
+SERIES = {"A": "#2a78d6", "B": "#eb6834", "B2": "#1b8a7a"}
 GOOD, BAD = "#0ca30c", "#d03b3b"
 INK, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
-NAMES = {"A": "A: repro first", "B": "B: direct patch"}
+NAMES = {"A": "A: repro first", "B": "B: direct patch", "B2": "B2: patch + crash check"}
 
 STYLE: Any = {  # rc_context wants literal keys; these are checked by the tests
     "svg.fonttype": "none",

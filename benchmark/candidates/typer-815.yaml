@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/rich_utils.py'] (13 lines).
+id: typer-815
+repo: fastapi/typer
+c_fix: 4d1cfd2698ec8e4809e58b51b1b32398970aa512
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/815
+fix_date: '2025-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix markdown formatting in `--help` output
+split: test2

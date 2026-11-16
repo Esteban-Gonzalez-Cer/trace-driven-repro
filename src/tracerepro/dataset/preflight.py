@@ -51,7 +51,13 @@ import docker
 import docker.errors
 
 from tracerepro.dataset import screening
-from tracerepro.dataset.candidate import Candidate, CandidateError, load_candidate, make_lock
+from tracerepro.dataset.candidate import (
+    HELD_OUT_SPLITS,
+    Candidate,
+    CandidateError,
+    load_candidate,
+    make_lock,
+)
 from tracerepro.dataset.image_builder import DEFAULT_WORK_DIR, BuildFailed, build_image
 from tracerepro.dataset.lockfile import LockError
 from tracerepro.dataset.manifest import (
@@ -627,12 +633,13 @@ CAP_PER_LIBRARY = 6  # DECISIONS.md, 2026-11-11
 TEST_TARGET = 30  # spec §5.7
 
 
-def test_bugs(manifests: Path | None = None) -> dict[str, str]:
-    """Validated test-set bugs: id -> repository (manifests whose notes say `[split: test]`)."""
+def test_bugs(manifests: Path | None = None, split: str = "test") -> dict[str, str]:
+    """Validated bugs of one held-out split: id -> repository (manifests whose notes say
+    `[split: test]`, or `[split: test2]` for the Phase 5b set)."""
     found: dict[str, str] = {}
     for path in sorted((manifests or PROJECT_ROOT / "benchmark" / "manifests").glob("*.yaml")):
         m = load_manifest(path)
-        if "[split: test]" in m.notes:
+        if f"[split: {split}]" in m.notes:
             found[m.id] = m.repo
     return found
 
@@ -640,8 +647,9 @@ def test_bugs(manifests: Path | None = None) -> dict[str, str]:
 class Batch:
     """Running totals for one preflight batch: the per-library cap, the stop rule, a summary."""
 
-    def __init__(self, test_bugs: dict[str, str]) -> None:
+    def __init__(self, test_bugs: dict[str, str], split: str = "test") -> None:
         self.bugs = dict(test_bugs)  # id -> repo
+        self.split = split  # the held-out split this batch fills
         self.rows: list[tuple[str, str, str, str, str | None]] = []
 
     @property
@@ -652,8 +660,10 @@ class Batch:
         return counts
 
     def skip(self, cand: Candidate, cap: int, stop_at: int) -> str:
-        if cand.split != "test" or cand.id in self.bugs:
+        if cand.split == "dev" or cand.id in self.bugs:
             return ""  # dev candidates, and re-screening a bug already in the set
+        if cand.split != self.split:
+            return f"belongs to split {cand.split}; this batch fills {self.split}"
         if sum(self.test_counts.values()) >= stop_at:
             return f"the test set already has {stop_at} bugs (stop rule)"
         if self.test_counts.get(cand.repo, 0) >= cap:
@@ -662,7 +672,7 @@ class Batch:
 
     def add(self, cand: Candidate, decision: str, reason: str, kind: str | None) -> None:
         self.rows.append((cand.id, cand.repo, decision, reason, kind))
-        if decision == "preflight_pass" and cand.split == "test":
+        if decision == "preflight_pass" and cand.split == self.split:
             self.bugs[cand.id] = cand.repo
         else:
             self.bugs.pop(cand.id, None)
@@ -744,13 +754,15 @@ def main(argv: list[str] | None = None) -> int:
                         help="skip a library's test candidates once it has this many")  # fmt: skip
     parser.add_argument("--stop-at", type=int, default=TEST_TARGET,
                         help="stop once the test set has this many bugs")  # fmt: skip
+    parser.add_argument("--split", choices=HELD_OUT_SPLITS, default="test",
+                        help="the held-out split this batch fills (cap and stop rule)")  # fmt: skip
     args = parser.parse_args(argv)
     paths = args.candidates or sorted((PROJECT_ROOT / "benchmark" / "candidates").glob("*.yaml"))
     if not paths:
         print("no candidates", file=sys.stderr)
         return 1
     failures = 0
-    batch = Batch(test_bugs())
+    batch = Batch(test_bugs(split=args.split), args.split)
     for path in paths:
         cand = load_candidate(path)
         skip = batch.skip(cand, args.cap_per_library, args.stop_at)

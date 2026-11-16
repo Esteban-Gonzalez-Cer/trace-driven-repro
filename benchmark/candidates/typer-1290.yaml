@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/core.py', 'typer/main.py', 'typer/rich_utils.py'] (47 lines).
+id: typer-1290
+repo: fastapi/typer
+c_fix: 263e42769f0d54b986275a800227c717c18660ea
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1290
+fix_date: '2025-09-05'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Make sure `rich.markup` is imported when rendering help text
+split: test2

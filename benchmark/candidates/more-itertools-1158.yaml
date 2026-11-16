@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (15 lines).
+id: more-itertools-1158
+repo: more-itertools/more-itertools
+c_fix: 264b18d8dfbab42fdbd969fc09abf602c6ea58b3
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1158
+fix_date: '2026-05-13'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-05-13'
+notes: Add seekable.__getitem__ to access the internal cache
+split: test2

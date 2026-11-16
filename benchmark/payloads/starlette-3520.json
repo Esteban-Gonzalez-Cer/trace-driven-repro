@@ -1,0 +1,92 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "6d3d801291451f62d1e3719bfc803277",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "OpenTelemetryMiddleware.__init__() got an unexpected keyword argument 'tracer_provider'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/applications.py",
+              "function": "__call__",
+              "lineno": 95,
+              "in_app": true,
+              "pre_context": [
+                "        return self.router.url_path_for(name, **path_params)",
+                "",
+                "    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:",
+                "        scope[\"app\"] = self",
+                "        if self.middleware_stack is None:"
+              ],
+              "context_line": "            self.middleware_stack = self.build_middleware_stack()",
+              "post_context": [
+                "        await self.middleware_stack(scope, receive, send)",
+                "",
+                "    def mount(self, path: str, app: ASGIApp, name: str | None = None) -> None:",
+                "        self.router.mount(path, app=app, name=name)  # pragma: no cover",
+                ""
+              ],
+              "vars": {
+                "receive": "<function ASGITransport.handle_async_request.<locals>.receive at 0x…>",
+                "scope": "{'app': <starlette.applications.Starlette object at 0x…>, 'asgi': {'version': '3.0'}, 'client': ('127.0.0.1', 123), 'headers': [(b'host', b'testserver'), (b'accept', b'*/*'), (b'accept-encoding', b'gzip, deflate'), (b'connection', b'keep-alive'), (b'user-agent', b'python-httpx/0.28.1')], 'http_version': '1.1', 'method': 'GET', 'path': '/', 'query_string': b'', 'raw_path': b'/', 'root_path': '', ...}",
+                "self": "<starlette.applications.Starlette object at 0x…>",
+                "send": "<function ASGITransport.handle_async_request.<locals>.send at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/applications.py",
+              "function": "build_middleware_stack",
+              "lineno": 82,
+              "in_app": true,
+              "pre_context": [
+                "        middleware += self.user_middleware",
+                "        middleware.append(Middleware(ExceptionMiddleware, handlers=exception_handlers, debug=debug))",
+                "",
+                "        app = self.router",
+                "        for cls, args, kwargs in reversed(middleware):"
+              ],
+              "context_line": "            app = cls(app, *args, **kwargs)",
+              "post_context": [
+                "        return app",
+                "",
+                "    @property",
+                "    def routes(self) -> list[BaseRoute]:",
+                "        return self.router.routes"
+              ],
+              "vars": {
+                "app": "<starlette.middleware.exceptions.ExceptionMiddleware object at 0x…>",
+                "args": "()",
+                "cls": "<class 'starlette.middleware.opentelemetry.OpenTelemetryMiddleware'>",
+                "debug": "False",
+                "error_handler": "None",
+                "exception_handlers": "{}",
+                "kwargs": "{'tracer_provider': <opentelemetry.trace.NoOpTracerProvider object at 0x…>}",
+                "middleware": "[Middleware(ServerErrorMiddleware, handler=None, debug=False), Middleware(OpenTelemetryMiddleware, tracer_provider=<opentelemetry.trace.NoOpTracerProvider object at 0x…>), Middleware(ExceptionMiddleware, handlers={}, debug=False)]",
+                "self": "<starlette.applications.Starlette object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

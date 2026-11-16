@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['src/jinja2/runtime.py'] (30 lines).
+id: jinja2-2026
+repo: pallets/jinja
+c_fix: ba8847a466d0f3ad622502f86e819737a4b9fdc7
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/2026
+fix_date: '2024-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Preserve `__slots__` metadata on Undefined types
+split: test2

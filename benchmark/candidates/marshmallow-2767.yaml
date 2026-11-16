@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/fields.py', 'src/marshmallow/utils.py'] (26 lines).
+id: marshmallow-2767
+repo: marshmallow-code/marshmallow
+c_fix: ead65cb18cdf6d25144908d03c3ff38d3e68e9c8
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2767
+fix_date: '2025-01-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Remove utils.from_rfc, rfcformat
+split: test2

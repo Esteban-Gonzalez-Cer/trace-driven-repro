@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/endpoints.py'] (6 lines).
+id: starlette-3372
+repo: Kludex/starlette
+c_fix: b4c1d181612ca0738177cff1134237cc1ffd408e
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3372
+fix_date: '2026-09-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Handle empty and absent payloads in `WebSocketEndpoint.decode()`
+split: test2

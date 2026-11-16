@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (23 lines).
+id: click-3363
+repo: pallets/click
+c_fix: b03f211e602d915f413068eba87ff08469b38477
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3363
+fix_date: '2026-04-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Auto-detect `type=UNPROCESSED` when `flag_value` has non-basic types
+split: test2

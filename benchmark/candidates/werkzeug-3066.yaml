@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/sansio/multipart.py'] (8 lines).
+id: werkzeug-3066
+repo: pallets/werkzeug
+c_fix: 33bdb41b6c2dc50b16d5e90d45c992c856acd169
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3066
+fix_date: '2025-11-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: handle chunked input that splits `\r\n`
+split: test2

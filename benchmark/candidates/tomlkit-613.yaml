@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/items.py'] (16 lines).
+id: tomlkit-613
+repo: python-poetry/tomlkit
+c_fix: ce8f8ee982411c4afef5cfb90df7313cc5f7d779
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/613
+fix_date: '2026-09-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Render tz-aware times as local times without an offset
+split: test2

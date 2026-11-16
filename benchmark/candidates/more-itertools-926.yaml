@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/recipes.py', 'more_itertools/recipes.pyi'] (16 lines).
+id: more-itertools-926
+repo: more-itertools/more-itertools
+c_fix: df2492eb4098aeb20ed793f9e733872230e2464d
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/926
+fix_date: '2024-12-06'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2024-12-06'
+notes: Add loops recipe
+split: test2

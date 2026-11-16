@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (7 lines).
+id: attrs-1401
+repo: python-attrs/attrs
+c_fix: e048efcb395443608d184a149c0adbca166cb833
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1401
+fix_date: '2025-02-09'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Perform attr order checks after field transformer.
+split: test2

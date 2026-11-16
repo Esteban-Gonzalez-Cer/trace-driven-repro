@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (36 lines).
+id: click-3240
+repo: pallets/click
+c_fix: 4a352253c9ff013e36d11e4a6820d36d00ff2cd4
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3240
+fix_date: '2026-04-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Reduce blast-radius of `UNSET` in `default_map`
+split: test2

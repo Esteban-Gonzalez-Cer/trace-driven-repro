@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/gzip.py'] (6 lines).
+id: starlette-3420
+repo: Kludex/starlette
+c_fix: b07b8c61516307c6899ea16c8d2a00eaee3e3f84
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3420
+fix_date: '2026-08-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Skip compression of partial responses in `GZipMiddleware`
+split: test2

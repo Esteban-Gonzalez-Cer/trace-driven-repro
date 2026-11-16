@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['.pre-commit-config.yaml', 'examples/partial/README', 'src/werkzeug/routing/map.py'] (14 lines).
+id: werkzeug-3069
+repo: pallets/werkzeug
+c_fix: 7d67f88e6c8ed49ab205e2b6b208aede8b9b27d7
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3069
+fix_date: '2025-11-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix typos discovered by codespell
+split: test2

@@ -35,6 +35,11 @@ import yaml
 from tracerepro.analysis import stats
 
 CORRECT_DECISIONS = ("ok", "ok_with_note", "not_a_fix")
+# Phase 5b (the owner's second-review checklist): where a correct patch fixes the bug.
+# root_cause: it removes the mechanism, as the maintainers' fix does; other_layer: a legitimate
+# fix at another boundary (an adapter where the conversion belongs); symptom: it lets the bug
+# happen and works around its effect, or narrows or overrides what the caller asked for.
+FIX_LEVELS = ("root_cause", "other_layer", "symptom")
 INCORRECT_DECISIONS = ("real_fix", "not_a_fix")
 SAMPLE_FRACTION = 0.25
 SAMPLE_SEED = stats.BOOTSTRAP_SEED  # 20261111, the analysis plan's seed
@@ -75,6 +80,16 @@ def load_correct(path: Path, rows: list[Row]) -> dict[str, Any]:
             "by_pipeline": dict(sorted(Counter(pipeline[t] for t in trials).items())),
         }
     out["not_a_fix"] = sorted(t for t, x in decision.items() if x == "not_a_fix")
+    if any("fix_level" in e for e in entries):
+        if bad := sorted(
+            f"{e['bug']}#{e['patch']}" for e in entries if e.get("fix_level") not in FIX_LEVELS
+        ):
+            raise AuditError(f"fix_level must be one of {list(FIX_LEVELS)}: {bad}")
+        level = {t: e["fix_level"] for e in entries for t in e["trials"]}
+        out["fix_level"] = {
+            x: dict(sorted(Counter(pipeline[t] for t, v in level.items() if v == x).items()))
+            for x in FIX_LEVELS
+        }
     return out
 
 
@@ -84,7 +99,9 @@ def adjusted_rows(rows: list[Row], not_a_fix: list[str]) -> list[Row]:
     return [r | {"solved": False} if r["id"] in drop else r for r in rows]
 
 
-def section(audit: dict[str, Any], adjusted: dict[str, Any] | None) -> list[str]:
+def section(
+    audit: dict[str, Any], adjusted: dict[str, Any] | None, doc: str = "docs/AUDIT.md"
+) -> list[str]:
     """Markdown lines for the tables file."""
     c = audit["correct"]
     lines = [
@@ -93,7 +110,7 @@ def section(audit: dict[str, Any], adjusted: dict[str, Any] | None) -> list[str]
         "",
         "Every trial graded correct was reviewed next to the maintainers' fix "
         f"(first pass: {c['reviewer']}): {c['patches']} distinct patches; details in "
-        "docs/AUDIT.md.",
+        f"{doc}.",
         "",
         "| decision | distinct patches | trials | by pipeline |",
         "|---|---|---|---|",
@@ -101,6 +118,17 @@ def section(audit: dict[str, Any], adjusted: dict[str, Any] | None) -> list[str]
     for d, x in c["by_decision"].items():
         per = ", ".join(f"{p} {n}" for p, n in x["by_pipeline"].items()) or "none"
         lines.append(f"| {d} | {x['patches']} | {x['trials']} | {per} |")
+    if "fix_level" in c:
+        lines += [
+            "",
+            "Where the correct trials fix the bug (the owner's checklist; descriptive):",
+            "",
+            "| fix level | trials by pipeline |",
+            "|---|---|",
+        ]
+        for level, per in c["fix_level"].items():
+            text = ", ".join(f"{p} {n}" for p, n in per.items()) or "none"
+            lines.append(f"| {level} | {text} |")
     if adjusted is None:
         lines += ["", "No patch was judged `not_a_fix`, so the audit changes no number."]
     else:
@@ -197,7 +225,7 @@ def load_incorrect_sample(path: Path, rows: list[Row]) -> dict[str, Any]:
     }
 
 
-def incorrect_section(s: dict[str, Any]) -> list[str]:
+def incorrect_section(s: dict[str, Any], doc: str = "docs/AUDIT.md") -> list[str]:
     lo, hi = s["ci"]
     return [
         "",
@@ -206,7 +234,7 @@ def incorrect_section(s: dict[str, Any]) -> list[str]:
         f"{s['sampled']} of {s['population']} incorrect patches drawn at random (seed "
         f"{s['seed']}) and reviewed: {s['false_negatives']} were real fixes the grader rejected. "
         f"Estimated false-negative rate {s['false_negative_rate']:.0%} (95% CI {lo:.0%} to "
-        f"{hi:.0%}); details in docs/AUDIT.md.",
+        f"{hi:.0%}); details in {doc}.",
     ]
 
 

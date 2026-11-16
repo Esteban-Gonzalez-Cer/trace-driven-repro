@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (46 lines).
+id: more-itertools-985
+repo: more-itertools/more-itertools
+c_fix: e922b86d1629b38610e2db6748574be543c34115
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/985
+fix_date: '2025-05-06'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-05-06'
+notes: Include `derangements` by itself
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/shell_completion.py'] (5 lines).
+id: click-3466
+repo: pallets/click
+c_fix: e0d1678ebc10cc663f2bc1973e0399b31415f8db
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3466
+fix_date: '2026-05-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: apply Unix line endings for shell completion output for windows compat
+split: test2

@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/staticfiles.py'] (6 lines).
+id: starlette-3532
+repo: Kludex/starlette
+c_fix: 76fd00f1e293990ea41555946a6b0f58901eaca1
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3532
+fix_date: '2026-09-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Reject `WebSocket` requests to `StaticFiles`
+split: test2

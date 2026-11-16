@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (47 lines).
+id: more-itertools-1056
+repo: more-itertools/more-itertools
+c_fix: be5078036ce823c66cfc464d7f04beb705877caf
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1056
+fix_date: '2025-08-15'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-08-15'
+notes: 'Issue 1044: Add new tool: extract()'
+split: test2

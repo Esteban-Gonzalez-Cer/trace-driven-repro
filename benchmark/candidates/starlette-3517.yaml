@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/cors.py'] (9 lines).
+id: starlette-3517
+repo: Kludex/starlette
+c_fix: c9176b57af56eb0f0906e47e0eea95de43bbf38f
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3517
+fix_date: '2026-09-05'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Vary CORS preflight responses by their request inputs
+split: test2

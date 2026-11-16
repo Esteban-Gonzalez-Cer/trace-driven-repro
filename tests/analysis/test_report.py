@@ -198,3 +198,100 @@ def test_b2_facts_from_a_record() -> None:
         "escalated": True,
     }
     assert export.b2_facts({"attempts": [{"n": 1, "outcome": "clean"}]}) == {}
+
+
+# --- Phase 5b: two arms of Pipeline B (old B and B2) ---------------------------------------
+
+
+def b2_trial(run: Path, bug: str, n: int, solved: bool, **facts: object) -> None:
+    trial(run, bug, "B", n, solved, None if solved else "incorrect_patch")
+    folder = run / bug / "B" / "claude-sonnet-5-5" / f"trial_{n}"
+    record = json.loads((folder / "record.json").read_text())
+    attempts = [{"n": 1, "check": facts.get("check", "valid"), "check_after": "passes"}]
+    if facts.get("caught"):
+        attempts = [
+            {"n": 1, "check": "valid", "outcome": "check_still_fails"},
+            {"n": 2, "check": "valid", "check_after": "passes", "model": "claude-sonnet-5-5"},
+        ]
+    record["result"] |= {"attempts": attempts, "final_from": len(attempts)}
+    if facts.get("files"):
+        record["result"]["file_request"] = {"requested": ["a.py"], "granted": ["a.py (whole)"]}
+    (folder / "record.json").write_text(json.dumps(record))
+
+
+@pytest.fixture
+def arms(tmp_path: Path) -> tuple[Path, Path]:
+    old, new = tmp_path / "runs" / "old", tmp_path / "runs" / "new"
+    for n in (1, 2, 3):
+        trial(old, "bug-a", "B", n, True, None)
+        trial(old, "bug-b", "B", n, False, "incorrect_patch")
+        b2_trial(new, "bug-a", n, True, files=n == 1)
+        b2_trial(new, "bug-b", n, n != 3, caught=n == 1)
+    for run in (old, new):
+        (run / "run.json").write_text(json.dumps({"run_id": run.name, "config": {}}))
+    manifests = tmp_path / "manifests"
+    manifests.mkdir()
+    for bug, (kind, date) in BUGS.items():
+        (manifests / f"{bug}.yaml").write_text(f"crash_kind: {kind}\nfix_date: '{date}'\n")
+    return old, new
+
+
+def test_two_runs_export_as_two_arms(arms: tuple[Path, Path], tmp_path: Path) -> None:
+    rows, meta = export.export_arms(list(arms), ["B", "B2"])
+    assert len(rows) == 12 and {r["pipeline"] for r in rows} == {"B", "B2"}
+    assert "bug-b/B2/1" in {r["id"] for r in rows}
+    assert set(meta["arms"]) == {"B", "B2"} and meta["run_id"] == "B: old + B2: new"
+    with pytest.raises(ValueError, match="distinct"):
+        export.export_arms(list(arms), ["B", "B"])
+    out = tmp_path / "res"
+    assert (
+        export.main([*map(str, arms), "--arms", "B", "B2", "--out", str(out), "--name", "b2"]) == 0
+    )
+    assert len((out / "b2.jsonl").read_text().splitlines()) == 12
+
+
+def test_b2_report_orders_the_pair_and_adds_its_measures(
+    arms: tuple[Path, Path], tmp_path: Path
+) -> None:
+    rows, meta = export.export_arms(list(arms), ["B", "B2"])
+    results = tmp_path / "results"
+    export.write(rows, meta, results, "b2")
+    extra = {
+        "format": 1,
+        "bugs": {"bug-a": {"tests": ["t::x"]}, "bug-b": {"tests": []}},
+        "trials": {
+            f"bug-a/{arm}/{n}": {"all_passed": not (arm == "B2" and n == 2)}
+            for arm in ("B", "B2")
+            for n in (1, 2, 3)
+        },
+    }
+    (results / "b2-extra.json").write_text(json.dumps(extra))
+    out = tmp_path / "tables"
+    report.write_all(results, tmp_path / "manifests", out, "b2", None, ("B2", "B"))
+    n = json.loads((out / "numbers.json").read_text())
+    c = n["comparison"]
+    assert c["pair"] == ["B2", "B"] and c["b2_only"] == ["bug-b"] and c["b_only"] == []
+    assert c["paired_difference"]["mean"] > 0  # B2 minus B
+    b2 = n["pipelines"]["B2"]["b2"]
+    assert "b2" not in n["pipelines"]["B"]
+    assert b2["check_caught"]["k"] == 1 and b2["check_caught_then_solved"] == 1
+    assert b2["file_requests"]["k"] == 1 and b2["escalated"]["k"] == 1
+    assert b2["passes_check_but_incorrect"] == 1
+    beyond = n["beyond_the_crash"]
+    assert beyond["bugs"] == ["bug-a"]
+    assert beyond["pipelines"]["B"]["correct_trials"]["k"] == 3
+    assert beyond["pipelines"]["B2"]["failed"] == ["bug-a/B2/2"]
+    text = (out / "tables.md").read_text()
+    assert "Solved by B2 only (c = 1)" not in text and "Solved by B2 only (b = 1): bug-b" in text
+    assert "(B2 minus B)" in text and "Pipeline B2's own measures" in text
+    assert "Beyond-the-crash tests" in text
+    assert "(docs/ANALYSIS_PLAN_B2.md)" in text and "docs/ANALYSIS_PLAN.md" not in text
+    assert report._signed(-0.0) == "+0.000" and report._signed(-0.05) == "-0.050"
+    report.write_all(results, tmp_path / "manifests", out, "b2", None, ("B2", "B"), ("bug-b",))
+    w = json.loads((out / "numbers.json").read_text())["without"]
+    assert w["bugs"] == ["bug-b"] and w["accuracy"]["B2"]["n"] == 1
+    assert "Without bug-b (descriptive)" in (out / "tables.md").read_text()
+    del extra["trials"]["bug-a/B/1"]
+    (results / "b2-extra.json").write_text(json.dumps(extra))
+    with pytest.raises(ValueError, match="missing"):
+        report.write_all(results, tmp_path / "manifests", out, "b2", None, ("B2", "B"))

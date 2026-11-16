@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (23 lines).
+id: more-itertools-1128
+repo: more-itertools/more-itertools
+c_fix: 3bbe636e23bdfa359d80e6851e0c37abbc860d4c
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1128
+fix_date: '2026-03-17'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-03-17'
+notes: Fix numeric_range slicing with negative step returning empty range
+split: test2

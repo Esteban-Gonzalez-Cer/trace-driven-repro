@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/items.py'] (4 lines).
+id: tomlkit-599
+repo: python-poetry/tomlkit
+c_fix: 8c30fc17d91aee7469c0287e509300e78aa15227
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/599
+fix_date: '2026-10-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix Array.__delitem__ corrupting rendered output on slice deletion
+split: test2

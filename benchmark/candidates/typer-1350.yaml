@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py'] (4 lines).
+id: typer-1350
+repo: fastapi/typer
+c_fix: f34aa4a35d4ef3ac1aeb29c48cfe11cd539c0a99
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1350
+fix_date: '2025-09-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: '🐛  Fix list convertor with an empty list default factory '
+split: test2

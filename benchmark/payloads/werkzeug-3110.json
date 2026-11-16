@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "296dc1244fda2a802d72291949eb3e08",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "BadRequestKeyError",
+        "module": "werkzeug.exceptions",
+        "value": "400 Bad Request: The browser (or proxy) sent a request that this server could not understand.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/datastructures/headers.py",
+              "function": "__getitem__",
+              "lineno": 83,
+              "in_app": true,
+              "pre_context": [
+                "    def __getitem__(self, key: int) -> tuple[str, str]: ...",
+                "    @t.overload",
+                "    def __getitem__(self, key: slice) -> te.Self: ...",
+                "    def __getitem__(self, key: str | int | slice) -> str | tuple[str, str] | te.Self:",
+                "        if isinstance(key, str):"
+              ],
+              "context_line": "            return self._get_key(key)",
+              "post_context": [
+                "",
+                "        if isinstance(key, int):",
+                "            return self._list[key]",
+                "",
+                "        return self.__class__(self._list[key])"
+              ],
+              "vars": {
+                "key": "'Accept-Ranges'",
+                "self": "Headers([('Content-Type', 'text/plain; charset=utf-8'), ('Date', 'Mon, 16 Nov 2026 09:02:57 GMT'), ('Content-Length', '0')])"
+              }
+            },
+            {
+              "filename": "src/werkzeug/datastructures/headers.py",
+              "function": "_get_key",
+              "lineno": 97,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        for k, v in self._list:",
+                "            if k.lower() == ikey:",
+                "                return v",
+                ""
+              ],
+              "context_line": "        raise BadRequestKeyError(key)",
+              "post_context": [
+                "",
+                "    def __eq__(self, other: object) -> bool:",
+                "        if other.__class__ is not self.__class__:",
+                "            return NotImplemented",
+                ""
+              ],
+              "vars": {
+                "ikey": "'accept-ranges'",
+                "k": "'Content-Length'",
+                "key": "'Accept-Ranges'",
+                "self": "Headers([('Content-Type', 'text/plain; charset=utf-8'), ('Date', 'Mon, 16 Nov 2026 09:02:57 GMT'), ('Content-Length', '0')])",
+                "v": "'0'"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

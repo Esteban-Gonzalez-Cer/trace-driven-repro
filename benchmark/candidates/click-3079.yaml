@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (20 lines).
+id: click-3079
+repo: pallets/click
+c_fix: 27aaed3fe5bcd6adedd6e91de234914af9859cf1
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3079
+fix_date: '2025-09-24'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix default handling to defer `UNSET` normalization
+split: test2

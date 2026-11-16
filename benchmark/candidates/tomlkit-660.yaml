@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/items.py'] (3 lines).
+id: tomlkit-660
+repo: python-poetry/tomlkit
+c_fix: 18e7f98252f18db5c973435453cd25e1c7bd4c61
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/660
+fix_date: '2026-10-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Compare Bool items by value
+split: test2

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['httpx/__version__.py', 'httpx/_decoders.py'] (6 lines).
+id: httpx-3412
+repo: encode/httpx
+c_fix: 47f4a96ffaaaa07dca1614409549b5d7a6e7af49
+python_version: '3.11'
+fix_pr_url: https://github.com/encode/httpx/pull/3412
+fix_date: '2024-11-22'
+deps:
+  strategy: compile
+  inputs:
+  - requirements.txt
+  exclude_newer: '2024-11-22'
+notes: Handle empty zstd responses
+split: test2

@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/trustedhost.py', 'starlette/routing.py'] (10 lines).
+id: starlette-3542
+repo: Kludex/starlette
+c_fix: 1766228b4eb5462efd552f3364656e1e0a5b0180
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3542
+fix_date: '2026-10-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Match host names case-insensitively in `Host` routing and `TrustedHostMiddleware`
+split: test2

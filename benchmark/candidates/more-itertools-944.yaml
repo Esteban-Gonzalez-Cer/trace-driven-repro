@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (6 lines).
+id: more-itertools-944
+repo: more-itertools/more-itertools
+c_fix: 7b9889c0b7de2189e7dd77688f7a811ce43337cc
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/944
+fix_date: '2025-01-11'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-01-11'
+notes: Fix bug in sample() with the strict option with counts
+split: test2

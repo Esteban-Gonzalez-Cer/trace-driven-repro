@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['.pre-commit-config.yaml', 'src/click/testing.py'] (46 lines).
+id: click-3235
+repo: pallets/click
+c_fix: ac2dd7aadf08aa0ce7f75bf0e96b95ad5e62d1b9
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3235
+fix_date: '2026-04-11'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Allow debugger interactions in tests
+split: test2

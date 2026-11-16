@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (5 lines).
+id: click-3509
+repo: pallets/click
+c_fix: 29bacc773e817b2e49a75b6258399dc3e129b031
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3509
+fix_date: '2026-05-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix deprecated label formatting
+split: test2

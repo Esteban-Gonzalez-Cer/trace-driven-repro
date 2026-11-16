@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/recipes.py'] (22 lines).
+id: more-itertools-1065
+repo: more-itertools/more-itertools
+c_fix: 77127219254573f77448bfba6655b20307bfaad7
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1065
+fix_date: '2025-08-26'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-08-26'
+notes: Get coverage to 100%
+split: test2

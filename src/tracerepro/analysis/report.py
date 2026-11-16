@@ -74,7 +74,11 @@ def _dist(values: list[float]) -> dict[str, Any]:
     }
 
 
-def analyze(rows: list[Row], bugs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def analyze(
+    rows: list[Row], bugs: dict[str, dict[str, Any]], pair: tuple[str, str] | None = None
+) -> dict[str, Any]:
+    """Every number of the analysis plan. With two pipelines, `pair` orders the comparison
+    (first minus second); by default they are in name order."""
     pipelines = sorted({r["pipeline"] for r in rows})
     by: dict[tuple[str, str], list[Row]] = {}
     for r in rows:
@@ -113,6 +117,8 @@ def analyze(rows: list[Row], bugs: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "correct_patch_lines": _dist([r["lines_added"] + r["lines_removed"] for r in correct]),
             "correct_patch_files": _dist([r["patch_files"] for r in correct]),
         }
+        if any("check" in r for r in mine):
+            entry["b2"] = b2_measures(mine)
         if any(r["repro_oracle"] is not None for r in mine):
             valid = [r["repro_oracle"] == "valid" for r in mine]
             entry["repro_runs"] = _interval(sum(valid), len(mine))
@@ -124,9 +130,12 @@ def analyze(rows: list[Row], bugs: dict[str, dict[str, Any]]) -> dict[str, Any]:
                 sorted(Counter(str(r["repro_oracle"]) for r in mine).items())
             )
         out["pipelines"][p] = entry
-    if pipelines == ["A", "B"]:
-        a_only = [b for b in names if solved["A"][b] and not solved["B"][b]]
-        b_only = [b for b in names if solved["B"][b] and not solved["A"][b]]
+    if len(pipelines) == 2:
+        first, second = pair or pipelines
+        only = {
+            p: [b for b in names if solved[p][b] and not solved[q][b]]
+            for p, q in ((first, second), (second, first))
+        }
         rate = {
             p: [
                 sum(r["solved"] for r in by.get((p, b), [])) / max(1, len(by.get((p, b), [])))
@@ -134,15 +143,18 @@ def analyze(rows: list[Row], bugs: dict[str, dict[str, Any]]) -> dict[str, Any]:
             ]
             for p in pipelines
         }
-        mean, lo, hi = stats.bootstrap_paired_difference(rate["A"], rate["B"])
+        mean, lo, hi = stats.bootstrap_paired_difference(rate[first], rate[second])
+        # Keys are named after the pipelines: `a_only` and `b_only` for the M4 study (A, B).
         out["comparison"] = {
-            "a_only": a_only,
-            "b_only": b_only,
-            "both": sum(solved["A"][b] and solved["B"][b] for b in names),
-            "neither": sum(not solved["A"][b] and not solved["B"][b] for b in names),
-            "mcnemar_p": round(stats.mcnemar_exact(len(a_only), len(b_only)), 4),
+            f"{first.lower()}_only": only[first],
+            f"{second.lower()}_only": only[second],
+            "both": sum(solved[first][b] and solved[second][b] for b in names),
+            "neither": sum(not solved[first][b] and not solved[second][b] for b in names),
+            "mcnemar_p": round(stats.mcnemar_exact(len(only[first]), len(only[second])), 4),
             "paired_difference": {"mean": round(mean, 4), "ci": [round(lo, 4), round(hi, 4)]},
         }
+        if pair is not None:  # name order (the M4 study) is the default and is not recorded
+            out["comparison"]["pair"] = list(pair)
     groups: dict[str, Any] = {}
     for key in ("kind", "cohort"):
         groups[key] = {}
@@ -167,9 +179,61 @@ def analyze(rows: list[Row], bugs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     return out
 
 
+def b2_measures(rows: list[Row]) -> dict[str, Any]:
+    """Pipeline B2's own measures (docs/ANALYSIS_PLAN_B2.md): the crash check, file requests and
+    escalation, as counts of trials."""
+    n = len(rows)
+    usable = [r for r in rows if r.get("check_usable")]
+    return {
+        "check_sent": _interval(sum(r.get("check") not in (None, "none") for r in rows), n),
+        "check_usable": _interval(len(usable), n),
+        "check_verdicts": dict(sorted(Counter(str(r.get("check")) for r in rows).items())),
+        "check_caught": _interval(sum(bool(r.get("check_caught")) for r in rows), n),
+        "check_caught_then_solved": sum(bool(r.get("check_caught")) and r["solved"] for r in rows),
+        "final_passes_check": _interval(
+            sum(r.get("check_final") == "passes" for r in usable), len(usable)
+        ),
+        "passes_check_but_incorrect": sum(
+            r.get("check_final") == "passes" and not r["solved"] for r in usable
+        ),
+        "file_requests": _interval(sum(bool(r.get("files_requested")) for r in rows), n),
+        "files_requested": sum(int(r.get("files_requested") or 0) for r in rows),
+        "files_granted": sum(int(r.get("files_granted") or 0) for r in rows),
+        "escalated": _interval(sum(bool(r.get("escalated")) for r in rows), n),
+        "escalated_then_solved": sum(bool(r.get("escalated")) and r["solved"] for r in rows),
+    }
+
+
+def beyond_the_crash(rows: list[Row], extra: dict[str, Any]) -> dict[str, Any]:
+    """The maintainers' other new tests (left out of the oracle: Amendment 1), run on every
+    correct patch of the bugs that have such tests passing with the gold patch. Read from
+    `<name>-extra.json` (`evaluate.extra_tests`); descriptive only."""
+    bugs = sorted(b for b, x in extra["bugs"].items() if x["tests"])
+    out: dict[str, Any] = {"bugs": bugs, "pipelines": {}}
+    for p in sorted({r["pipeline"] for r in rows}):
+        correct = [r for r in rows if r["pipeline"] == p and r["solved"] and r["bug"] in bugs]
+        missing = [r["id"] for r in correct if r["id"] not in extra["trials"]]
+        if missing:
+            raise ValueError(f"beyond-the-crash results missing for {missing[:5]}")
+        passed = [r["id"] for r in correct if extra["trials"][r["id"]]["all_passed"]]
+        out["pipelines"][p] = {
+            "correct_trials": _interval(len(passed), len(correct)),
+            "failed": sorted(r["id"] for r in correct if r["id"] not in passed),
+        }
+    return out
+
+
 def _pct(x: dict[str, Any]) -> str:
     lo, hi = x["ci"]
     return f"{x['k']}/{x['n']} ({x['rate']:.0%}; 95% CI {lo:.0%} to {hi:.0%})"
+
+
+DEFAULT_DOCS = {"plan": "docs/ANALYSIS_PLAN.md", "audit": "docs/AUDIT.md"}
+
+
+def _signed(x: float) -> str:
+    """A signed difference, with -0.0 shown as +0.000."""
+    return f"{x + 0.0:+.3f}"
 
 
 def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
@@ -179,13 +243,14 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
     def line(title: str, cell: Any) -> str:
         return f"| {title} | " + " | ".join(str(cell(n["pipelines"][p])) for p in ps) + " |"
 
+    docs = n.get("docs", DEFAULT_DOCS)
     out = [
         "# Results tables",
         "",
         "Generated by `make analyze` from `benchmark/results/` (do not edit by hand).",
         f"Run `{run.get('run_id', '?')}`: {n['bugs']} bugs, {n['trials']} trials. "
         "A bug is solved if at least 2 of its 3 trials are correct. All analyses are "
-        "exploratory (docs/ANALYSIS_PLAN.md).",
+        f"exploratory ({docs['plan']}).",
         "",
         "## Primary comparison: patch accuracy",
         "",
@@ -195,16 +260,28 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
     ]
     if c := n.get("comparison"):
         d = c["paired_difference"]
+        first, second = c.get("pair", ps)
+        one, two = c[f"{first.lower()}_only"], c[f"{second.lower()}_only"]
         out += [
             "",
             f"- Solved by both: {c['both']}; by neither: {c['neither']}.",
-            f"- Solved by A only (b = {len(c['a_only'])}): {', '.join(c['a_only']) or 'none'}.",
-            f"- Solved by B only (c = {len(c['b_only'])}): {', '.join(c['b_only']) or 'none'}.",
+            f"- Solved by {first} only (b = {len(one)}): {', '.join(one) or 'none'}.",
+            f"- Solved by {second} only (c = {len(two)}): {', '.join(two) or 'none'}.",
             f"- Exact McNemar test: p = {c['mcnemar_p']:.3f} (two-sided).",
-            f"- Paired difference in per-bug success rate (A minus B): {d['mean']:+.3f}, "
-            f"95% bootstrap CI {d['ci'][0]:+.3f} to {d['ci'][1]:+.3f} "
+            f"- Paired difference in per-bug success rate ({first} minus {second}): "
+            f"{_signed(d['mean'])}, "
+            f"95% bootstrap CI {_signed(d['ci'][0])} to {_signed(d['ci'][1])} "
             f"({stats.BOOTSTRAP_REPS:,} resamples, seed {stats.BOOTSTRAP_SEED}).",
         ]
+    if w := n.get("without"):
+        acc = "; ".join(f"{p} {_pct(a)}" for p, a in w["accuracy"].items())
+        out += ["", f"Without {', '.join(w['bugs'])} (descriptive): bugs solved {acc}."]
+        if wc := w.get("comparison"):
+            d = wc["paired_difference"]
+            out[-1] += (
+                f" McNemar p = {wc['mcnemar_p']:.3f}; paired difference {_signed(d['mean'])} "
+                f"(95% CI {_signed(d['ci'][0])} to {_signed(d['ci'][1])})."
+            )
     out += [
         "",
         "## Secondary measures",
@@ -239,6 +316,9 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
         "",
         "The list price is the CLI's estimate at API prices; the runs used a Claude plan, so no "
         "money was spent per call.",
+    ]
+    out += b2_section(n)
+    out += [
         "",
         "## Failure labels (one per failed trial, spec §8)",
         "",
@@ -256,9 +336,9 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
     if "state_deficit" in n.get("audit", {}):
         out += audit_files.state_deficit_note(n["audit"]["state_deficit"])
     if "correct" in n.get("audit", {}):
-        out += audit_files.section(n["audit"], n["audit"].get("adjusted"))
+        out += audit_files.section(n["audit"], n["audit"].get("adjusted"), docs["audit"])
     if "incorrect_sample" in n.get("audit", {}):
-        out += audit_files.incorrect_section(n["audit"]["incorrect_sample"])
+        out += audit_files.incorrect_section(n["audit"]["incorrect_sample"], docs["audit"])
     if "second_review" in n.get("audit", {}):
         out += audit_files.second_review_section(n["audit"]["second_review"])
     for key, title in (("kind", "By bug kind"), ("cohort", "By contamination cohort")):
@@ -279,6 +359,49 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
             cells.append(f"{marks} {'**solved**' if b[p]['solved'] else ''}".strip())
         out.append(f"| {bug} | {b['kind']} | {b['cohort']} | " + " | ".join(cells) + " |")
     return "\n".join(out) + "\n"
+
+
+def b2_section(n: dict[str, Any]) -> list[str]:
+    """Markdown for Pipeline B2's own measures and the beyond-the-crash tests, when present."""
+    lines: list[str] = []
+    for p, e in n["pipelines"].items():
+        if "b2" not in e:
+            continue
+        b = e["b2"]
+        lines += [
+            "",
+            f"## Pipeline {p}'s own measures (per trial)",
+            "",
+            f"- Crash check sent: {_pct(b['check_sent'])}; usable (reproduced the crash on the "
+            f"buggy code): {_pct(b['check_usable'])}. Verdicts on the buggy code: "
+            + ", ".join(f"{k} {v}" for k, v in b["check_verdicts"].items())
+            + ".",
+            f"- A patch sent back because its check still failed: {_pct(b['check_caught'])}; "
+            f"of those trials, solved in the end: {b['check_caught_then_solved']}.",
+            f"- Submitted patch passes its usable check: {_pct(b['final_passes_check'])}; passes "
+            f"its check but graded incorrect: {b['passes_check_but_incorrect']}.",
+            f"- Trials with a file request: {_pct(b['file_requests'])}; files requested "
+            f"{b['files_requested']}, granted {b['files_granted']}.",
+            f"- Retries escalated: {_pct(b['escalated'])}; of those trials, solved: "
+            f"{b['escalated_then_solved']}.",
+        ]
+    if beyond := n.get("beyond_the_crash"):
+        lines += [
+            "",
+            "## Beyond-the-crash tests (descriptive)",
+            "",
+            "The maintainers' other new tests from the fix commit, left out of the oracle because "
+            "they check values rather than a crash (Amendment 1), run on every correct patch of "
+            f"the {len(beyond['bugs'])} bugs that have such tests passing with the gold patch "
+            f"({', '.join(beyond['bugs']) or 'none'}).",
+            "",
+            "| | " + " | ".join(f"Pipeline {p}" for p in beyond["pipelines"]) + " |",
+            "|---|" + "---|" * len(beyond["pipelines"]),
+            "| Correct trials that also pass them | "
+            + " | ".join(_pct(x["correct_trials"]) for x in beyond["pipelines"].values())
+            + " |",
+        ]
+    return lines
 
 
 def per_bug_csv(n: dict[str, Any]) -> str:
@@ -307,6 +430,8 @@ def write_all(
     out: Path,
     name: str = "final",
     audit: Path | None = None,
+    pair: tuple[str, str] | None = None,
+    without: tuple[str, ...] = (),
 ) -> list[Path]:
     rows = load_rows(results, name)
     run_path = results / f"{name}-run.json"
@@ -317,12 +442,23 @@ def write_all(
         deficit = audit_files.load_state_deficit(audit / "state_deficit.yaml", set(bugs))
         rows, relabelled = audit_files.apply_state_deficit(rows, deficit["bugs"])
         found["state_deficit"] = deficit | {"relabelled": relabelled}
-    numbers = analyze(rows, bugs)
+    numbers = analyze(rows, bugs, pair)
+    if without:
+        kept = {b: x for b, x in bugs.items() if b not in without}
+        sub = analyze([r for r in rows if r["bug"] in kept], kept, pair)
+        numbers["without"] = {
+            "bugs": sorted(set(without) & set(bugs)),
+            "accuracy": {p: e["accuracy"] for p, e in sub["pipelines"].items()},
+            "comparison": sub.get("comparison"),
+        }
+    extra_path = results / f"{name}-extra.json"
+    if extra_path.is_file():
+        numbers["beyond_the_crash"] = beyond_the_crash(rows, json.loads(extra_path.read_text()))
     if audit is not None and (audit / "correct.yaml").is_file():
         correct = audit_files.load_correct(audit / "correct.yaml", rows)
         found["correct"] = correct
         if correct["not_a_fix"]:
-            adj = analyze(audit_files.adjusted_rows(rows, correct["not_a_fix"]), bugs)
+            adj = analyze(audit_files.adjusted_rows(rows, correct["not_a_fix"]), bugs, pair)
             found["adjusted"] = {p: e["accuracy"] for p, e in adj["pipelines"].items()}
     if audit is not None and (audit / "incorrect_sample.yaml").is_file():
         sample = audit_files.load_incorrect_sample(audit / "incorrect_sample.yaml", rows)
@@ -334,6 +470,11 @@ def write_all(
         )
     if found:
         numbers["audit"] = found
+    if name != "final":  # a later study names its own plan and audit documents
+        numbers["docs"] = {
+            "plan": f"docs/ANALYSIS_PLAN_{name.upper()}.md",
+            "audit": f"docs/AUDIT_{name.upper()}.md",
+        }
     numbers["run_id"] = run.get("run_id")
     numbers["set_aside"] = run.get("set_aside", {})
     out.mkdir(parents=True, exist_ok=True)
@@ -358,8 +499,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=Path("results"))
     parser.add_argument("--name", default="final")
     parser.add_argument("--audit", type=Path, default=Path("benchmark/audit"))
+    parser.add_argument("--pair", nargs=2, help="paired comparison order: first minus second")
+    parser.add_argument("--also-without", nargs="+", default=[],
+                        help="bugs also left out in a descriptive second view")  # fmt: skip
     args = parser.parse_args(argv)
-    for path in write_all(args.results, args.manifests, args.out, args.name, args.audit):
+    pair = (args.pair[0], args.pair[1]) if args.pair else None
+    without = tuple(args.also_without)
+    for path in write_all(
+        args.results, args.manifests, args.out, args.name, args.audit, pair, without
+    ):
         print(f"wrote {path}")
     return 0
 

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/jinja2/utils.py'] (2 lines).
+id: jinja2-2062
+repo: pallets/jinja
+c_fix: 7a41ddb915a540c7a35c6cf823a8b50a2553e46b
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/2062
+fix_date: '2024-12-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: don't apply `urlize` to `@a@b`
+split: test2

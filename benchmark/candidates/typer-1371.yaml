@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['docs_src/commands/index/tutorial005.py', 'typer/core.py', 'typer/main.py'] (44 lines).
+id: typer-1371
+repo: fastapi/typer
+c_fix: f6718b8834a14b8286d39128696c9a0ea8dce918
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1371
+fix_date: '2025-10-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Enable command suggestions on typo by default
+split: test2

@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "3d08cde7ac7c3bbe054c89a29aba0961",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "list index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/container.py",
+              "function": "__setitem__",
+              "lineno": 1231,
+              "in_app": true,
+              "pre_context": [
+                "            # Overwrite the first table and remove others",
+                "            map_indices = self._tables_map[_key]",
+                "            while len(map_indices) > 1:",
+                "                table = self._tables[map_indices.pop()]",
+                "                self._remove_table(table)"
+              ],
+              "context_line": "            old_value = self._tables[map_indices[0]][key]",
+              "post_context": [
+                "            if _is_table_or_aot(old_value) and not _is_table_or_aot(value):",
+                "                # Remove the entry from the map and set value again.",
+                "                del self._tables[map_indices[0]][key]",
+                "                del self._tables_map[_key]",
+                "                self[key] = value"
+              ],
+              "vars": {
+                "_is_table_or_aot": "<function OutOfOrderTableProxy.__setitem__.<locals>._is_table_or_aot at 0x…>",
+                "_item_fn": "<function item at 0x…>",
+                "_key": "<Key b>",
+                "key": "'b'",
+                "map_indices": "[1]",
+                "self": "{'d': 1, 'b': {'e': 2}, 'y': 1}",
+                "value": "{'e': -0.5}"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

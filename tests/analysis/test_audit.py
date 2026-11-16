@@ -46,6 +46,29 @@ def test_counts_by_decision_and_pipeline(tmp_path: Path) -> None:
     assert [r["solved"] for r in adjusted] == [True, False, True, False]
 
 
+def test_fix_level_is_counted_and_checked(tmp_path: Path) -> None:
+    entries = [
+        {"bug": "b", "patch": 1, "decision": "ok", "fix_level": "root_cause",
+         "trials": ["b/A/1", "b/B/1"]},
+        {"bug": "b", "patch": 2, "decision": "ok_with_note", "fix_level": "symptom",
+         "trials": ["b/A/2"]},
+    ]  # fmt: skip
+    found = audit.load_correct(write(tmp_path, entries), rows())
+    assert found["fix_level"] == {
+        "root_cause": {"A": 1, "B": 1},
+        "other_layer": {},
+        "symptom": {"A": 1},
+    }
+    assert "| symptom | A 1 |" in "\n".join(audit.section({"correct": found}, None))
+    del entries[1]["fix_level"]
+    with pytest.raises(audit.AuditError, match="fix_level"):
+        audit.load_correct(write(tmp_path, entries), rows())
+    assert "fix_level" not in audit.load_correct(
+        write(tmp_path, [{"bug": "b", "patch": 1, "decision": "ok",
+                          "trials": ["b/A/1", "b/A/2", "b/B/1"]}]), rows()
+    )  # fmt: skip
+
+
 @pytest.mark.parametrize(
     ("entries", "match"),
     [

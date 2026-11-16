@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['rich/traceback.py'] (45 lines).
+id: rich-3772
+repo: Textualize/rich
+c_fix: 2a282af76d3f7a731e1c23145e13977044150f1e
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3772
+fix_date: '2025-06-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix traceback recursion
+split: test2

@@ -378,6 +378,38 @@ effort, crash check and file requests on. None of these runs is a reported resul
   special case that fails the maintainers' `test_constant_with_required`. The fix-quality
   measures in the analysis plan are there to show this, not to hide it.
 
+## 2026-11-16: The fresh test set (test2), 28 bugs, and the freeze of the second study
+
+- **Screening.** The same frozen criteria, preflight and per-library cap of 6 as Phase 3, on
+  candidates never screened before, marked `split: test2`. 231 candidates written in 4
+  batches (51, 45, 85 and 50) and 221 screened (in batch 4, 10 belonged to libraries already
+  at the cap): 28 passed, every decision in the screening log. Candidates within a batch
+  were screened round-robin across libraries, in each library's crash-word order, so the stop
+  rule could not favour the library that came first.
+- **Fix dates.** Batches 1 and 2 used fixes from the last 12 months; that pool was used up
+  (werkzeug and more-itertools had none left), so batches 3 and 4 looked back to 2024-11-16,
+  as Phase 3 did. Criterion 5 prefers recent fixes but does not require them. 19 of the 28 bugs
+  are from before the model's stated training cutoff (2026-06-30), so contamination is more
+  likely than in M4 (16 of 30); it affects both arms alike.
+- **Stopping.** After batch 3 (23 bugs), one more batch was set as the last before its results
+  were seen: screening would end at 30 bugs or after batch 4, whichever came first. It ended
+  after batch 4 with 28.
+- **Per library:** jinja2 and more-itertools 6 each (the cap), starlette 5, marshmallow and
+  werkzeug 4, tomlkit 2, click 1. The set leans toward fewer libraries than M4's.
+- **Feature-like bugs kept.** starlette-3510 and starlette-3520 crash because the library
+  rejects a keyword argument the fix adds: they pass every frozen criterion but read as
+  missing features. Removing bugs by hand after seeing them is what the frozen criteria rule
+  out, so they stay; the analysis plan defines them by that message and shows the primary
+  numbers without them as well, descriptively.
+- **The run.** Both arms in one harness version; the arms alternate bug by bug
+  (`scripts/final-b2.sh`, `experiment --bug`) because two runs cannot share Docker at once:
+  each clears the other's sandboxes when it starts.
+- **Freeze.** `docs/ANALYSIS_PLAN_B2.md`, the configs `final-b2-arm-b.yaml` and
+  `final-b2-arm-b2.yaml`, and the analysis code are committed and tagged `m5b-freeze` before
+  any model sees a test2 bug. By the owner's decision (2026-11-16) steps 6 to 8 of Phase 5b go
+  in one pull request, because the owner is away and merges would hold up the run; the tag
+  marks the freeze point inside that pull request.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

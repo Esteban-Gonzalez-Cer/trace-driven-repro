@@ -1,0 +1,140 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "7e895308566ccd5993071abab92012ae",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "object of type '_Missing' has no len()",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "deserialize",
+              "lineno": 375,
+              "in_app": true,
+              "pre_context": [
+                "            _miss = self.load_default",
+                "            return _miss() if callable(_miss) else _miss",
+                "        if self.allow_none and value is None:",
+                "            return None",
+                "        output = self._deserialize(value, attr, data, **kwargs)"
+              ],
+              "context_line": "        self._validate(output)",
+              "post_context": [
+                "        return output",
+                "",
+                "    # Methods for concrete classes to override.",
+                "",
+                "    def _bind_to_schema(self, field_name: str, parent: Schema | Field) -> None:"
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "kwargs": "{}",
+                "output": "<marshmallow.missing>",
+                "self": "<fields.Function(dump_default=<marshmallow.missing>, attribute=None, validate=<Length(min=0, max=None, equal=None, error=None)>, required=False, load_only=True, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.'})>",
+                "value": "{}"
+              }
+            },
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "_validate",
+              "lineno": 270,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    def _validate(self, value: typing.Any) -> None:",
+                "        \"\"\"Perform validation on ``value``. Raise a :exc:`ValidationError` if validation",
+                "        does not succeed.",
+                "        \"\"\""
+              ],
+              "context_line": "        self._validate_all(value)",
+              "post_context": [
+                "",
+                "    @property",
+                "    def _validate_all(self) -> typing.Callable[[typing.Any], None]:",
+                "        return And(*self.validators)",
+                ""
+              ],
+              "vars": {
+                "self": "<fields.Function(dump_default=<marshmallow.missing>, attribute=None, validate=<Length(min=0, max=None, equal=None, error=None)>, required=False, load_only=True, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.'})>",
+                "value": "<marshmallow.missing>"
+              }
+            },
+            {
+              "filename": "src/marshmallow/validate.py",
+              "function": "__call__",
+              "lineno": 76,
+              "in_app": true,
+              "pre_context": [
+                "    def __call__(self, value: typing.Any) -> typing.Any:",
+                "        errors: list[str | dict] = []",
+                "        kwargs: dict[str, typing.Any] = {}",
+                "        for validator in self.validators:",
+                "            try:"
+              ],
+              "context_line": "                validator(value)",
+              "post_context": [
+                "            except ValidationError as err:",
+                "                kwargs.update(err.kwargs)",
+                "                if isinstance(err.messages, dict):",
+                "                    errors.append(err.messages)",
+                "                else:"
+              ],
+              "vars": {
+                "errors": "[]",
+                "kwargs": "{}",
+                "self": "<And(validators=(<Length(min=0, max=None, equal=None, error=None)>,), error=None)>",
+                "validator": "<Length(min=0, max=None, equal=None, error=None)>",
+                "value": "<marshmallow.missing>"
+              }
+            },
+            {
+              "filename": "src/marshmallow/validate.py",
+              "function": "__call__",
+              "lineno": 416,
+              "in_app": true,
+              "pre_context": [
+                "        return (self.error or message).format(",
+                "            input=value, min=self.min, max=self.max, equal=self.equal",
+                "        )",
+                "",
+                "    def __call__(self, value: _SizedT) -> _SizedT:"
+              ],
+              "context_line": "        length = len(value)",
+              "post_context": [
+                "",
+                "        if self.equal is not None:",
+                "            if length != self.equal:",
+                "                raise ValidationError(self._format_error(value, self.message_equal))",
+                "            return value"
+              ],
+              "vars": {
+                "self": "<Length(min=0, max=None, equal=None, error=None)>",
+                "value": "<marshmallow.missing>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

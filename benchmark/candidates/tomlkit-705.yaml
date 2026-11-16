@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['tomlkit/_utils.py', 'tomlkit/api.py', 'tomlkit/items.py'] (19 lines).
+id: tomlkit-705
+repo: python-poetry/tomlkit
+c_fix: 669d4d625168998312f733a34bcb93d870a39d5a
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/705
+fix_date: '2026-11-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Reject forbidden control characters in generated comments
+split: test2

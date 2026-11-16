@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/parser.py'] (4 lines).
+id: tomlkit-628
+repo: python-poetry/tomlkit
+c_fix: 446d6fab132ef38a2ec052a5b2124e04b427dea6
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/628
+fix_date: '2026-10-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Reject non-lowercase special float literals
+split: test2

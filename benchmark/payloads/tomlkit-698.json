@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "b68aa964cb938c3e3e70b1a54d96d3a6",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "test_bound_primary_keyword_name_does_not_receive_context_twice.<locals>.encode() got multiple values for argument '_parent'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "tomlkit/items.py",
+              "function": "item",
+              "lineno": 231,
+              "in_app": true,
+              "pre_context": [
+                "                sig = inspect.signature(encoder)",
+                "                if \"_parent\" in sig.parameters or any(",
+                "                    p.kind == p.VAR_KEYWORD for p in sig.parameters.values()",
+                "                ):",
+                "                    # New style encoder that can accept additional parameters"
+              ],
+              "context_line": "                    rv = encoder(value, _parent=_parent, _sort_keys=_sort_keys)  # type: ignore[call-arg]",
+              "post_context": [
+                "                else:",
+                "                    # Old style encoder that only accepts value",
+                "                    rv = encoder(value)",
+                "            except ConvertError:",
+                "                pass"
+              ],
+              "vars": {
+                "Container": "<class 'tomlkit.container.Container'>",
+                "_parent": "{}",
+                "_sort_keys": "True",
+                "encoder": "<function test_bound_primary_keyword_name_does_not_receive_context_twice.<locals>.encode at 0x…>",
+                "sig": "<Signature (_parent: 'Any', **kwargs: 'Any') -> 'Item'>",
+                "value": "<object object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

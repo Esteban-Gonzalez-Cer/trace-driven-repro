@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/schema.py'] (15 lines).
+id: marshmallow-2806
+repo: marshmallow-code/marshmallow
+c_fix: c83679506045fe7aea4fb7270235f20a2f8641b2
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2806
+fix_date: '2025-02-03'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix types for class Meta options
+split: test2

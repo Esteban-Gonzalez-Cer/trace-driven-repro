@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (29 lines).
+id: click-3239
+repo: pallets/click
+c_fix: 8c95c73bd5ef89eac638f85f1904a104ba4b1a32
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3239
+fix_date: '2026-04-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Reconcile default value passing and default activation
+split: test2

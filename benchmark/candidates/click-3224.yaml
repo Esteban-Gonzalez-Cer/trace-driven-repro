@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (17 lines).
+id: click-3224
+repo: pallets/click
+c_fix: b6afbf05ea6dbc8a4e7cdd448dd345c783973137
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3224
+fix_date: '2026-02-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Hide `Sentinel.UNSET` values as `None` in `lookup_default()`
+split: test2

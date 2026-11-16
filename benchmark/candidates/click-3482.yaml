@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/_termui_impl.py'] (24 lines).
+id: click-3482
+repo: pallets/click
+c_fix: 5ee8e3123d8ddece6c47eff9a7a7d4ca478c4f37
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3482
+fix_date: '2026-05-22'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: fix I/O operation on closed file error with CliRunner and echo_via_pager
+split: test2

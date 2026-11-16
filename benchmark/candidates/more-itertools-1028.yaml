@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (2 lines).
+id: more-itertools-1028
+repo: more-itertools/more-itertools
+c_fix: 7de169f7ad39eb1f95f8358225476e6f1a59d3d7
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1028
+fix_date: '2025-07-14'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-07-14'
+notes: 'Issue 1001: fix last() when __reversed__ is None'
+split: test2

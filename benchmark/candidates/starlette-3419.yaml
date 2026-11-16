@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/gzip.py'] (2 lines).
+id: starlette-3419
+repo: Kludex/starlette
+c_fix: d438d397c93c055c068a2f9bd84a2cf2a8c9c7b7
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3419
+fix_date: '2026-08-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Flush GZip output for each streamed chunk
+split: test2

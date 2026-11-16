@@ -1,0 +1,106 @@
+# State Deficit labels, second study (Phase 5b), one decision per bug.
+# Question: can the bug be fixed from what the agent was shown (the crash report with its frame
+# variables, and the library source), or does it need state the report does not contain?
+# Judged from each bug's payload and the maintainers' fix. Not blinded: the reviewer had seen
+# the results. On deficit bugs, failed trials labelled regression_failure or incorrect_patch
+# become state_deficit (precedence 6 before 7 and 8); labels 1 to 5 are kept.
+run_id: 'B: final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308 + B2: final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308'
+reviewer: claude-opus-5-5
+bugs:
+  click-3482:
+    deficit: false
+    why: The closed stream and the runner's capture state are in the frame variables; the closing pager
+      is in the library source.
+  jinja2-1702:
+    deficit: false
+    why: The TypeError names the int item; the block reference and native environment are in the library
+      source.
+  jinja2-1762:
+    deficit: false
+    why: The frame shows context=None for a context test; the caller that drops the context is in the
+      source.
+  jinja2-1782:
+    deficit: false
+    why: The async generator passed to the sync unique filter is in the frame variables.
+  jinja2-1852:
+    deficit: false
+    why: The NameError comes from a template name with braces compiled into an f-string; the generator
+      code is in the source.
+  jinja2-1984:
+    deficit: false
+    why: The value '1e10000' is in the frame variables.
+  jinja2-2026:
+    deficit: true
+    why: 'The report has one frame: the undefined object''s error raised with a dict argument, and its
+      repr reads ''Undefined'' although it is a ChainableUndefined. The deepcopy call that probed a dunder
+      method through __getattr__ is not shown. Borderline: the dict argument hints at a deepcopy memo.'
+  marshmallow-2730:
+    deficit: false
+    why: The DateTime field and the datetime value are in the frame variables; the other field types are
+      a neighbouring-case question, not missing state.
+  marshmallow-2800:
+    deficit: false
+    why: The file URL, the scheme and the regex are in the frame variables.
+  marshmallow-2861:
+    deficit: false
+    why: The Length validator and the missing value are in the frame variables.
+  marshmallow-2894:
+    deficit: false
+    why: The None value and the Constant field are shown; Field's allow_none rule is in the source.
+  more-itertools-1028:
+    deficit: false
+    why: The iterable with __reversed__ set is in the frame variables.
+  more-itertools-1082:
+    deficit: false
+    why: The iterator arguments and the computed tuples are in the frame variables.
+  more-itertools-1125:
+    deficit: false
+    why: The iterables, the repeat and the empty tuple they produced are in the frame variables.
+  more-itertools-1153:
+    deficit: false
+    why: The empty numeric_range and the index -1 are in the frame variables.
+  more-itertools-1260:
+    deficit: false
+    why: The WindowSize object with __index__ is in the frame variables; the sibling functions are in
+      the same file.
+  more-itertools-1276:
+    deficit: false
+    why: The datetime range starting at the minimum date is in the frame variables.
+  starlette-3130:
+    deficit: false
+    why: 'The debug message without a template is in the frame variables. Reads as feature-like: the tests
+      check a new response.extensions entry the report cannot suggest (found after the run; not added
+      to the frozen feature-like list).'
+  starlette-3372:
+    deficit: false
+    why: The message with empty text is in the frame variables.
+  starlette-3510:
+    deficit: false
+    why: The rejected keyword is in the error message (feature-like bug).
+  starlette-3520:
+    deficit: false
+    why: The rejected keyword is in the error message (feature-like bug); its behaviour has to be designed,
+      not recovered.
+  starlette-3622:
+    deficit: false
+    why: The non-contiguous memoryview body is in the frame variables.
+  tomlkit-677:
+    deficit: false
+    why: The table proxy, the key and the stale index list are in the frame variables.
+  tomlkit-698:
+    deficit: false
+    why: The encoder and the context values are in the frame variables; its signature is in the error
+      message.
+  werkzeug-3071:
+    deficit: false
+    why: line_idx=304 and the one shown line are in the frame variables.
+  werkzeug-3110:
+    deficit: false
+    why: The headers and the missing Accept-Ranges key are in the frame variables.
+  werkzeug-3136:
+    deficit: false
+    why: The path with repeated slashes is in the frame variables.
+  werkzeug-3148:
+    deficit: false
+    why: The invalid host and trusted_hosts=None are in the frame variables; the maintainers' choice (return
+      an empty host) is a policy decision, not missing state.

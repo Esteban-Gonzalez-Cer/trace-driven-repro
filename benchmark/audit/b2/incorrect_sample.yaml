@@ -1,0 +1,78 @@
+# Manual audit of a random sample of patches graded incorrect, second study (Phase 5b).
+# Population: trials graded incorrect that produced a patch (56). Sample: 25%, rounded up (14),
+# drawn by `tracerepro.analysis.audit.draw_sample` with the seed below; `make analyze` checks
+# that this list matches a fresh draw.
+# decision: real_fix (the grader rejected a patch that does fix the bug: a false negative)
+#           | not_a_fix (the rejection is right)
+# evidence: what the decision rests on; "read" = the patch read next to the maintainers' fix
+# and the oracle tests.
+run_id: 'B: final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308 + B2: final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308'
+reviewer: claude-opus-5-5
+seed: 20261111
+fraction: 0.25
+sample:
+- trial: jinja2-1702/B/3
+  decision: not_a_fix
+  evidence: read
+  note: Joins the template module's output with str(); the block reference that builds the native output
+    (the crash) is untouched.
+- trial: jinja2-1702/B2/2
+  decision: not_a_fix
+  evidence: read
+  note: Wraps buffered native output in str() in the code generator, which changes native rendering inside
+    buffers; the block reference that joins the output is untouched.
+- trial: jinja2-1852/B2/2
+  decision: not_a_fix
+  evidence: read
+  note: Adds a second, unreachable copy of a return line; no behaviour changes.
+- trial: jinja2-2026/B/3
+  decision: not_a_fix
+  evidence: read
+  note: Catches TemplateRuntimeError for Undefined objects in getitem; deepcopy of ChainableUndefined
+    still calls the undefined object and raises.
+- trial: jinja2-2026/B2/2
+  decision: not_a_fix
+  evidence: read
+  note: Adds `from None` to the undefined error; it is still raised.
+- trial: marshmallow-2730/B2/3
+  decision: not_a_fix
+  evidence: read
+  note: Lets DateTime accept a datetime unchanged, but not Date, Time, TimeDelta or Enum, which the maintainers'
+    fix and tests cover; incomplete.
+- trial: more-itertools-1260/B/2
+  decision: not_a_fix
+  evidence: read
+  note: Coerces the window through __index__ in running_mean, running_min and running_max, but not in
+    running_statistics, whose window size stays a non-int; the reported crash is fixed, the fix is incomplete.
+- trial: more-itertools-1260/B2/1
+  decision: not_a_fix
+  evidence: read
+  note: 'Same patch as more-itertools-1260/B/2: running_statistics is left out; incomplete.'
+- trial: starlette-3130/B2/1
+  decision: not_a_fix
+  evidence: read
+  note: Reads template and context with .get(), so the KeyError is gone, but the debug info is dropped;
+    the maintainers expose it in response.extensions, which the tests check (feature-like).
+- trial: starlette-3130/B2/2
+  decision: not_a_fix
+  evidence: read
+  note: 'Same patch as starlette-3130/B2/1: the crash is gone, the debug info is dropped.'
+- trial: starlette-3130/B2/3
+  decision: not_a_fix
+  evidence: read
+  note: 'Same approach as starlette-3130/B2/1: the crash is gone, the debug info is dropped.'
+- trial: tomlkit-677/B2/1
+  decision: not_a_fix
+  evidence: read
+  note: Repairs the table index bookkeeping after a removal, but still removes whole later tables, so
+    sibling keys in them are lost; the maintainers delete only the key.
+- trial: tomlkit-698/B/2
+  decision: not_a_fix
+  evidence: read
+  note: Drops _parent only when it is the encoder's first parameter name; other signatures still get unaccepted
+    keywords, and 2 existing tests fail.
+- trial: tomlkit-698/B2/2
+  decision: not_a_fix
+  evidence: read
+  note: Passes the context only when the encoder accepts both keywords, so an encoder that accepts one
+    of them gets neither; narrows what the encoder asked for.

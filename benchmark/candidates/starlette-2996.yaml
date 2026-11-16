@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['starlette/config.py'] (7 lines).
+id: starlette-2996
+repo: Kludex/starlette
+c_fix: a59397db889e3a96c4f34b1406957a3b92e1e8b5
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/2996
+fix_date: '2025-10-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Set encodings when reading config files
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/utils.py'] (7 lines).
+id: marshmallow-2768
+repo: marshmallow-code/marshmallow
+c_fix: dc9d85245d95489e3b42dd831366123e9e306dce
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2768
+fix_date: '2025-01-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Remove unused utils.is_keyed_tuple
+split: test2

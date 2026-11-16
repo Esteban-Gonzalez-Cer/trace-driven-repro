@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py'] (4 lines).
+id: typer-1183
+repo: fastapi/typer
+c_fix: 0b8fa09bb6b5ed5f9ed5e26c0e8a7c4eb984226d
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1183
+fix_date: '2025-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Allow annotated parsing with a subclass of `Path`
+split: test2

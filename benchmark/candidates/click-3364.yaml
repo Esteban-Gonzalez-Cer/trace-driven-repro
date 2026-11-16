@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (5 lines).
+id: click-3364
+repo: pallets/click
+c_fix: c8da1fcc2cb4523c1fb5bef7f0ca82394dde1efd
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3364
+fix_date: '2026-04-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Split string values from `default_map` for multi-value parameters
+split: test2

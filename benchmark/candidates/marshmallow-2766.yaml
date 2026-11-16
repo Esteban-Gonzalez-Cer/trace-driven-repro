@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/fields.py', 'src/marshmallow/utils.py'] (30 lines).
+id: marshmallow-2766
+repo: marshmallow-code/marshmallow
+c_fix: 701f52c83e1054ab4ead9ef17f1a99b6fc6e4636
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2766
+fix_date: '2025-01-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Remove utils.isoformat, to_iso_time, to_iso_date
+split: test2

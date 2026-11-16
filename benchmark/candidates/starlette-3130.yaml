@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/testclient.py'] (17 lines).
+id: starlette-3130
+repo: Kludex/starlette
+c_fix: 9eea41ad3c26ad21b9bdfe4578c1cdad6c9b9ac2
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3130
+fix_date: '2026-08-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Expose `http.response.debug` info via response extensions
+split: test2

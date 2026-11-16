@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (7 lines).
+id: click-3578
+repo: pallets/click
+c_fix: 09195f6a92972c4e1bbb5493686456e6ba624520
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3578
+fix_date: '2026-06-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix double-bracketing of choices in synopsis
+split: test2

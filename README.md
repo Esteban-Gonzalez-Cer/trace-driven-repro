@@ -41,6 +41,20 @@ Claude Sonnet 5.5, 30 real bugs from 9 Python libraries, 3 trials per bug and pi
 - **The audit found no cheating** among the 133 fixes graded correct. The grader probably
   rejects some valid fixes: 1 or 2 in a sample of 12.
 
+**Second study (Phase 5b), on 28 fresh bugs**: the improved Pipeline B2 (crash check, file
+requests, fix rules) against B ([`docs/RESULTS_B2.md`](docs/RESULTS_B2.md)):
+
+| | Pipeline B | Pipeline B2 |
+|---|---|---|
+| Bugs solved (2 of 3 trials) | 17/28 (61%; 95% CI 41% to 78%) | 18/28 (64%; 95% CI 44% to 81%) |
+| Bugs with any correct trial | 17/28 | 21/28 |
+| Tokens per run (mean) | 82k | 103k |
+
+- **No reliable difference** (McNemar p = 1.0; the bugs split 1 to 0). B2's file requests cut
+  the "code never shown" failures from 8 trials to 3.
+- **Fix quality did not change**: about 1 in 6 correct trials in each arm fixes the symptom
+  rather than the cause, and most correct patches fail the maintainers' wider tests.
+
 Rebuild every table and figure from the committed results (no Docker, no keys):
 
 ```bash
@@ -50,13 +64,16 @@ make analyze
 ## Status
 
 Phase 5 complete (milestone M4, results final): the final run (180 trials), the analysis from
-logs, and the manual audit ([`docs/AUDIT.md`](docs/AUDIT.md)). Now: Pipeline A is retired and
-Pipeline B is being improved (B2), to be measured on fresh bugs. Then: the demo and the write-up
+logs, and the manual audit ([`docs/AUDIT.md`](docs/AUDIT.md)). Phase 5b complete (milestone
+M5b): Pipeline A retired, Pipeline B2 built and measured against B on 28 fresh bugs
+([`docs/RESULTS_B2.md`](docs/RESULTS_B2.md), audit [`docs/AUDIT_B2.md`](docs/AUDIT_B2.md); the
+owner's second review of a sample is pending). Next: the demo, with B2, and the write-up
 (Phase 6).
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)
 - Development plan: [`docs/spec/development-plan.pdf`](docs/spec/development-plan.pdf)
-- Analysis plan: [`docs/ANALYSIS_PLAN.md`](docs/ANALYSIS_PLAN.md) (frozen, tag `m3-freeze`)
+- Analysis plan: [`docs/ANALYSIS_PLAN.md`](docs/ANALYSIS_PLAN.md) (frozen, tag `m3-freeze`); second
+  study: [`docs/ANALYSIS_PLAN_B2.md`](docs/ANALYSIS_PLAN_B2.md) (frozen, tag `m5b-freeze`)
 
 ## License
 

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (47 lines).
+id: more-itertools-1216
+repo: more-itertools/more-itertools
+c_fix: f9cdcb990dbb87a9748e61a9a28c2ad737e60452
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1216
+fix_date: '2026-07-17'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-07-17'
+notes: 'Issue 1214: Update __eq__ and __hash__ for numeric_range'
+split: test2

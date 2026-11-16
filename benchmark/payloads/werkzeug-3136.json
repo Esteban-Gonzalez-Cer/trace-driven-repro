@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "d57a5eadd29d2bb94e7a60e7b2fed161",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "NotFound",
+        "module": "werkzeug.exceptions",
+        "value": "404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/routing/map.py",
+              "function": "match",
+              "lineno": 629,
+              "in_app": true,
+              "pre_context": [
+                "                raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None",
+                "",
+                "            if e.websocket_mismatch:",
+                "                raise WebsocketMismatch() from None",
+                ""
+              ],
+              "context_line": "            raise NotFound() from None",
+              "post_context": [
+                "        else:",
+                "            rule, rv = result",
+                "",
+                "            if self.map.redirect_defaults:",
+                "                redirect_url = self.get_default_redirect(rule, method, rv, query_args)"
+              ],
+              "vars": {
+                "domain_part": "''",
+                "method": "'GET'",
+                "path_info": "'//yes///tail////'",
+                "path_part": "'/yes///tail////'",
+                "query_args": "{}",
+                "return_rule": "False",
+                "self": "<werkzeug.routing.map.MapAdapter object at 0x…>",
+                "websocket": "False"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

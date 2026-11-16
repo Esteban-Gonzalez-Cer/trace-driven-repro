@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/staticfiles.py'] (2 lines).
+id: starlette-3640
+repo: Kludex/starlette
+c_fix: 0a15da395d13e8eb6ecadeb6f4928d7d7c493fc8
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3640
+fix_date: '2026-10-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Include allowed methods in StaticFiles 405 responses
+split: test2
