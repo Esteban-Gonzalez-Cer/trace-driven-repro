@@ -1,0 +1,138 @@
+{
+  "arms": {
+    "B": {
+      "config": {
+        "bugs": [
+          "benchmark/manifests/click-3482.yaml",
+          "benchmark/manifests/jinja2-1702.yaml",
+          "benchmark/manifests/jinja2-1762.yaml",
+          "benchmark/manifests/jinja2-1782.yaml",
+          "benchmark/manifests/jinja2-1852.yaml",
+          "benchmark/manifests/jinja2-1984.yaml",
+          "benchmark/manifests/jinja2-2026.yaml",
+          "benchmark/manifests/marshmallow-2730.yaml",
+          "benchmark/manifests/marshmallow-2800.yaml",
+          "benchmark/manifests/marshmallow-2861.yaml",
+          "benchmark/manifests/marshmallow-2894.yaml",
+          "benchmark/manifests/more-itertools-1028.yaml",
+          "benchmark/manifests/more-itertools-1082.yaml",
+          "benchmark/manifests/more-itertools-1125.yaml",
+          "benchmark/manifests/more-itertools-1153.yaml",
+          "benchmark/manifests/more-itertools-1260.yaml",
+          "benchmark/manifests/more-itertools-1276.yaml",
+          "benchmark/manifests/starlette-3130.yaml",
+          "benchmark/manifests/starlette-3372.yaml",
+          "benchmark/manifests/starlette-3510.yaml",
+          "benchmark/manifests/starlette-3520.yaml",
+          "benchmark/manifests/starlette-3622.yaml",
+          "benchmark/manifests/tomlkit-677.yaml",
+          "benchmark/manifests/tomlkit-698.yaml",
+          "benchmark/manifests/werkzeug-3071.yaml",
+          "benchmark/manifests/werkzeug-3110.yaml",
+          "benchmark/manifests/werkzeug-3136.yaml",
+          "benchmark/manifests/werkzeug-3148.yaml"
+        ],
+        "cache": false,
+        "context_budget": 250000,
+        "crash_check": false,
+        "effort": "medium",
+        "evaluate": true,
+        "file_requests": false,
+        "guard": {
+          "max_calls_per_day": 400,
+          "max_calls_per_hour": 60,
+          "min_interval_s": 2.0
+        },
+        "max_output_tokens": 16000,
+        "max_patch_attempts": 2,
+        "model": "claude-sonnet-5-5",
+        "name": "final-b2-arm-b",
+        "pipelines": [
+          "B"
+        ],
+        "prompt_version": "v2",
+        "retry_effort": null,
+        "retry_model": null,
+        "split": "test2",
+        "token_cap": 400000,
+        "trials": 3
+      },
+      "run_id": "final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308",
+      "set_aside": {
+        "PacingLimitReached": 5
+      },
+      "trials": 84
+    },
+    "B2": {
+      "config": {
+        "bugs": [
+          "benchmark/manifests/click-3482.yaml",
+          "benchmark/manifests/jinja2-1702.yaml",
+          "benchmark/manifests/jinja2-1762.yaml",
+          "benchmark/manifests/jinja2-1782.yaml",
+          "benchmark/manifests/jinja2-1852.yaml",
+          "benchmark/manifests/jinja2-1984.yaml",
+          "benchmark/manifests/jinja2-2026.yaml",
+          "benchmark/manifests/marshmallow-2730.yaml",
+          "benchmark/manifests/marshmallow-2800.yaml",
+          "benchmark/manifests/marshmallow-2861.yaml",
+          "benchmark/manifests/marshmallow-2894.yaml",
+          "benchmark/manifests/more-itertools-1028.yaml",
+          "benchmark/manifests/more-itertools-1082.yaml",
+          "benchmark/manifests/more-itertools-1125.yaml",
+          "benchmark/manifests/more-itertools-1153.yaml",
+          "benchmark/manifests/more-itertools-1260.yaml",
+          "benchmark/manifests/more-itertools-1276.yaml",
+          "benchmark/manifests/starlette-3130.yaml",
+          "benchmark/manifests/starlette-3372.yaml",
+          "benchmark/manifests/starlette-3510.yaml",
+          "benchmark/manifests/starlette-3520.yaml",
+          "benchmark/manifests/starlette-3622.yaml",
+          "benchmark/manifests/tomlkit-677.yaml",
+          "benchmark/manifests/tomlkit-698.yaml",
+          "benchmark/manifests/werkzeug-3071.yaml",
+          "benchmark/manifests/werkzeug-3110.yaml",
+          "benchmark/manifests/werkzeug-3136.yaml",
+          "benchmark/manifests/werkzeug-3148.yaml"
+        ],
+        "cache": false,
+        "context_budget": 250000,
+        "crash_check": true,
+        "effort": "medium",
+        "evaluate": true,
+        "file_requests": true,
+        "guard": {
+          "max_calls_per_day": 400,
+          "max_calls_per_hour": 60,
+          "min_interval_s": 2.0
+        },
+        "max_output_tokens": 16000,
+        "max_patch_attempts": 2,
+        "model": "claude-sonnet-5-5",
+        "name": "final-b2-arm-b2",
+        "pipelines": [
+          "B"
+        ],
+        "prompt_version": "v3",
+        "retry_effort": "high",
+        "retry_model": null,
+        "split": "test2",
+        "token_cap": 400000,
+        "trials": 3
+      },
+      "run_id": "final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308",
+      "set_aside": {
+        "PacingLimitReached": 1,
+        "UsageLimitReached": 18
+      },
+      "trials": 84
+    }
+  },
+  "format": 1,
+  "run_id": "B: final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308 + B2: final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308",
+  "set_aside": {
+    "PacingLimitReached": 6,
+    "UsageLimitReached": 18
+  },
+  "trials": 168
+}

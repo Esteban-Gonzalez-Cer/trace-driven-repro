@@ -285,6 +285,8 @@ def test_b2_report_orders_the_pair_and_adds_its_measures(
     assert "Solved by B2 only (c = 1)" not in text and "Solved by B2 only (b = 1): bug-b" in text
     assert "(B2 minus B)" in text and "Pipeline B2's own measures" in text
     assert "Beyond-the-crash tests" in text
+    assert "(docs/ANALYSIS_PLAN_B2.md)" in text and "docs/ANALYSIS_PLAN.md" not in text
+    assert report._signed(-0.0) == "+0.000" and report._signed(-0.05) == "-0.050"
     report.write_all(results, tmp_path / "manifests", out, "b2", None, ("B2", "B"), ("bug-b",))
     w = json.loads((out / "numbers.json").read_text())["without"]
     assert w["bugs"] == ["bug-b"] and w["accuracy"]["B2"]["n"] == 1

@@ -1,0 +1,452 @@
+{
+  "bugs": {
+    "click-3482": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-1702": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-1762": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-1782": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-1852": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-1984": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "jinja2-2026": {
+      "excluded": [
+        "tests/test_runtime.py::test_undefined_copy[ChainableUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[Undefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[Undefined]",
+        "tests/test_runtime.py::test_undefined_pickle[ChainableUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[Undefined]"
+      ],
+      "gold": {
+        "tests/test_runtime.py::test_undefined_copy[ChainableUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_copy[DebugUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_copy[StrictUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_copy[Undefined]": "passed",
+        "tests/test_runtime.py::test_undefined_deepcopy[DebugUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_deepcopy[StrictUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_deepcopy[Undefined]": "passed",
+        "tests/test_runtime.py::test_undefined_pickle[ChainableUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_pickle[DebugUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_pickle[StrictUndefined]": "passed",
+        "tests/test_runtime.py::test_undefined_pickle[Undefined]": "passed"
+      },
+      "tests": [
+        "tests/test_runtime.py::test_undefined_copy[ChainableUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_copy[Undefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_deepcopy[Undefined]",
+        "tests/test_runtime.py::test_undefined_pickle[ChainableUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[DebugUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[StrictUndefined]",
+        "tests/test_runtime.py::test_undefined_pickle[Undefined]"
+      ]
+    },
+    "marshmallow-2730": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "marshmallow-2800": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "marshmallow-2861": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "marshmallow-2894": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "more-itertools-1028": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "more-itertools-1082": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "more-itertools-1125": {
+      "excluded": [
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators"
+      ],
+      "gold": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "passed"
+      },
+      "tests": [
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators"
+      ]
+    },
+    "more-itertools-1153": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "more-itertools-1260": {
+      "excluded": [
+        "tests/test_recipes.py::RunningWindowSizeTests::test_noninteger_window"
+      ],
+      "gold": {
+        "tests/test_recipes.py::RunningWindowSizeTests::test_noninteger_window": "passed"
+      },
+      "tests": [
+        "tests/test_recipes.py::RunningWindowSizeTests::test_noninteger_window"
+      ]
+    },
+    "more-itertools-1276": {
+      "excluded": [
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values"
+      ],
+      "gold": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      },
+      "tests": [
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values"
+      ]
+    },
+    "starlette-3130": {
+      "excluded": [
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[asyncio]",
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[trio]"
+      ],
+      "gold": {
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[asyncio]": "passed",
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[trio]": "passed"
+      },
+      "tests": [
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[asyncio]",
+        "tests/test_testclient.py::test_debug_info_in_response_extensions_with_template[trio]"
+      ]
+    },
+    "starlette-3372": {
+      "excluded": [
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]"
+      ],
+      "gold": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "passed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "passed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "passed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "passed"
+      },
+      "tests": [
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]"
+      ]
+    },
+    "starlette-3510": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "starlette-3520": {
+      "excluded": [
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[asyncio]",
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[trio]"
+      ],
+      "gold": {
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[asyncio]": "passed",
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[trio]": "passed"
+      },
+      "tests": [
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[asyncio]",
+        "tests/middleware/test_opentelemetry.py::test_provider_configured_after_middleware_stack_is_built[trio]"
+      ]
+    },
+    "starlette-3622": {
+      "excluded": [
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]"
+      ],
+      "gold": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "passed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "passed"
+      },
+      "tests": [
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]"
+      ]
+    },
+    "tomlkit-677": {
+      "excluded": [
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement0]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement0]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement1]"
+      ],
+      "gold": {
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-1]": "passed",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement0]": "passed",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement1]": "passed",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-1]": "passed",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement0]": "passed",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement1]": "passed"
+      },
+      "tests": [
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement0]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-False-replacement1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-1]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement0]",
+        "tests/test_toml_document.py::test_update_out_of_order_table_preserves_siblings[True-True-replacement1]"
+      ]
+    },
+    "tomlkit-698": {
+      "excluded": [
+        "tests/test_encoder_dispatch.py::test_bound_method_with_context_subset",
+        "tests/test_encoder_dispatch.py::test_individual_keyword_context[False-_sort_keys]",
+        "tests/test_encoder_dispatch.py::test_internal_typeerror_propagates_once"
+      ],
+      "gold": {
+        "tests/test_encoder_dispatch.py::test_bound_method_with_context_subset": "passed",
+        "tests/test_encoder_dispatch.py::test_individual_keyword_context[False-_sort_keys]": "passed",
+        "tests/test_encoder_dispatch.py::test_internal_typeerror_propagates_once": "passed"
+      },
+      "tests": [
+        "tests/test_encoder_dispatch.py::test_bound_method_with_context_subset",
+        "tests/test_encoder_dispatch.py::test_individual_keyword_context[False-_sort_keys]",
+        "tests/test_encoder_dispatch.py::test_internal_typeerror_propagates_once"
+      ]
+    },
+    "werkzeug-3071": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "werkzeug-3110": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "werkzeug-3136": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    },
+    "werkzeug-3148": {
+      "excluded": [],
+      "gold": {},
+      "tests": []
+    }
+  },
+  "format": 1,
+  "trials": {
+    "more-itertools-1125/B/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1125/B/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1125/B/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1125/B2/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1125/B2/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1125/B2/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::PartialProductTests::test_repeat_with_iterators": "failed"
+      }
+    },
+    "more-itertools-1276/B/1": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      }
+    },
+    "more-itertools-1276/B/2": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      }
+    },
+    "more-itertools-1276/B/3": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      }
+    },
+    "more-itertools-1276/B2/1": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      }
+    },
+    "more-itertools-1276/B2/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "failed"
+      }
+    },
+    "more-itertools-1276/B2/3": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_more.py::NumericRangeTests::test_reversed_preserves_float_values": "passed"
+      }
+    },
+    "starlette-3372/B/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3372/B/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3372/B/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3372/B2/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3372/B2/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3372/B2/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_bytes_rejects_message_without_bytes[trio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[asyncio]": "failed",
+        "tests/test_endpoints.py::test_websocket_endpoint_decode_text_rejects_message_without_text[trio]": "failed"
+      }
+    },
+    "starlette-3622/B/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "starlette-3622/B/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "starlette-3622/B/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "starlette-3622/B2/1": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "starlette-3622/B2/2": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "starlette-3622/B2/3": {
+      "all_passed": false,
+      "outcomes": {
+        "tests/test_responses.py::test_response_typed_memoryview[asyncio]": "failed",
+        "tests/test_responses.py::test_response_typed_memoryview[trio]": "failed"
+      }
+    },
+    "tomlkit-698/B2/1": {
+      "all_passed": true,
+      "outcomes": {
+        "tests/test_encoder_dispatch.py::test_bound_method_with_context_subset": "passed",
+        "tests/test_encoder_dispatch.py::test_individual_keyword_context[False-_sort_keys]": "passed",
+        "tests/test_encoder_dispatch.py::test_internal_typeerror_propagates_once": "passed"
+      }
+    }
+  }
+}

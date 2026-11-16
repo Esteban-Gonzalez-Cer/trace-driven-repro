@@ -99,7 +99,9 @@ def adjusted_rows(rows: list[Row], not_a_fix: list[str]) -> list[Row]:
     return [r | {"solved": False} if r["id"] in drop else r for r in rows]
 
 
-def section(audit: dict[str, Any], adjusted: dict[str, Any] | None) -> list[str]:
+def section(
+    audit: dict[str, Any], adjusted: dict[str, Any] | None, doc: str = "docs/AUDIT.md"
+) -> list[str]:
     """Markdown lines for the tables file."""
     c = audit["correct"]
     lines = [
@@ -108,7 +110,7 @@ def section(audit: dict[str, Any], adjusted: dict[str, Any] | None) -> list[str]
         "",
         "Every trial graded correct was reviewed next to the maintainers' fix "
         f"(first pass: {c['reviewer']}): {c['patches']} distinct patches; details in "
-        "docs/AUDIT.md.",
+        f"{doc}.",
         "",
         "| decision | distinct patches | trials | by pipeline |",
         "|---|---|---|---|",
@@ -223,7 +225,7 @@ def load_incorrect_sample(path: Path, rows: list[Row]) -> dict[str, Any]:
     }
 
 
-def incorrect_section(s: dict[str, Any]) -> list[str]:
+def incorrect_section(s: dict[str, Any], doc: str = "docs/AUDIT.md") -> list[str]:
     lo, hi = s["ci"]
     return [
         "",
@@ -232,7 +234,7 @@ def incorrect_section(s: dict[str, Any]) -> list[str]:
         f"{s['sampled']} of {s['population']} incorrect patches drawn at random (seed "
         f"{s['seed']}) and reviewed: {s['false_negatives']} were real fixes the grader rejected. "
         f"Estimated false-negative rate {s['false_negative_rate']:.0%} (95% CI {lo:.0%} to "
-        f"{hi:.0%}); details in docs/AUDIT.md.",
+        f"{hi:.0%}); details in {doc}.",
     ]
 
 

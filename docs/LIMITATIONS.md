@@ -56,7 +56,11 @@ TODO: Phase 6. Must cover contamination, synthetic payloads, small N, oracle fal
 - **The second study's test set (test2).** 28 bugs, short of the 30 target, from 7 libraries
   (jinja2 and more-itertools 6 each, click 1); fixes go back to 2024-12 because the last 12
   months were used up, so 19 of 28 are before the model's stated training cutoff. Two bugs
-  (starlette-3510, -3520) read as missing features; results are also shown without them.
+  (starlette-3510, -3520) read as missing features; results are also shown without them. The
+  audit found a third (starlette-3130, whose tests check a new `response.extensions` entry)
+  after the run; it stays in the "without" view because that list was frozen.
+- **The second study's audit is not blinded.** The first pass saw the results and which arm
+  wrote each patch; the owner's second review of a sample is still to come.
 - **Tuned on already-seen bugs.** B2's settings were chosen in three practice rounds on the 35
   bugs of the first study, one trial each; old B was not tuned again. The fresh set measures
   both arms fairly, but B2 had a design phase old B did not.

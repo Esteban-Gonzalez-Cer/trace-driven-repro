@@ -1,0 +1,1367 @@
+{
+  "audit": {
+    "correct": {
+      "by_decision": {
+        "not_a_fix": {
+          "by_pipeline": {},
+          "patches": 0,
+          "trials": 0
+        },
+        "ok": {
+          "by_pipeline": {
+            "B": 32,
+            "B2": 36
+          },
+          "patches": 30,
+          "trials": 68
+        },
+        "ok_with_note": {
+          "by_pipeline": {
+            "B": 18,
+            "B2": 19
+          },
+          "patches": 22,
+          "trials": 37
+        }
+      },
+      "fix_level": {
+        "other_layer": {
+          "B": 3,
+          "B2": 5
+        },
+        "root_cause": {
+          "B": 38,
+          "B2": 42
+        },
+        "symptom": {
+          "B": 9,
+          "B2": 8
+        }
+      },
+      "not_a_fix": [],
+      "patches": 52,
+      "reviewer": "claude-opus-5-5"
+    },
+    "incorrect_sample": {
+      "ci": [
+        0.0,
+        0.2316
+      ],
+      "false_negative_rate": 0.0,
+      "false_negatives": 0,
+      "population": 56,
+      "real_fix": [],
+      "reviewer": "claude-opus-5-5",
+      "sampled": 14,
+      "seed": 20261111
+    },
+    "state_deficit": {
+      "bugs": [
+        "jinja2-2026"
+      ],
+      "judged": 28,
+      "relabelled": {
+        "B": 3,
+        "B2": 1
+      },
+      "reviewer": "claude-opus-5-5"
+    }
+  },
+  "beyond_the_crash": {
+    "bugs": [
+      "jinja2-2026",
+      "more-itertools-1125",
+      "more-itertools-1260",
+      "more-itertools-1276",
+      "starlette-3130",
+      "starlette-3372",
+      "starlette-3520",
+      "starlette-3622",
+      "tomlkit-677",
+      "tomlkit-698"
+    ],
+    "pipelines": {
+      "B": {
+        "correct_trials": {
+          "ci": [
+            0.0549,
+            0.5719
+          ],
+          "k": 3,
+          "n": 12,
+          "rate": 0.25
+        },
+        "failed": [
+          "more-itertools-1125/B/1",
+          "more-itertools-1125/B/2",
+          "more-itertools-1125/B/3",
+          "starlette-3372/B/1",
+          "starlette-3372/B/2",
+          "starlette-3372/B/3",
+          "starlette-3622/B/1",
+          "starlette-3622/B/2",
+          "starlette-3622/B/3"
+        ]
+      },
+      "B2": {
+        "correct_trials": {
+          "ci": [
+            0.0504,
+            0.5381
+          ],
+          "k": 3,
+          "n": 13,
+          "rate": 0.2308
+        },
+        "failed": [
+          "more-itertools-1125/B2/1",
+          "more-itertools-1125/B2/2",
+          "more-itertools-1125/B2/3",
+          "more-itertools-1276/B2/2",
+          "starlette-3372/B2/1",
+          "starlette-3372/B2/2",
+          "starlette-3372/B2/3",
+          "starlette-3622/B2/1",
+          "starlette-3622/B2/2",
+          "starlette-3622/B2/3"
+        ]
+      }
+    }
+  },
+  "bugs": 28,
+  "comparison": {
+    "b2_only": [
+      "werkzeug-3110"
+    ],
+    "b_only": [],
+    "both": 17,
+    "mcnemar_p": 1.0,
+    "neither": 10,
+    "pair": [
+      "B2",
+      "B"
+    ],
+    "paired_difference": {
+      "ci": [
+        -0.0,
+        0.131
+      ],
+      "mean": 0.0595
+    }
+  },
+  "docs": {
+    "audit": "docs/AUDIT_B2.md",
+    "plan": "docs/ANALYSIS_PLAN_B2.md"
+  },
+  "groups": {
+    "cohort": {
+      "post-cutoff": {
+        "B": {
+          "ci": [
+            0.137,
+            0.788
+          ],
+          "k": 4,
+          "n": 9,
+          "rate": 0.4444
+        },
+        "B2": {
+          "ci": [
+            0.137,
+            0.788
+          ],
+          "k": 4,
+          "n": 9,
+          "rate": 0.4444
+        }
+      },
+      "pre-cutoff": {
+        "B": {
+          "ci": [
+            0.4345,
+            0.8742
+          ],
+          "k": 13,
+          "n": 19,
+          "rate": 0.6842
+        },
+        "B2": {
+          "ci": [
+            0.488,
+            0.9085
+          ],
+          "k": 14,
+          "n": 19,
+          "rate": 0.7368
+        }
+      }
+    },
+    "kind": {
+      "library_raise": {
+        "B": {
+          "ci": [
+            0.3079,
+            0.8907
+          ],
+          "k": 7,
+          "n": 11,
+          "rate": 0.6364
+        },
+        "B2": {
+          "ci": [
+            0.3903,
+            0.9398
+          ],
+          "k": 8,
+          "n": 11,
+          "rate": 0.7273
+        }
+      },
+      "python_failure": {
+        "B": {
+          "ci": [
+            0.3292,
+            0.8156
+          ],
+          "k": 10,
+          "n": 17,
+          "rate": 0.5882
+        },
+        "B2": {
+          "ci": [
+            0.3292,
+            0.8156
+          ],
+          "k": 10,
+          "n": 17,
+          "rate": 0.5882
+        }
+      }
+    }
+  },
+  "per_bug": {
+    "click-3482": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-05-22",
+      "kind": "python_failure"
+    },
+    "jinja2-1702": {
+      "B": {
+        "labels": [
+          "fault_localization_miss",
+          "fault_localization_miss",
+          "fault_localization_miss"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "fault_localization_miss",
+          "fault_localization_miss",
+          null
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-19",
+      "kind": "python_failure"
+    },
+    "jinja2-1762": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-20",
+      "kind": "library_raise"
+    },
+    "jinja2-1782": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-19",
+      "kind": "python_failure"
+    },
+    "jinja2-1852": {
+      "B": {
+        "labels": [
+          "fault_localization_miss",
+          "fault_localization_miss",
+          "syntax_or_import_error"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          "fault_localization_miss",
+          "syntax_or_import_error"
+        ],
+        "solved": false,
+        "trials": [
+          true,
+          false,
+          false
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-20",
+      "kind": "python_failure"
+    },
+    "jinja2-1984": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-19",
+      "kind": "python_failure"
+    },
+    "jinja2-2026": {
+      "B": {
+        "labels": [
+          "state_deficit",
+          "state_deficit",
+          "state_deficit"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "syntax_or_import_error",
+          "state_deficit",
+          "syntax_or_import_error"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2024-12-19",
+      "kind": "library_raise"
+    },
+    "marshmallow-2730": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-01-06",
+      "kind": "library_raise"
+    },
+    "marshmallow-2800": {
+      "B": {
+        "labels": [
+          "regression_failure",
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          false,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-01-23",
+      "kind": "library_raise"
+    },
+    "marshmallow-2861": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-10-31",
+      "kind": "python_failure"
+    },
+    "marshmallow-2894": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-02-04",
+      "kind": "library_raise"
+    },
+    "more-itertools-1028": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-07-14",
+      "kind": "library_raise"
+    },
+    "more-itertools-1082": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-10-10",
+      "kind": "python_failure"
+    },
+    "more-itertools-1125": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-02-02",
+      "kind": "library_raise"
+    },
+    "more-itertools-1153": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-04-13",
+      "kind": "library_raise"
+    },
+    "more-itertools-1260": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-09-18",
+      "kind": "python_failure"
+    },
+    "more-itertools-1276": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-09-17",
+      "kind": "python_failure"
+    },
+    "starlette-3130": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-08-08",
+      "kind": "python_failure"
+    },
+    "starlette-3372": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-09-06",
+      "kind": "python_failure"
+    },
+    "starlette-3510": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-09-05",
+      "kind": "python_failure"
+    },
+    "starlette-3520": {
+      "B": {
+        "labels": [
+          "syntax_or_import_error",
+          "syntax_or_import_error",
+          "syntax_or_import_error"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-09-06",
+      "kind": "python_failure"
+    },
+    "starlette-3622": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-10-17",
+      "kind": "python_failure"
+    },
+    "tomlkit-677": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-11-06",
+      "kind": "python_failure"
+    },
+    "tomlkit-698": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "regression_failure",
+          "regression_failure"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          "incorrect_patch",
+          "regression_failure"
+        ],
+        "solved": false,
+        "trials": [
+          true,
+          false,
+          false
+        ]
+      },
+      "cohort": "post-cutoff",
+      "fix_date": "2026-11-05",
+      "kind": "python_failure"
+    },
+    "werkzeug-3071": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2025-11-27",
+      "kind": "python_failure"
+    },
+    "werkzeug-3110": {
+      "B": {
+        "labels": [
+          "fault_localization_miss",
+          "fault_localization_miss",
+          "fault_localization_miss"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          null,
+          "incorrect_patch",
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          false,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-02-13",
+      "kind": "library_raise"
+    },
+    "werkzeug-3136": {
+      "B": {
+        "labels": [
+          null,
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          true,
+          true,
+          true
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          null,
+          null
+        ],
+        "solved": true,
+        "trials": [
+          false,
+          true,
+          true
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-03-24",
+      "kind": "library_raise"
+    },
+    "werkzeug-3148": {
+      "B": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "B2": {
+        "labels": [
+          "incorrect_patch",
+          "incorrect_patch",
+          "incorrect_patch"
+        ],
+        "solved": false,
+        "trials": [
+          false,
+          false,
+          false
+        ]
+      },
+      "cohort": "pre-cutoff",
+      "fix_date": "2026-04-02",
+      "kind": "library_raise"
+    }
+  },
+  "pipelines": {
+    "B": {
+      "accuracy": {
+        "ci": [
+          0.4058,
+          0.785
+        ],
+        "k": 17,
+        "n": 28,
+        "rate": 0.6071
+      },
+      "agent_seconds": {
+        "max": 71.8,
+        "mean": 17.1,
+        "median": 14.4
+      },
+      "calls": 99,
+      "calls_per_run": 1.18,
+      "consistency": {
+        "ci": [
+          0.3718,
+          0.7554
+        ],
+        "k": 16,
+        "n": 28,
+        "rate": 0.5714
+      },
+      "correct_patch_files": {
+        "max": 2.0,
+        "mean": 1.1,
+        "median": 1.0
+      },
+      "correct_patch_lines": {
+        "max": 22.0,
+        "mean": 4.5,
+        "median": 3.0
+      },
+      "cost_equiv_usd": 13.27,
+      "cost_equiv_usd_per_run": 0.158,
+      "labels": {
+        "fault_localization_miss": 8,
+        "incorrect_patch": 16,
+        "invalid_repro": 0,
+        "no_repro": 0,
+        "regression_failure": 3,
+        "scope_violation": 0,
+        "state_deficit": 3,
+        "syntax_or_import_error": 4,
+        "tampered": 0
+      },
+      "pass_at_3": {
+        "ci": [
+          0.4058,
+          0.785
+        ],
+        "k": 17,
+        "n": 28,
+        "rate": 0.6071
+      },
+      "tokens": {
+        "max": 184508.0,
+        "mean": 81888.9,
+        "median": 82470.5
+      },
+      "trials": 84,
+      "trials_solved": 50,
+      "unlabelled_failures": 0
+    },
+    "B2": {
+      "accuracy": {
+        "ci": [
+          0.4407,
+          0.8136
+        ],
+        "k": 18,
+        "n": 28,
+        "rate": 0.6429
+      },
+      "agent_seconds": {
+        "max": 280.0,
+        "mean": 30.8,
+        "median": 16.5
+      },
+      "b2": {
+        "check_caught": {
+          "ci": [
+            0.0131,
+            0.1175
+          ],
+          "k": 4,
+          "n": 84,
+          "rate": 0.0476
+        },
+        "check_caught_then_solved": 3,
+        "check_sent": {
+          "ci": [
+            0.9166,
+            0.9971
+          ],
+          "k": 82,
+          "n": 84,
+          "rate": 0.9762
+        },
+        "check_usable": {
+          "ci": [
+            0.7778,
+            0.9328
+          ],
+          "k": 73,
+          "n": 84,
+          "rate": 0.869
+        },
+        "check_verdicts": {
+          "invalid_repro": 1,
+          "no_repro": 14,
+          "none": 2,
+          "valid": 67
+        },
+        "escalated": {
+          "ci": [
+            0.0672,
+            0.2222
+          ],
+          "k": 11,
+          "n": 84,
+          "rate": 0.131
+        },
+        "escalated_then_solved": 6,
+        "file_requests": {
+          "ci": [
+            0.1322,
+            0.3174
+          ],
+          "k": 18,
+          "n": 84,
+          "rate": 0.2143
+        },
+        "files_granted": 25,
+        "files_requested": 30,
+        "final_passes_check": {
+          "ci": [
+            0.8474,
+            0.9774
+          ],
+          "k": 68,
+          "n": 73,
+          "rate": 0.9315
+        },
+        "passes_check_but_incorrect": 17
+      },
+      "calls": 113,
+      "calls_per_run": 1.35,
+      "consistency": {
+        "ci": [
+          0.3718,
+          0.7554
+        ],
+        "k": 16,
+        "n": 28,
+        "rate": 0.5714
+      },
+      "correct_patch_files": {
+        "max": 2.0,
+        "mean": 1.0,
+        "median": 1.0
+      },
+      "correct_patch_lines": {
+        "max": 34.0,
+        "mean": 5.3,
+        "median": 3.0
+      },
+      "cost_equiv_usd": 20.27,
+      "cost_equiv_usd_per_run": 0.2413,
+      "labels": {
+        "fault_localization_miss": 3,
+        "incorrect_patch": 21,
+        "invalid_repro": 0,
+        "no_repro": 0,
+        "regression_failure": 1,
+        "scope_violation": 0,
+        "state_deficit": 1,
+        "syntax_or_import_error": 3,
+        "tampered": 0
+      },
+      "pass_at_3": {
+        "ci": [
+          0.5513,
+          0.8931
+        ],
+        "k": 21,
+        "n": 28,
+        "rate": 0.75
+      },
+      "tokens": {
+        "max": 400504.0,
+        "mean": 103210.5,
+        "median": 92360.0
+      },
+      "trials": 84,
+      "trials_solved": 55,
+      "unlabelled_failures": 0
+    }
+  },
+  "run_id": "B: final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308 + B2: final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308",
+  "set_aside": {
+    "PacingLimitReached": 6,
+    "UsageLimitReached": 18
+  },
+  "trials": 168,
+  "without": {
+    "accuracy": {
+      "B": {
+        "ci": [
+          0.4057,
+          0.7977
+        ],
+        "k": 16,
+        "n": 26,
+        "rate": 0.6154
+      },
+      "B2": {
+        "ci": [
+          0.4433,
+          0.8279
+        ],
+        "k": 17,
+        "n": 26,
+        "rate": 0.6538
+      }
+    },
+    "bugs": [
+      "starlette-3510",
+      "starlette-3520"
+    ],
+    "comparison": {
+      "b2_only": [
+        "werkzeug-3110"
+      ],
+      "b_only": [],
+      "both": 16,
+      "mcnemar_p": 1.0,
+      "neither": 9,
+      "pair": [
+        "B2",
+        "B"
+      ],
+      "paired_difference": {
+        "ci": [
+          -0.0,
+          0.141
+        ],
+        "mean": 0.0641
+      }
+    }
+  }
+}

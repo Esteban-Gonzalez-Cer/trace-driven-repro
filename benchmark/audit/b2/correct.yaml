@@ -1,0 +1,572 @@
+# Manual audit of every patch graded correct, second study (docs/ANALYSIS_PLAN_B2.md, Phase 5b).
+# One entry per distinct patch (trials whose patch files are identical share an entry).
+# First pass: Claude Opus 5.5 (claude-opus-5-5), reading each patch next to the crash report
+# and the maintainers' source fix, after the run (the reviewer had seen the results).
+# decision: ok | ok_with_note | not_a_fix
+# fix_level (the owner's four questions): root_cause | other_layer | symptom
+run_id: 'B: final-b2-arm-b-3ea94442-v2-claude-sonnet-5-5-cli2.1.308 + B2: final-b2-arm-b2-3ea94442-v3-claude-sonnet-5-5-cli2.1.308'
+reviewer: claude-opus-5-5
+patches:
+- bug: click-3482
+  patch: 1
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's output buffer ignore close(). The null pager still closes a stream it
+    does not own (sys.stdout in a real program); the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B/1
+  patch_shas:
+  - 3cd46b2dc8f7
+- bug: click-3482
+  patch: 2
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's output buffer ignore close(). The null pager still closes a stream it
+    does not own (sys.stdout in a real program); the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B/2
+  patch_shas:
+  - 6f59eeb7769d
+- bug: click-3482
+  patch: 3
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's output buffer ignore close(). The null pager still closes a stream it
+    does not own (sys.stdout in a real program); the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B/3
+  patch_shas:
+  - a4016f79a57c
+- bug: click-3482
+  patch: 4
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's output buffer ignore close(). The null pager still closes a stream it
+    does not own (sys.stdout in a real program); the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B2/1
+  patch_shas:
+  - 2d91c2cf266a
+- bug: click-3482
+  patch: 5
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's output buffer ignore close(). The null pager still closes a stream it
+    does not own (sys.stdout in a real program); the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B2/2
+  patch_shas:
+  - bb3ea2d200a4
+- bug: click-3482
+  patch: 6
+  decision: ok_with_note
+  fix_level: symptom
+  note: Makes the test runner's buffer ignore close() and flushes the runner's own streams. The null pager
+    still closes a stream it does not own; the maintainers stop the pager from closing it.
+  trials:
+  - click-3482/B2/3
+  patch_shas:
+  - 0b6214b55231
+- bug: jinja2-1702
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: 'Identical to the maintainers'' fix: block references join with the environment''s concat.'
+  trials:
+  - jinja2-1702/B2/3
+  patch_shas:
+  - d33c9c8f972e
+- bug: jinja2-1762
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Passes the context to call_test, as the maintainers' fix does.
+  trials:
+  - jinja2-1762/B/1
+  - jinja2-1762/B/2
+  - jinja2-1762/B/3
+  - jinja2-1762/B2/1
+  - jinja2-1762/B2/2
+  - jinja2-1762/B2/3
+  patch_shas:
+  - dccbf81f4625
+- bug: jinja2-1782
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Adds an async variant of unique, as the maintainers do; it streams items instead of collecting
+    them into a list first.
+  trials:
+  - jinja2-1782/B/1
+  - jinja2-1782/B/2
+  - jinja2-1782/B/3
+  - jinja2-1782/B2/1
+  - jinja2-1782/B2/2
+  - jinja2-1782/B2/3
+  patch_shas:
+  - c0d2ddbad140
+- bug: jinja2-1852
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Escapes braces in the position inside the generated f-string, as the maintainers do.
+  trials:
+  - jinja2-1852/B2/1
+  patch_shas:
+  - c995635029b9
+- bug: jinja2-1984
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Identical to the maintainers' fix.
+  trials:
+  - jinja2-1984/B/1
+  - jinja2-1984/B/2
+  patch_shas:
+  - 714a71c34bc0
+- bug: jinja2-1984
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: The maintainers' fix, plus OverflowError caught on the first int() too (an infinite float).
+  trials:
+  - jinja2-1984/B/3
+  - jinja2-1984/B2/1
+  - jinja2-1984/B2/2
+  - jinja2-1984/B2/3
+  patch_shas:
+  - 9429b33e55c8
+- bug: marshmallow-2800
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. A file URL with an empty host is checked as localhost.
+  trials:
+  - marshmallow-2800/B/2
+  patch_shas:
+  - 280f9a1161f9
+- bug: marshmallow-2800
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. A file URL with an empty host is checked as localhost.
+  trials:
+  - marshmallow-2800/B/3
+  patch_shas:
+  - a53b4b42ff36
+- bug: marshmallow-2800
+  patch: 3
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. A file URL with an empty host is checked as localhost.
+  trials:
+  - marshmallow-2800/B2/1
+  patch_shas:
+  - 44973ded38ac
+- bug: marshmallow-2800
+  patch: 4
+  decision: ok
+  fix_level: root_cause
+  note: Lets the URL regex accept an empty host after file://; the maintainers instead substitute localhost
+    before matching. Same accepted set for file URLs.
+  trials:
+  - marshmallow-2800/B2/2
+  patch_shas:
+  - 27b8b54ecbf3
+- bug: marshmallow-2800
+  patch: 5
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. A file URL with an empty host is checked as localhost.
+  trials:
+  - marshmallow-2800/B2/3
+  patch_shas:
+  - fb5cff4140c9
+- bug: marshmallow-2861
+  patch: 1
+  decision: ok_with_note
+  fix_level: other_layer
+  note: Skips validators when the deserializer returns missing, as marshmallow already does for missing
+    input. The maintainers give missing a length of 0 instead, so a Length(min=1) validator now fails
+    where this patch lets the value through.
+  trials:
+  - marshmallow-2861/B/1
+  - marshmallow-2861/B/2
+  - marshmallow-2861/B/3
+  - marshmallow-2861/B2/1
+  - marshmallow-2861/B2/2
+  patch_shas:
+  - 144e6b4dc331
+- bug: marshmallow-2861
+  patch: 2
+  decision: ok_with_note
+  fix_level: other_layer
+  note: Skips validators when the deserializer returns missing, as marshmallow already does for missing
+    input. The maintainers give missing a length of 0 instead, so a Length(min=1) validator now fails
+    where this patch lets the value through.
+  trials:
+  - marshmallow-2861/B2/3
+  patch_shas:
+  - 685c8f57b24b
+- bug: marshmallow-2894
+  patch: 1
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B/1
+  patch_shas:
+  - 5ffd4b2f6fd8
+- bug: marshmallow-2894
+  patch: 2
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B/2
+  patch_shas:
+  - 4ea8569fef7d
+- bug: marshmallow-2894
+  patch: 3
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B/3
+  patch_shas:
+  - e2c7afded58f
+- bug: marshmallow-2894
+  patch: 4
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B2/1
+  patch_shas:
+  - df39da61cc5e
+- bug: marshmallow-2894
+  patch: 5
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B2/2
+  patch_shas:
+  - fd2ae6ed5a79
+- bug: marshmallow-2894
+  patch: 6
+  decision: ok_with_note
+  fix_level: symptom
+  note: Copies one of Field's rules (a None default implies allow_none) after super().__init__ for the
+    None constant. The maintainers pass the defaults to Field.__init__, so all of Field's rules apply;
+    the mechanism (defaults set after init) stays. Borderline with other_layer.
+  trials:
+  - marshmallow-2894/B2/3
+  patch_shas:
+  - 7eb948866549
+- bug: more-itertools-1028
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. __reversed__ = None is treated as absent.
+  trials:
+  - more-itertools-1028/B/1
+  - more-itertools-1028/B/2
+  - more-itertools-1028/B/3
+  - more-itertools-1028/B2/1
+  - more-itertools-1028/B2/2
+  - more-itertools-1028/B2/3
+  patch_shas:
+  - 236af9d26ea3
+- bug: more-itertools-1082
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: 'Identical in effect to the maintainers'' fix: compares the materialised lengths.'
+  trials:
+  - more-itertools-1082/B/1
+  - more-itertools-1082/B/2
+  - more-itertools-1082/B/3
+  - more-itertools-1082/B2/2
+  - more-itertools-1082/B2/3
+  patch_shas:
+  - 5cb22defa0e9
+- bug: more-itertools-1082
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: Compares len(elements) with len(args), the same count as the maintainers' len(pools).
+  trials:
+  - more-itertools-1082/B2/1
+  patch_shas:
+  - 8457f2b421ce
+- bug: more-itertools-1125
+  patch: 1
+  decision: ok_with_note
+  fix_level: root_cause
+  note: Fixes gray_product as the maintainers do, but leaves the same mechanism (iterables * repeat over
+    iterators) in partial_product, which the maintainers also fixed; the beyond-the-crash test for partial_product
+    fails.
+  trials:
+  - more-itertools-1125/B/1
+  - more-itertools-1125/B/2
+  - more-itertools-1125/B/3
+  - more-itertools-1125/B2/1
+  - more-itertools-1125/B2/2
+  - more-itertools-1125/B2/3
+  patch_shas:
+  - 1de71f4165f5
+- bug: more-itertools-1153
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Returns an empty iterator for an empty range, as the maintainers do.
+  trials:
+  - more-itertools-1153/B/1
+  - more-itertools-1153/B/2
+  - more-itertools-1153/B/3
+  - more-itertools-1153/B2/1
+  - more-itertools-1153/B2/2
+  - more-itertools-1153/B2/3
+  patch_shas:
+  - 34cbf01d069d
+- bug: more-itertools-1276
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Yields values by index from the end, so no value before the start is computed, as the maintainers
+    do.
+  trials:
+  - more-itertools-1276/B/1
+  patch_shas:
+  - c82afd71b994
+- bug: more-itertools-1276
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: Yields values by index from the end, so no value before the start is computed, as the maintainers
+    do.
+  trials:
+  - more-itertools-1276/B/2
+  patch_shas:
+  - bc4db459bcee
+- bug: more-itertools-1276
+  patch: 3
+  decision: ok
+  fix_level: root_cause
+  note: Yields values by index from the end, so no value before the start is computed, as the maintainers
+    do.
+  trials:
+  - more-itertools-1276/B/3
+  patch_shas:
+  - fa36afe4d650
+- bug: more-itertools-1276
+  patch: 4
+  decision: ok
+  fix_level: root_cause
+  note: Yields values by index from the end, so no value before the start is computed, as the maintainers
+    do.
+  trials:
+  - more-itertools-1276/B2/1
+  patch_shas:
+  - 176732b41a18
+- bug: more-itertools-1276
+  patch: 5
+  decision: ok_with_note
+  fix_level: root_cause
+  note: Removes the overflowing stop value, but counts down from the last value by subtracting steps,
+    so float ranges give slightly different values from forward iteration; the beyond-the-crash test for
+    float values fails.
+  trials:
+  - more-itertools-1276/B2/2
+  patch_shas:
+  - 78ae4605fe76
+- bug: more-itertools-1276
+  patch: 6
+  decision: ok
+  fix_level: root_cause
+  note: Yields values by index from the end, so no value before the start is computed, as the maintainers
+    do.
+  trials:
+  - more-itertools-1276/B2/3
+  patch_shas:
+  - 0211e1133c6b
+- bug: starlette-3372
+  patch: 1
+  decision: ok_with_note
+  fix_level: root_cause
+  note: Fixes the default-encoding branch as the maintainers do, but the text and bytes branches keep
+    the same key-presence check; the 4 beyond-the-crash tests fail.
+  trials:
+  - starlette-3372/B/1
+  - starlette-3372/B/2
+  - starlette-3372/B/3
+  - starlette-3372/B2/1
+  - starlette-3372/B2/2
+  - starlette-3372/B2/3
+  patch_shas:
+  - 8cdf329e8db8
+- bug: starlette-3510
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Identical to the maintainers' change (adds the partitioned option); feature-like bug.
+  trials:
+  - starlette-3510/B/1
+  - starlette-3510/B/3
+  - starlette-3510/B2/1
+  - starlette-3510/B2/2
+  - starlette-3510/B2/3
+  patch_shas:
+  - c6ed7a8bab4b
+- bug: starlette-3510
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: The maintainers' change with the flag in another order; feature-like bug.
+  trials:
+  - starlette-3510/B/2
+  patch_shas:
+  - b58af58f6c68
+- bug: starlette-3622
+  patch: 1
+  decision: ok_with_note
+  fix_level: symptom
+  note: Converts the memoryview only in the test client. Response.render still hands a non-contiguous
+    or typed memoryview to real servers; the maintainers fix render.
+  trials:
+  - starlette-3622/B/1
+  patch_shas:
+  - 64b03fd64132
+- bug: starlette-3622
+  patch: 2
+  decision: ok_with_note
+  fix_level: symptom
+  note: Converts the memoryview only in the test client. Response.render still hands a non-contiguous
+    or typed memoryview to real servers; the maintainers fix render.
+  trials:
+  - starlette-3622/B/2
+  patch_shas:
+  - 1875c7f1990b
+- bug: starlette-3622
+  patch: 3
+  decision: ok_with_note
+  fix_level: symptom
+  note: Converts the memoryview only in the test client. Response.render still hands a non-contiguous
+    or typed memoryview to real servers; the maintainers fix render.
+  trials:
+  - starlette-3622/B/3
+  patch_shas:
+  - a1f49f366f65
+- bug: starlette-3622
+  patch: 4
+  decision: ok_with_note
+  fix_level: symptom
+  note: Converts the memoryview only in the test client. Response.render still hands a non-contiguous
+    or typed memoryview to real servers; the maintainers fix render.
+  trials:
+  - starlette-3622/B2/1
+  - starlette-3622/B2/3
+  patch_shas:
+  - 6be9806ad1b0
+- bug: starlette-3622
+  patch: 5
+  decision: ok_with_note
+  fix_level: root_cause
+  note: Fixes Response.render, the maintainers' boundary, for non-contiguous memoryviews, but typed contiguous
+    memoryviews still pass through; the beyond-the-crash tests fail.
+  trials:
+  - starlette-3622/B2/2
+  patch_shas:
+  - 74448ac0fd1b
+- bug: tomlkit-698
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Same approach as the maintainers' fix. Context is passed only by names the encoder accepts and
+    not to the name already bound to the value.
+  trials:
+  - tomlkit-698/B2/1
+  patch_shas:
+  - 1f834021979e
+- bug: werkzeug-3071
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Guards the line index against the length of the shown lines, as the maintainers do.
+  trials:
+  - werkzeug-3071/B/1
+  patch_shas:
+  - a3429dd75ce2
+- bug: werkzeug-3071
+  patch: 2
+  decision: ok
+  fix_level: root_cause
+  note: Guards the line index against the length of the shown lines, as the maintainers do.
+  trials:
+  - werkzeug-3071/B/2
+  patch_shas:
+  - 98f9b7549193
+- bug: werkzeug-3071
+  patch: 3
+  decision: ok
+  fix_level: root_cause
+  note: Guards the line index against the length of the shown lines, as the maintainers do.
+  trials:
+  - werkzeug-3071/B/3
+  patch_shas:
+  - f4f72e811d43
+- bug: werkzeug-3071
+  patch: 4
+  decision: ok
+  fix_level: root_cause
+  note: Guards the line index against the length of the shown lines, as the maintainers do.
+  trials:
+  - werkzeug-3071/B2/1
+  - werkzeug-3071/B2/2
+  - werkzeug-3071/B2/3
+  patch_shas:
+  - 5deec9c595a6
+- bug: werkzeug-3110
+  patch: 1
+  decision: ok
+  fix_level: other_layer
+  note: Sets Accept-Ranges in make_conditional before range processing; the maintainers set it inside
+    _process_range_request before its early return. Same headers for callers.
+  trials:
+  - werkzeug-3110/B2/1
+  patch_shas:
+  - 59cceb8d48f8
+- bug: werkzeug-3110
+  patch: 2
+  decision: ok
+  fix_level: other_layer
+  note: Sets Accept-Ranges in make_conditional before range processing; the maintainers set it inside
+    _process_range_request before its early return. Same headers for callers.
+  trials:
+  - werkzeug-3110/B2/3
+  patch_shas:
+  - b197a5ec5ed5
+- bug: werkzeug-3136
+  patch: 1
+  decision: ok
+  fix_level: root_cause
+  note: Identical to the maintainers' fix (greedy slash merging in matcher and rules).
+  trials:
+  - werkzeug-3136/B/1
+  - werkzeug-3136/B/2
+  - werkzeug-3136/B/3
+  - werkzeug-3136/B2/2
+  - werkzeug-3136/B2/3
+  patch_shas:
+  - c6b46468b725
