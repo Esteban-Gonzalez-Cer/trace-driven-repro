@@ -108,6 +108,20 @@ def test_only_one_request_is_answered(tmp_path: Path) -> None:
     assert [a.outcome for a in result.attempts] == ["declined", "clean"]
 
 
+def test_a_declined_reply_is_reminded_of_an_unused_request(tmp_path: Path) -> None:
+    # Practice round 1 (2026-11-16): flask-5797 declined, was told "No more files can be shown"
+    # although its one request was unused, and guessed.
+    replies = ["Not a library bug.", "REQUEST FILES: tiny_lib/__init__.py", GOLD]
+    result, provider, _ = b2(tmp_path, replies, [CLEAN])
+    assert [a.outcome for a in result.attempts] == ["declined", "clean"]
+    feedback = provider.requests[1].messages[2].content
+    assert "ask for it now" in feedback and "No more files" not in feedback
+    assert result.file_request is not None
+    replies = ["REQUEST FILES: tiny_lib/__init__.py", "No.", GOLD]
+    used, _, _ = b2(tmp_path / "used", replies, [CLEAN])
+    assert "No more files" in (used.attempts[0].feedback or "")
+
+
 def test_a_request_with_a_fix_is_a_fix(tmp_path: Path) -> None:
     result, _, _ = b2(tmp_path, ["REQUEST FILES: tiny_lib/__init__.py\n" + GOLD], [CLEAN])
     assert [a.outcome for a in result.attempts] == ["clean"] and result.file_request is None
