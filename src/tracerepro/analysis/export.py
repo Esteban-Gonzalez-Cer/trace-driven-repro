@@ -1,6 +1,7 @@
 """Export a finished run to small, publishable result files (plan §8.2).
 
     uv run python -m tracerepro.analysis.export runs/<run_id> [--out DIR] [--name final]
+    uv run python -m tracerepro.analysis.export runs/<old B> runs/<B2> --arms B B2 --name b2
 
 The raw run folder (`runs/`, git-ignored) holds every prompt and reply. The analysis needs none
 of that text, only per-trial facts, so this writes:
@@ -187,6 +188,37 @@ def export(run_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     return rows, meta
 
 
+def export_arms(
+    run_dirs: list[Path], arms: list[str]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Several runs as the arms of one study (Phase 5b: old B and B2 are both Pipeline B, run
+    with different settings). Each run's rows get its arm as their `pipeline`."""
+    if len(run_dirs) != len(arms) or len(set(arms)) != len(arms):
+        raise ValueError("give one distinct arm name per run")
+    rows: list[dict[str, Any]] = []
+    runs: dict[str, Any] = {}
+    aside: Counter[str] = Counter()
+    for run_dir, arm in zip(run_dirs, arms, strict=True):
+        found, meta = export(run_dir)
+        if {r["pipeline"] for r in found} - {"B"}:
+            raise ValueError(f"{run_dir}: arms must be single-pipeline runs of Pipeline B")
+        for r in found:
+            r["pipeline"] = arm
+            r["id"] = f"{r['bug']}/{arm}/{r['trial']}"
+        rows += found
+        runs[arm] = {k: meta[k] for k in ("run_id", "config", "trials", "set_aside")}
+        aside.update(meta["set_aside"])
+    rows.sort(key=lambda r: (r["bug"], r["pipeline"], r["model"], r["trial"]))
+    meta = {
+        "format": ROW_FORMAT,
+        "run_id": " + ".join(f"{arm}: {runs[arm]['run_id']}" for arm in arms),
+        "arms": runs,
+        "trials": len(rows),
+        "set_aside": dict(sorted(aside.items())),
+    }
+    return rows, meta
+
+
 def write(rows: list[dict[str, Any]], meta: dict[str, Any], out: Path, name: str) -> list[Path]:
     out.mkdir(parents=True, exist_ok=True)
     jsonl, run = out / f"{name}.jsonl", out / f"{name}-run.json"
@@ -197,12 +229,18 @@ def write(rows: list[dict[str, Any]], meta: dict[str, Any], out: Path, name: str
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export a run's per-trial results.")
-    parser.add_argument("run_dir", type=Path)
+    parser.add_argument("run_dir", type=Path, nargs="+")
     parser.add_argument("--out", type=Path, default=Path("benchmark/results"))
     parser.add_argument("--name", default="final")
+    parser.add_argument("--arms", nargs="+", help="one arm name per run (Phase 5b: B B2)")
     args = parser.parse_args(argv)
+    if len(args.run_dir) > 1 and not args.arms:
+        parser.error("several runs need --arms")
     try:
-        rows, meta = export(args.run_dir)
+        if args.arms:
+            rows, meta = export_arms(args.run_dir, args.arms)
+        else:
+            rows, meta = export(args.run_dir[0])
     except PrivateDataError as exc:
         print(f"export stopped: {exc}", file=sys.stderr)
         return 1

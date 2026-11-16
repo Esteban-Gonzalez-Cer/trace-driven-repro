@@ -132,6 +132,26 @@ def test_a_run_writes_the_trial_folder_and_resumes(
     assert again.requests == [] and bench.count == 1
 
 
+def test_only_the_named_bugs_run(
+    tmp_path: Path, toy_payload: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(experiment, "WORK_DIR", tmp_path / "work")
+    two = config(bugs=("benchmark/manifests/marshmallow-3016.yaml",
+                       "benchmark/manifests/marshmallow-3082.yaml"))  # fmt: skip
+    runs = tmp_path / "runs"
+    experiment.run(
+        two, provider=FakeProvider.replying([GOLD]), runs_dir=runs, bench_factory=Bench(tmp_path),
+        evaluator=fake_evaluator, commit="abc12345", only={"marshmallow-3082"},
+    )  # fmt: skip
+    root = runs / "t-abc12345-v2-claude-haiku-5-5-cli0"
+    assert sorted(p.name for p in root.iterdir() if p.is_dir()) == ["marshmallow-3082"]
+    path = tmp_path / "c.yaml"
+    path.write_text(yaml.safe_dump({"name": "t", "model": "claude-haiku-5-5",
+                                    "bugs": list(two.bugs)}))  # fmt: skip
+    with pytest.raises(SystemExit):
+        experiment.main([str(path), "--bug", "flask-5797"])
+
+
 def test_a_record_without_a_verdict_is_only_evaluated(
     tmp_path: Path, toy_payload: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:

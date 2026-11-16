@@ -21,7 +21,8 @@ whose title or description names an exception, a traceback or a crash are listed
 first, never whether a screened candidate passes; every screened candidate is logged.
 
 With `--write`, the first `--per-library` kept pull requests become candidate files
-(`benchmark/candidates/{library}-{number}.yaml`, `split: test`), with the library's environment
+(`benchmark/candidates/{library}-{number}.yaml`, `split: test2` by default; `test` was spent
+by the M4 study), with the library's environment
 profile from `benchmark/screening_profiles.yaml`.
 """
 
@@ -40,6 +41,7 @@ from typing import Any
 
 import yaml
 
+from tracerepro.dataset.candidate import HELD_OUT_SPLITS
 from tracerepro.dataset.manifest import PROJECT_ROOT
 from tracerepro.dataset.preflight import is_test_module, split_changes
 from tracerepro.dataset.screening import read_log
@@ -193,7 +195,7 @@ def find(
     return kept, dropped
 
 
-def candidate_yaml(pr: PullRequest, profile: dict[str, Any]) -> str:
+def candidate_yaml(pr: PullRequest, profile: dict[str, Any], split: str = "test2") -> str:
     deps = dict(profile["deps"])
     if deps.get("strategy") == "compile":
         deps["exclude_newer"] = pr.merged
@@ -211,7 +213,7 @@ def candidate_yaml(pr: PullRequest, profile: dict[str, Any]) -> str:
     if profile.get("test_paths"):
         data["test_paths"] = list(profile["test_paths"])
     data["notes"] = pr.title
-    data["split"] = "test"
+    data["split"] = split
     header = (
         "# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).\n"
         f"# Crash hint {pr.hint}; source {list(pr.source_files)} ({pr.source_lines} lines).\n"
@@ -228,6 +230,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="pull requests read per library and month")  # fmt: skip
     parser.add_argument("--per-library", type=int, default=10, help="candidates written each")
     parser.add_argument("--write", action="store_true", help="write candidate files")
+    parser.add_argument("--split", choices=HELD_OUT_SPLITS, default="test2",
+                        help="split of the written candidates (test was spent by M4)")  # fmt: skip
     args = parser.parse_args(argv)
     profiles = load_profiles()
     unknown = [lib for lib in args.libraries if lib not in profiles]
@@ -241,7 +245,9 @@ def main(argv: list[str] | None = None) -> int:
             lines = f"{pr.source_lines:3} lines"
             print(f"  {pr.id:22} hint={pr.hint} {pr.merged} {lines}  {pr.title[:66]}")
             if args.write:
-                (CANDIDATES / f"{pr.id}.yaml").write_text(candidate_yaml(pr, profiles[library]))
+                (CANDIDATES / f"{pr.id}.yaml").write_text(
+                    candidate_yaml(pr, profiles[library], args.split)
+                )
     return 0
 
 

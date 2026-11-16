@@ -100,7 +100,7 @@ def test_candidate_files_are_valid(tmp_path: Path) -> None:
                        known=(set(), set()))  # fmt: skip
         text = candidate_yaml(kept[0], profiles[library])
         cand = parse_candidate(yaml.safe_load(text))
-        assert cand.split == "test" and cand.id == f"{library}-42"
+        assert cand.split == "test2" and cand.id == f"{library}-42"
         assert cand.c_fix == f"{42:040x}" and cand.fix_date == "2026-08-14"
         if cand.deps.strategy == "compile":
             assert cand.deps.exclude_newer == "2026-08-14"
@@ -133,6 +133,27 @@ def test_batch_cap_stop_rule_and_summary() -> None:
     summary = batch.summary()
     assert '"preflight_pass": 2' in summary and '"Criterion 1": 1' in summary
     assert '"python_failure": 1' in summary and "(total 8)" in summary
+
+
+def test_a_test2_batch_counts_only_test2_bugs() -> None:
+    batch = Batch({"click-1": "pallets/click"}, split="test2")
+    assert "belongs to split test" in batch.skip(cand("click-9", "pallets/click"), 6, 30)
+    assert batch.skip(cand("click-8", "pallets/click", "test2"), 6, 30) == ""
+    batch.add(cand("click-8", "pallets/click", "test2"), "preflight_pass", "ok", None)
+    batch.add(cand("click-7", "pallets/click", "test"), "preflight_pass", "ok", None)
+    assert batch.test_counts == {"pallets/click": 2}
+    assert "per-library cap" in batch.skip(cand("click-6", "pallets/click", "test2"), 2, 30)
+
+
+def test_manifests_are_found_by_their_own_split(tmp_path: Path) -> None:
+    from tracerepro.dataset.preflight import test_bugs
+
+    for name, note in (("a-1", "[split: test]"), ("a-2", "x [split: test2]"), ("a-3", "")):
+        src = Path("benchmark/manifests/click-3493.yaml").read_text()
+        data = yaml.safe_load(src) | {"id": name, "image_tag": f"bug_env:{name}", "notes": note}
+        (tmp_path / f"{name}.yaml").write_text(yaml.safe_dump(data))
+    assert set(test_bugs(tmp_path)) == {"a-1"}
+    assert set(test_bugs(tmp_path, split="test2")) == {"a-2"}
 
 
 def test_windows_cover_the_range_without_gaps() -> None:

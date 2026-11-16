@@ -265,7 +265,11 @@ def run(
     bench_factory: Callable[[Manifest, Path], Any] = DockerWorkbench,
     evaluator: Callable[[Manifest, AgentResult], tuple[dict[str, Any], str | None]] = evaluate,
     commit: str | None = None,
+    only: set[str] | None = None,
 ) -> int:
+    """Run every trial of `config` that is not finished yet (or only those of the bugs in
+    `only`: the Phase 5b final run alternates its two arms bug by bug, so both arms of a bug
+    run close together in time)."""
     provider = provider or ClaudeCLI()
     rid = run_id(config, commit or harness_commit(), provider.version)
     if bench_factory is DockerWorkbench:  # a real run: clear what a killed run left behind
@@ -284,6 +288,8 @@ def run(
     summary: dict[str, int] = {}
     for manifest_path in config.manifests():
         manifest = load_manifest(manifest_path)
+        if only is not None and manifest.id not in only:
+            continue
         for pipeline in config.pipelines:
             for n in range(1, config.trials + 1):
                 folder = trial_dir(runs_dir, rid, manifest.id, pipeline, config.model, n)
@@ -333,8 +339,14 @@ def _result_from(data: dict[str, Any]) -> AgentResult:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run the agent pipelines and score them.")
     parser.add_argument("config", type=Path)
+    parser.add_argument("--bug", action="append", help="run only this bug's trials (repeatable)")
     args = parser.parse_args(argv)
-    return run(load_config(args.config))
+    config = load_config(args.config)
+    if args.bug:
+        known = {Path(b).stem for b in config.bugs}
+        if unknown := sorted(set(args.bug) - known):
+            parser.error(f"not in the config: {unknown}")
+    return run(config, only=set(args.bug) if args.bug else None)
 
 
 if __name__ == "__main__":

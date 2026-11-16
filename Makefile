@@ -56,6 +56,10 @@ run-benchmark:
 # Reads only benchmark/results/ and the manifests; writes results/.
 analyze:
 	uv run python -m tracerepro.analysis.report
+	@if [ -f benchmark/results/b2.jsonl ]; then \
+		uv run python -m tracerepro.analysis.report --name b2 --audit benchmark/audit/b2 \
+			--out results/b2 --pair B2 B; \
+	fi
 
 # Turns a finished run folder (git-ignored) into the small published result files.
 export-results:
