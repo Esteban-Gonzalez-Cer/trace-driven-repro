@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/sessions.py'] (9 lines).
+id: starlette-3436
+repo: Kludex/starlette
+c_fix: d9ed5b0f98fdf081fb138473129b72eb035153a3
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3436
+fix_date: '2026-08-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Track session mutations from popitem() and |=
+split: test2

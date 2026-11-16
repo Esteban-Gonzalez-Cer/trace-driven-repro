@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/routing/map.py'] (21 lines).
+id: werkzeug-3008
+repo: pallets/werkzeug
+c_fix: 851971087451c34c61eeff36f227b69500d61de5
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3008
+fix_date: '2026-02-03'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: validate `request.trusted_hosts` in `Map.bind_to_environ`
+split: test2

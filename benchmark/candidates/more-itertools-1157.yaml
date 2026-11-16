@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (37 lines).
+id: more-itertools-1157
+repo: more-itertools/more-itertools
+c_fix: 18d98893df45e0014bf316ca7832d441dd94aa4f
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1157
+fix_date: '2026-05-05'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-05-05'
+notes: Add generator support to serialize()
+split: test2

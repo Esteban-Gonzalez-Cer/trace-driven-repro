@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/cli.py', 'typer/core.py', 'typer/rich_utils.py'] (54 lines).
+id: typer-847
+repo: fastapi/typer
+c_fix: 5996fc18cb4cf29854b592061581f42957ce6257
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/847
+fix_date: '2024-11-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: ✨ Render Rich markup as HTML in Markdown docs
+split: test2

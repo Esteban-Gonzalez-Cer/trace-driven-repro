@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/sessions.py'] (2 lines).
+id: starlette-3651
+repo: Kludex/starlette
+c_fix: 96d5023c55b29224edb8d684868c49f681d079a9
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3651
+fix_date: '2026-10-09'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Emit `Max-Age=0` on session cookie when `max_age=0`
+split: test2

@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "1a3cb7a597d4e9bf92623c9ccd3f651c",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "each iterable must have two or more items",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "gray_product",
+              "lineno": 4904,
+              "in_app": true,
+              "pre_context": [
+                "    \"\"\"",
+                "    all_iterables = tuple(map(tuple, iterables * repeat))",
+                "    iterable_count = len(all_iterables)",
+                "    for iterable in all_iterables:",
+                "        if len(iterable) < 2:"
+              ],
+              "context_line": "            raise ValueError(\"each iterable must have two or more items\")",
+              "post_context": [
+                "",
+                "    # This is based on \"Algorithm H\" from section 7.2.1.1, page 20.",
+                "    # a holds the indexes of the source iterables for the n-tuple to be yielded",
+                "    # f is the array of \"focus pointers\"",
+                "    # o is the array of \"directions\""
+              ],
+              "vars": {
+                "all_iterables": "(('a', 'b', 'c'), ('d', 'e', 'f'), (), ())",
+                "iterable": "()",
+                "iterable_count": "4",
+                "iterables": "(<str_ascii_iterator object at 0x…>, <str_ascii_iterator object at 0x…>)",
+                "repeat": "2"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

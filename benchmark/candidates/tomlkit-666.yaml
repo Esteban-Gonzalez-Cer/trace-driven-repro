@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/items.py'] (9 lines).
+id: tomlkit-666
+repo: python-poetry/tomlkit
+c_fix: d7def7dbcc59b3b2d11cc73114c31d1f616523a8
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/666
+fix_date: '2026-10-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Speed up array appends
+split: test2

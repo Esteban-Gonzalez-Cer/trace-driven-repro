@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (8 lines).
+id: starlette-3430
+repo: Kludex/starlette
+c_fix: 9c500db197859dba4a8db13fa8e7d2c55de8152c
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3430
+fix_date: '2026-08-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Limit `FileResponse` to 100 ranges
+split: test2

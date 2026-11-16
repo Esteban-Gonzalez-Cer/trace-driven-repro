@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/datastructures.py'] (9 lines).
+id: starlette-3671
+repo: Kludex/starlette
+c_fix: 3214cd069e1b3c11628d172df387ded973934db2
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3671
+fix_date: '2026-10-17'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Escape path delimiters and leading `//` when building URLs
+split: test2

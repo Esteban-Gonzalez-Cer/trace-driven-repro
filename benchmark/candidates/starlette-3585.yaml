@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/endpoints.py'] (3 lines).
+id: starlette-3585
+repo: Kludex/starlette
+c_fix: a579222b161e5407cd311c32648ed7c845bda4a4
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3585
+fix_date: '2026-10-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Include `HEAD` in the `Allow` header of `HTTPEndpoint` 405 responses
+split: test2

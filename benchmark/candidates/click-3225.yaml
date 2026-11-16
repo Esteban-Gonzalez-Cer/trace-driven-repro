@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (26 lines).
+id: click-3225
+repo: pallets/click
+c_fix: 5850ef97230f84c74d0234ab0f30f23b398a6eee
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3225
+fix_date: '2026-03-01'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix callable ``flag_value`` being instantiated when used as a default
+split: test2

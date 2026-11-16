@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (2 lines).
+id: starlette-3389
+repo: Kludex/starlette
+c_fix: 78ae82cad482fe66a73fb1217f0a6609b3f998f6
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3389
+fix_date: '2026-08-08'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Reject inverted single-byte Range like bytes=5-4
+split: test2

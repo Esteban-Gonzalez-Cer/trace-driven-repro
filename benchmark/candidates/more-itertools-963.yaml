@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/recipes.py', 'more_itertools/recipes.pyi'] (52 lines).
+id: more-itertools-963
+repo: more-itertools/more-itertools
+c_fix: c11941e817286ed4a2743bfbbdd56a981abf5951
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/963
+fix_date: '2025-02-11'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-02-11'
+notes: Bring over the new multinomial() recipe from the itertool docs
+split: test2

@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/recipes.py'] (6 lines).
+id: more-itertools-1260
+repo: more-itertools/more-itertools
+c_fix: 1da45ae4b61a832ed080f08a8833784aad0a9534
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1260
+fix_date: '2026-09-18'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-18'
+notes: Validate running window sizes through the index protocol
+split: test2

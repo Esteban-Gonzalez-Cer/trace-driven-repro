@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (34 lines).
+id: more-itertools-1099
+repo: more-itertools/more-itertools
+c_fix: 68a4c96b547378831f4ddffc6a5d1675715422cd
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1099
+fix_date: '2025-11-12'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-11-12'
+notes: 'Issue 1098: Add synchronized decorator'
+split: test2

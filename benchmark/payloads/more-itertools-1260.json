@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "9036ae468b292a847f9860ab00aa3acc",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "'<=' not supported between instances of 'WindowSize' and 'int'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/recipes.py",
+              "function": "running_min",
+              "lineno": 1518,
+              "in_app": true,
+              "pre_context": [
+                "    iterator = iter(iterable)",
+                "",
+                "    if maxlen is None:",
+                "        return accumulate(iterator, func=min)",
+                ""
+              ],
+              "context_line": "    if maxlen <= 0:",
+              "post_context": [
+                "        raise ValueError('Window size should be positive')",
+                "",
+                "    return _windowed_running_min(iterator, maxlen)",
+                "",
+                ""
+              ],
+              "vars": {
+                "iterable": "[1, 2, 3, 4]",
+                "iterator": "<list_iterator object at 0x…>",
+                "maxlen": "<tests.test_recipes.RunningWindowSizeTests.test_index_protocol.<locals>.WindowSize object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/routing/matcher.py', 'src/werkzeug/routing/rules.py'] (5 lines).
+id: werkzeug-3136
+repo: pallets/werkzeug
+c_fix: c328342ef9f7a6476b9e41565ad0a70ff10cfde6
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3136
+fix_date: '2026-03-24'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: merge any number of slashes
+split: test2

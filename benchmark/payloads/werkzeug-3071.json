@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "a3e2af2e7f08dc726ff484ddab6858a0",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "list index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/debug/tbtools.py",
+              "function": "render_traceback_html",
+              "lineno": 294,
+              "in_app": true,
+              "pre_context": [
+                "                    row_parts.append(f'<li><div class=\"exc-divider\">{msg}:</div>')",
+                "",
+                "                for frame in current.stack:",
+                "                    frame = t.cast(DebugFrameSummary, frame)",
+                "                    info = f' title=\"{escape(frame.info)}\"' if frame.info else \"\""
+              ],
+              "context_line": "                    row_parts.append(f\"<li{info}>{frame.render_html(mark_library)}\")",
+              "post_context": [
+                "",
+                "                rows.append(\"\\n\".join(row_parts))",
+                "",
+                "        if sys.version_info < (3, 13):",
+                "            exc_type_str = self._te.exc_type.__name__"
+              ],
+              "vars": {
+                "classes": "'traceback'",
+                "current": "<traceback.TracebackException object at 0x…>",
+                "frame": "<FrameSummary file /repo/tests/test_debug.py, line 305 in test_missing_source_lines>",
+                "include_title": "True",
+                "info": "''",
+                "library_frames": "[False]",
+                "mark_library": "False",
+                "msg": "None",
+                "row_parts": "[]",
+                "rows": "[]",
+                "self": "<werkzeug.debug.tbtools.DebugTraceback object at 0x…>"
+              }
+            },
+            {
+              "filename": "src/werkzeug/debug/tbtools.py",
+              "function": "render_html",
+              "lineno": 427,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        if lines:",
+                "            for line in lines[start_idx:line_idx]:",
+                "                render_line(line, \"before\")",
+                ""
+              ],
+              "context_line": "            render_line(lines[line_idx], \"current\")",
+              "post_context": [
+                "",
+                "            for line in lines[line_idx + 1 : stop_idx]:",
+                "                render_line(line, \"after\")",
+                "",
+                "        return FRAME_HTML % {"
+              ],
+              "vars": {
+                "context": "5",
+                "line_idx": "304",
+                "lines": "['truncated']",
+                "mark_library": "False",
+                "render_line": "<function DebugFrameSummary.render_html.<locals>.render_line at 0x…>",
+                "rendered_lines": "[]",
+                "self": "<FrameSummary file /repo/tests/test_debug.py, line 305 in test_missing_source_lines>",
+                "start_idx": "299",
+                "stop_idx": "1"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/debug/tbtools.py'] (2 lines).
+id: werkzeug-3071
+repo: pallets/werkzeug
+c_fix: 5d9a40366b3a62ac7478b98b3bac9f90633edff0
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3071
+fix_date: '2025-11-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: skip rendering missing source
+split: test2

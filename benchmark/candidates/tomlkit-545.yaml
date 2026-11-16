@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['tomlkit/container.py'] (13 lines).
+id: tomlkit-545
+repo: python-poetry/tomlkit
+c_fix: e23a25438c6cc9b8cc28b6dcf76dc52f9c7a33e3
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/545
+fix_date: '2026-07-14'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix duplicate table header when adding a key to an out-of-order table
+split: test2

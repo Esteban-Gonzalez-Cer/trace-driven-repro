@@ -1,0 +1,204 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "34f3a72553a28b8926d05c995b09f9ff",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "KeyError",
+        "module": "builtins",
+        "value": "'bytes'",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "starlette/testclient.py",
+              "function": "__exit__",
+              "lineno": 131,
+              "in_app": true,
+              "pre_context": [
+                "            stack.callback(self.close, 1000)",
+                "            self.exit_stack = stack.pop_all()",
+                "            return self",
+                "",
+                "    def __exit__(self, *args: Any) -> bool | None:"
+              ],
+              "context_line": "        return self.exit_stack.__exit__(*args)",
+              "post_context": [
+                "",
+                "    async def _run(self, *, task_status: anyio.abc.TaskStatus[anyio.CancelScope]) -> None:",
+                "        \"\"\"",
+                "        The sub-thread in which the websocket session runs.",
+                "        \"\"\""
+              ],
+              "vars": {
+                "args": "(<class 'anyio.ClosedResourceError'>, ClosedResourceError(), <traceback object at 0x…>)",
+                "self": "<starlette.testclient.WebSocketTestSession object at 0x…>"
+              }
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/contextlib.py",
+              "function": "__exit__",
+              "lineno": 601,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/contextlib.py",
+              "function": "__exit__",
+              "lineno": 586,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/contextlib.py",
+              "function": "_exit_wrapper",
+              "lineno": 469,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "result",
+              "lineno": 449,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/concurrent/futures/_base.py",
+              "function": "__get_result",
+              "lineno": 401,
+              "in_app": false
+            },
+            {
+              "filename": "/usr/local/lib/python3.11/site-packages/anyio/from_thread.py",
+              "function": "_call_func",
+              "lineno": 263,
+              "in_app": false
+            },
+            {
+              "filename": "starlette/testclient.py",
+              "function": "_run",
+              "lineno": 143,
+              "in_app": true,
+              "pre_context": [
+                "        receive_tx, receive_rx = anyio.create_memory_object_stream[Message](math.inf)",
+                "        with send_tx, send_rx, receive_tx, receive_rx, anyio.CancelScope() as cs:",
+                "            self._receive_tx = receive_tx",
+                "            self._send_rx = send_rx",
+                "            task_status.started(cs)"
+              ],
+              "context_line": "            await self.app(self.scope, receive_rx.receive, send_tx.send)",
+              "post_context": [
+                "",
+                "            # wait for cs.cancel to be called before closing streams",
+                "            await anyio.sleep_forever()",
+                "",
+                "    def _raise_on_close(self, message: Message) -> None:"
+              ],
+              "vars": {
+                "cs": "<anyio._backends._asyncio.CancelScope object at 0x…>",
+                "receive_rx": "MemoryObjectReceiveStream(_state=_MemoryObjectStreamState(max_buffer_size=inf, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)",
+                "receive_tx": "MemoryObjectSendStream(_state=_MemoryObjectStreamState(max_buffer_size=inf, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)",
+                "self": "<starlette.testclient.WebSocketTestSession object at 0x…>",
+                "send_rx": "MemoryObjectReceiveStream(_state=_MemoryObjectStreamState(max_buffer_size=inf, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)",
+                "send_tx": "MemoryObjectSendStream(_state=_MemoryObjectStreamState(max_buffer_size=inf, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)",
+                "task_status": "<anyio.from_thread._BlockingPortalTaskStatus object at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/endpoints.py",
+              "function": "dispatch",
+              "lineno": 87,
+              "in_app": true,
+              "pre_context": [
+                "                elif message[\"type\"] == \"websocket.disconnect\":  # pragma: no branch",
+                "                    close_code = int(message.get(\"code\") or status.WS_1000_NORMAL_CLOSURE)",
+                "                    break",
+                "        except Exception as exc:",
+                "            close_code = status.WS_1011_INTERNAL_ERROR"
+              ],
+              "context_line": "            raise exc",
+              "post_context": [
+                "        finally:",
+                "            await self.on_disconnect(websocket, close_code)",
+                "",
+                "    async def decode(self, websocket: WebSocket, message: Message) -> Any:",
+                "        if self.encoding == \"text\":"
+              ],
+              "vars": {
+                "close_code": "1011",
+                "message": "{'text': '', 'type': 'websocket.receive'}",
+                "self": "<tests.test_endpoints.test_websocket_endpoint_on_default_with_empty_text.<locals>.WebSocketApp object at 0x…>",
+                "websocket": "<starlette.websockets.WebSocket object at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/endpoints.py",
+              "function": "dispatch",
+              "lineno": 80,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "        try:",
+                "            while True:",
+                "                message = await websocket.receive()",
+                "                if message[\"type\"] == \"websocket.receive\":"
+              ],
+              "context_line": "                    data = await self.decode(websocket, message)",
+              "post_context": [
+                "                    await self.on_receive(websocket, data)",
+                "                elif message[\"type\"] == \"websocket.disconnect\":  # pragma: no branch",
+                "                    close_code = int(message.get(\"code\") or status.WS_1000_NORMAL_CLOSURE)",
+                "                    break",
+                "        except Exception as exc:"
+              ],
+              "vars": {
+                "close_code": "1011",
+                "message": "{'text': '', 'type': 'websocket.receive'}",
+                "self": "<tests.test_endpoints.test_websocket_endpoint_on_default_with_empty_text.<locals>.WebSocketApp object at 0x…>",
+                "websocket": "<starlette.websockets.WebSocket object at 0x…>"
+              }
+            },
+            {
+              "filename": "starlette/endpoints.py",
+              "function": "decode",
+              "lineno": 117,
+              "in_app": true,
+              "pre_context": [
+                "            except json.decoder.JSONDecodeError:",
+                "                await websocket.close(code=status.WS_1003_UNSUPPORTED_DATA)",
+                "                raise RuntimeError(\"Malformed JSON data received.\")",
+                "",
+                "        assert self.encoding is None, f\"Unsupported 'encoding' attribute {self.encoding}\""
+              ],
+              "context_line": "        return message[\"text\"] if message.get(\"text\") else message[\"bytes\"]",
+              "post_context": [
+                "",
+                "    async def on_connect(self, websocket: WebSocket) -> None:",
+                "        \"\"\"Override to handle an incoming websocket connection\"\"\"",
+                "        await websocket.accept()",
+                ""
+              ],
+              "vars": {
+                "message": "{'text': '', 'type': 'websocket.receive'}",
+                "self": "<tests.test_endpoints.test_websocket_endpoint_on_default_with_empty_text.<locals>.WebSocketApp object at 0x…>",
+                "websocket": "<starlette.websockets.WebSocket object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

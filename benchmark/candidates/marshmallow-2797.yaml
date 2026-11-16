@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/schema.py'] (3 lines).
+id: marshmallow-2797
+repo: marshmallow-code/marshmallow
+c_fix: 94234acd1a98e5fd8b21ba3e8f78ac87a4996949
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2797
+fix_date: '2025-01-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Handle case with multiple post_load methods where one appends to data
+split: test2

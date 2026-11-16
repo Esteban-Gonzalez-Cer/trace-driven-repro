@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/termui.py'] (4 lines).
+id: click-3534
+repo: pallets/click
+c_fix: cd9bdd96a9dcc8e4ecabd45b5c244dbc70034484
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3534
+fix_date: '2026-05-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Support incremental output in the pager
+split: test2

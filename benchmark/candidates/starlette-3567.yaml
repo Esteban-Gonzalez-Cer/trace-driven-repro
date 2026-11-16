@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (2 lines).
+id: starlette-3567
+repo: Kludex/starlette
+c_fix: 85c3b7434fd6b58596486dbe93cfe605ee358881
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3567
+fix_date: '2026-09-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Ignore Range when If-Range contains a weak ETag
+split: test2

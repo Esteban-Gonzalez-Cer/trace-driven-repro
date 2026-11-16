@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/datastructures/auth.py'] (3 lines).
+id: werkzeug-3129
+repo: pallets/werkzeug
+c_fix: dafe7f1e37cf78cc7f11a9706c62a23e0dba9010
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3129
+fix_date: '2026-03-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: fix trailing whitespace in WWW-Authenticate bearer
+split: test2

@@ -47,7 +47,7 @@ B2 versus B on patch accuracy (bugs solved, 2 of 3):
 - Accuracy of each arm with a 95% **Clopper-Pearson** interval.
 
 `make analyze` builds them into `results/b2/` from `benchmark/results/b2.jsonl`
-(`analysis.export ... --arms B B2 --name b2`; `report --name b2 --pair B2 B`).
+(`analysis.export ... --arms B B2 --name b2`; `report --name b2 --pair B2 B --also-without starlette-3510 starlette-3520`).
 
 ## Secondary measures
 
@@ -105,6 +105,47 @@ Files in `benchmark/audit/b2/`, read by the report as in M4:
 The three practice rounds (`practice-b2-r1` to `-r3`) on the 35 already-seen bugs chose B2's
 settings and are never reported as results.
 
+## Feature-like bugs (descriptive)
+
+Two bugs pass every frozen criterion but read as missing features: the crash is the library
+rejecting a keyword argument that the fix adds (`unexpected keyword argument`):
+starlette-3510 and starlette-3520. Defined by that message, before any model saw the set. They
+stay in every result; the primary numbers are also shown without them, descriptively.
+
 ## The test set (`test2`)
 
-Filled in when screening ended, before the tag; see DECISIONS.md for the screening record.
+28 bugs from 7 libraries, screened in 4 batches (DECISIONS.md, 2026-11-16); fix dates
+2024-12 to 2026-11. Kinds: 17 `python_failure`, 11 `library_raise`. Cohorts: 19 pre-cutoff, 9
+post-cutoff. 10 bugs have maintainers' tests outside the oracle (the last column counts them;
+the beyond-the-crash measure uses those that pass with the gold patch).
+
+| bug | fix date | cohort | kind | beyond-the-crash tests |
+|---|---|---|---|---|
+| click-3482 | 2026-05-22 | pre-cutoff | python_failure |  |
+| jinja2-1702 | 2024-12-19 | pre-cutoff | python_failure |  |
+| jinja2-1762 | 2024-12-20 | pre-cutoff | library_raise |  |
+| jinja2-1782 | 2024-12-19 | pre-cutoff | python_failure |  |
+| jinja2-1852 | 2024-12-20 | pre-cutoff | python_failure |  |
+| jinja2-1984 | 2024-12-19 | pre-cutoff | python_failure |  |
+| jinja2-2026 | 2024-12-19 | pre-cutoff | library_raise | 11 |
+| marshmallow-2730 | 2025-01-06 | pre-cutoff | library_raise |  |
+| marshmallow-2800 | 2025-01-23 | pre-cutoff | library_raise |  |
+| marshmallow-2861 | 2025-10-31 | pre-cutoff | python_failure |  |
+| marshmallow-2894 | 2026-02-04 | pre-cutoff | library_raise |  |
+| more-itertools-1028 | 2025-07-14 | pre-cutoff | library_raise |  |
+| more-itertools-1082 | 2025-10-10 | pre-cutoff | python_failure |  |
+| more-itertools-1125 | 2026-02-02 | pre-cutoff | library_raise | 1 |
+| more-itertools-1153 | 2026-04-13 | pre-cutoff | library_raise |  |
+| more-itertools-1260 | 2026-09-18 | post-cutoff | python_failure | 1 |
+| more-itertools-1276 | 2026-09-17 | post-cutoff | python_failure | 1 |
+| starlette-3130 | 2026-08-08 | post-cutoff | python_failure | 2 |
+| starlette-3372 | 2026-09-06 | post-cutoff | python_failure | 4 |
+| starlette-3510 | 2026-09-05 | post-cutoff | python_failure |  |
+| starlette-3520 | 2026-09-06 | post-cutoff | python_failure | 2 |
+| starlette-3622 | 2026-10-17 | post-cutoff | python_failure | 2 |
+| tomlkit-677 | 2026-11-06 | post-cutoff | python_failure | 6 |
+| tomlkit-698 | 2026-11-05 | post-cutoff | python_failure | 3 |
+| werkzeug-3071 | 2025-11-27 | pre-cutoff | python_failure |  |
+| werkzeug-3110 | 2026-02-13 | pre-cutoff | library_raise |  |
+| werkzeug-3136 | 2026-03-24 | pre-cutoff | library_raise |  |
+| werkzeug-3148 | 2026-04-02 | pre-cutoff | library_raise |  |

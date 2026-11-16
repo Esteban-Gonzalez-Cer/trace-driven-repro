@@ -285,6 +285,10 @@ def test_b2_report_orders_the_pair_and_adds_its_measures(
     assert "Solved by B2 only (c = 1)" not in text and "Solved by B2 only (b = 1): bug-b" in text
     assert "(B2 minus B)" in text and "Pipeline B2's own measures" in text
     assert "Beyond-the-crash tests" in text
+    report.write_all(results, tmp_path / "manifests", out, "b2", None, ("B2", "B"), ("bug-b",))
+    w = json.loads((out / "numbers.json").read_text())["without"]
+    assert w["bugs"] == ["bug-b"] and w["accuracy"]["B2"]["n"] == 1
+    assert "Without bug-b (descriptive)" in (out / "tables.md").read_text()
     del extra["trials"]["bug-a/B/1"]
     (results / "b2-extra.json").write_text(json.dumps(extra))
     with pytest.raises(ValueError, match="missing"):

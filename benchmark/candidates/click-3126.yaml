@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['.gitignore', 'src/click/shell_completion.py'] (24 lines).
+id: click-3126
+repo: pallets/click
+c_fix: 19fd4d6e18bc9fce451f92f422696b11169faa57
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3126
+fix_date: '2026-04-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'Fix: Ensure fish completion handles multiline help strings correctly'
+split: test2

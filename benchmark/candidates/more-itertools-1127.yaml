@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/recipes.py', 'more_itertools/recipes.pyi'] (20 lines).
+id: more-itertools-1127
+repo: more-itertools/more-itertools
+c_fix: 1c21c3ae9c7991b73044fe16807b70d1cac61e0b
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1127
+fix_date: '2026-02-10'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-02-10'
+notes: Add running_mean recipe
+split: test2

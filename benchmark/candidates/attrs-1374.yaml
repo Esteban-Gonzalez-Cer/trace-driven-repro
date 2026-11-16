@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/attr/_make.py'] (2 lines).
+id: attrs-1374
+repo: python-attrs/attrs
+c_fix: 13105a64f2de2e257a537ad20c06ffdd1c9d7f94
+python_version: '3.11'
+fix_pr_url: https://github.com/python-attrs/attrs/pull/1374
+fix_date: '2024-11-25'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Use an explicit comparison to None for the converter of a field
+split: test2

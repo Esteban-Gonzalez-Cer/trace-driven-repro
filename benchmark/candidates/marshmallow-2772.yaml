@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/schema.py', 'src/marshmallow/utils.py'] (40 lines).
+id: marshmallow-2772
+repo: marshmallow-code/marshmallow
+c_fix: de5e842aeaf7eacfa42e9231f8b18e0792851c45
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2772
+fix_date: '2025-01-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Check for fields declared as instances at class declaration rather than at instantiation
+split: test2

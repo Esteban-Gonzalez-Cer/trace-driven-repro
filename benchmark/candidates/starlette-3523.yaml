@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (46 lines).
+id: starlette-3523
+repo: Kludex/starlette
+c_fix: 2284ff008cef127b5cd48722ed97bc65a45c7568
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3523
+fix_date: '2026-09-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Stop file transfers when HTTP clients disconnect
+split: test2

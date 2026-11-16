@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/sansio/request.py'] (21 lines).
+id: werkzeug-3160
+repo: pallets/werkzeug
+c_fix: 68e1b7b7b957d0e5b7f8ced4d8d82de24e39edb2
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3160
+fix_date: '2026-04-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: deprecate Pragma header
+split: test2

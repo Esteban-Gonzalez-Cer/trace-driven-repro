@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/decorators.py', 'src/marshmallow/schema.py', 'src/marshmallow/types.py'] (53 lines).
+id: marshmallow-2792
+repo: marshmallow-code/marshmallow
+c_fix: 9f751e1cef943e2ca1a77f93d3483b4a171d4303
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2792
+fix_date: '2025-01-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix handling data_key in ValidationErrors raised in schema validators
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['tomlkit/container.py'] (6 lines).
+id: tomlkit-677
+repo: python-poetry/tomlkit
+c_fix: 55d07680cabf023885d511d2bf2000963e4e3dc7
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/677
+fix_date: '2026-11-06'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Fix sibling data loss when updating out-of-order tables
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (9 lines).
+id: click-3152
+repo: pallets/click
+c_fix: ebcd548d50662bc8fa4f8b9ec7fe13cb8310bfaa
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3152
+fix_date: '2025-11-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix handling of options which set both is_flag=False and flag_value=...
+split: test2

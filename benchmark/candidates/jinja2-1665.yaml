@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/jinja2/idtracking.py'] (17 lines).
+id: jinja2-1665
+repo: pallets/jinja
+c_fix: c8fdce1e0333f1122b244b03a48535fdd7b03d91
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/1665
+fix_date: '2024-12-21'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix bug involving calling set on a template parameter within all branches of an if block
+split: test2

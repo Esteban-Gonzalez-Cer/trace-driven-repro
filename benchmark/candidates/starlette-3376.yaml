@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (2 lines).
+id: starlette-3376
+repo: Kludex/starlette
+c_fix: f04b676e07aaf46a92b6f378ad554cf9edc8fabd
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3376
+fix_date: '2026-09-05'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Support `partitioned` in `Response.delete_cookie`
+split: test2

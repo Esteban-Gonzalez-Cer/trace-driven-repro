@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['tomlkit/parser.py'] (5 lines).
+id: tomlkit-586
+repo: python-poetry/tomlkit
+c_fix: 7ab7469addd60e03ca3bfbb1287642e8d771e1c0
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/586
+fix_date: '2026-08-18'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Accept uppercase E exponent after a leading-zero mantissa
+split: test2

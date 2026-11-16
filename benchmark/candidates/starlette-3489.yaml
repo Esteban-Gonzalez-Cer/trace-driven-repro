@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/endpoints.py', 'starlette/middleware/cors.py', 'starlette/schemas.py'] (12 lines).
+id: starlette-3489
+repo: Kludex/starlette
+c_fix: e4bd5981540ee0003deaae69d7f4881f11714b96
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3489
+fix_date: '2026-08-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Add support for the QUERY HTTP method
+split: test2

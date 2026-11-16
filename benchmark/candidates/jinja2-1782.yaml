@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/jinja2/filters.py'] (14 lines).
+id: jinja2-1782
+repo: pallets/jinja
+c_fix: 20be10e566a505cc47bdec5fa6ad56d5fbdfb4ae
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/1782
+fix_date: '2024-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: make unique filter async aware
+split: test2

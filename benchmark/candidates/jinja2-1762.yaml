@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/jinja2/filters.py'] (2 lines).
+id: jinja2-1762
+repo: pallets/jinja
+c_fix: 028f61da7b12ad2ddfb989046833504a298be07e
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/1762
+fix_date: '2024-12-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Pass context to test when using select
+split: test2

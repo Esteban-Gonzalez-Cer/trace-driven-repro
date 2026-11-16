@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "4352ba206607cc7b4767705884d9f387",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "last() was called on an empty iterable, and no default value was provided.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "last",
+              "lineno": 291,
+              "in_app": true,
+              "pre_context": [
+                "        if hasattr(iterable, '__reversed__'):",
+                "            return next(reversed(iterable))",
+                "        return deque(iterable, maxlen=1)[-1]",
+                "    except (IndexError, TypeError, StopIteration):",
+                "        if default is _marker:"
+              ],
+              "context_line": "            raise ValueError(",
+              "post_context": [
+                "                'last() was called on an empty iterable, '",
+                "                'and no default value was provided.'",
+                "            )",
+                "        return default",
+                ""
+              ],
+              "vars": {
+                "default": "<object object at 0x…>",
+                "iterable": "<tests.test_more.LastTests.test_reversed_is_none.<locals>.ReversedIsNone object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

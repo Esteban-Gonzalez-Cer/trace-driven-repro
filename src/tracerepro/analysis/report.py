@@ -264,6 +264,15 @@ def tables(n: dict[str, Any], run: dict[str, Any]) -> str:
             f"95% bootstrap CI {d['ci'][0]:+.3f} to {d['ci'][1]:+.3f} "
             f"({stats.BOOTSTRAP_REPS:,} resamples, seed {stats.BOOTSTRAP_SEED}).",
         ]
+    if w := n.get("without"):
+        acc = "; ".join(f"{p} {_pct(a)}" for p, a in w["accuracy"].items())
+        out += ["", f"Without {', '.join(w['bugs'])} (descriptive): bugs solved {acc}."]
+        if wc := w.get("comparison"):
+            d = wc["paired_difference"]
+            out[-1] += (
+                f" McNemar p = {wc['mcnemar_p']:.3f}; paired difference {d['mean']:+.3f} "
+                f"(95% CI {d['ci'][0]:+.3f} to {d['ci'][1]:+.3f})."
+            )
     out += [
         "",
         "## Secondary measures",
@@ -413,6 +422,7 @@ def write_all(
     name: str = "final",
     audit: Path | None = None,
     pair: tuple[str, str] | None = None,
+    without: tuple[str, ...] = (),
 ) -> list[Path]:
     rows = load_rows(results, name)
     run_path = results / f"{name}-run.json"
@@ -424,6 +434,14 @@ def write_all(
         rows, relabelled = audit_files.apply_state_deficit(rows, deficit["bugs"])
         found["state_deficit"] = deficit | {"relabelled": relabelled}
     numbers = analyze(rows, bugs, pair)
+    if without:
+        kept = {b: x for b, x in bugs.items() if b not in without}
+        sub = analyze([r for r in rows if r["bug"] in kept], kept, pair)
+        numbers["without"] = {
+            "bugs": sorted(set(without) & set(bugs)),
+            "accuracy": {p: e["accuracy"] for p, e in sub["pipelines"].items()},
+            "comparison": sub.get("comparison"),
+        }
     extra_path = results / f"{name}-extra.json"
     if extra_path.is_file():
         numbers["beyond_the_crash"] = beyond_the_crash(rows, json.loads(extra_path.read_text()))
@@ -468,9 +486,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--name", default="final")
     parser.add_argument("--audit", type=Path, default=Path("benchmark/audit"))
     parser.add_argument("--pair", nargs=2, help="paired comparison order: first minus second")
+    parser.add_argument("--also-without", nargs="+", default=[],
+                        help="bugs also left out in a descriptive second view")  # fmt: skip
     args = parser.parse_args(argv)
     pair = (args.pair[0], args.pair[1]) if args.pair else None
-    for path in write_all(args.results, args.manifests, args.out, args.name, args.audit, pair):
+    without = tuple(args.also_without)
+    for path in write_all(
+        args.results, args.manifests, args.out, args.name, args.audit, pair, without
+    ):
         print(f"wrote {path}")
     return 0
 

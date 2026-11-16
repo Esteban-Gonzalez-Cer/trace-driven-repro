@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/exceptions.py'] (6 lines).
+id: click-3208
+repo: pallets/click
+c_fix: 0cd28d6548f92e46396e0ffdd19ec5ea75b4b5e4
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3208
+fix_date: '2026-04-29'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: fix help hint showing shadowed option name
+split: test2

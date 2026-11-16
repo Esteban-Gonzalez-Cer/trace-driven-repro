@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 2; source ['starlette/templating.py'] (6 lines).
+id: starlette-2909
+repo: Kludex/starlette
+c_fix: bcdf0ad017168408060b6faab156636ced4c94f7
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/2909
+fix_date: '2025-03-16'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Fix IndexError in TemplateResponse
+split: test2

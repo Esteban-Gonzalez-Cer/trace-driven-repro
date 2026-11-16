@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/middleware/sessions.py'] (3 lines).
+id: starlette-3510
+repo: Kludex/starlette
+c_fix: dee5bb38d6c09b4609823898b9289162922c73b2
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3510
+fix_date: '2026-09-05'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Support partitioned cookies in SessionMiddleware
+split: test2

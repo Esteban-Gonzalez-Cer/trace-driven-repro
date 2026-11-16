@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/_completion_classes.py', 'typer/completion.py', 'typer/rich_utils.py'] (42 lines).
+id: typer-1069
+repo: fastapi/typer
+c_fix: 4f04666db67a231b4afd0d5b6de86b30242aa70c
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1069
+fix_date: '2025-02-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Fix shell completions for the fish shell
+split: test2

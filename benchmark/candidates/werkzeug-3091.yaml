@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/_reloader.py'] (7 lines).
+id: werkzeug-3091
+repo: pallets/werkzeug
+c_fix: 1618eccd4a3c0b831c9ad1ba5733a2acbf7c0384
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3091
+fix_date: '2026-02-04'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Check event type before pattern matching in watchdog reloader
+split: test2

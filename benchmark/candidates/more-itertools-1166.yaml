@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py', 'more_itertools/more.pyi'] (32 lines).
+id: more-itertools-1166
+repo: more-itertools/more-itertools
+c_fix: 504b087128d853d7b2cc6478237626e585514935
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1166
+fix_date: '2026-06-10'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-06-10'
+notes: Add subfactorial()
+split: test2

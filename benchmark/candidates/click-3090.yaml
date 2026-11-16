@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/click/core.py'] (36 lines).
+id: click-3090
+repo: pallets/click
+c_fix: 8d4051e9e57be1bfb5421e3eb5a93b4b42077b0c
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/3090
+fix_date: '2025-10-09'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Ensure that `type_cast_value` never gets `UNSET`
+split: test2

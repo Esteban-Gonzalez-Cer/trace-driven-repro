@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/responses.py'] (4 lines).
+id: starlette-3622
+repo: Kludex/starlette
+c_fix: b7901fb908f0c6c3b8b6e495517cea6b2e77e66b
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3622
+fix_date: '2026-10-17'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Use byte length for typed `memoryview` response bodies
+split: test2

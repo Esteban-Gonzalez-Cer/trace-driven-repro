@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 8; source ['src/click/testing.py'] (17 lines).
+id: click-2940
+repo: pallets/click
+c_fix: 2a0e3ba907927ade6951d5732b775f11b54cb766
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/click/pull/2940
+fix_date: '2025-09-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 'testing/CliRunner: Fix regression related to EOF introduced in 262bdf0'
+split: test2

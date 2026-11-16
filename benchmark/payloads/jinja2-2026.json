@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "d9bdf3d51fb512e768ce6bdd69b01f4a",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TemplateRuntimeError",
+        "module": "jinja2.exceptions",
+        "value": "a hint",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/jinja2/runtime.py",
+              "function": "_fail_with_undefined_error",
+              "lineno": 859,
+              "in_app": true,
+              "pre_context": [
+                "        self, *args: t.Any, **kwargs: t.Any",
+                "    ) -> \"te.NoReturn\":",
+                "        \"\"\"Raise an :exc:`UndefinedError` when operations are performed",
+                "        on the undefined value.",
+                "        \"\"\""
+              ],
+              "context_line": "        raise self._undefined_exception(self._undefined_message)",
+              "post_context": [
+                "",
+                "    @internalcode",
+                "    def __getattr__(self, name: str) -> t.Any:",
+                "        if name[:2] == \"__\":",
+                "            raise AttributeError(name)"
+              ],
+              "vars": {
+                "args": "({},)",
+                "kwargs": "{}",
+                "self": "Undefined"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

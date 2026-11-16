@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['tomlkit/api.py'] (2 lines).
+id: tomlkit-673
+repo: python-poetry/tomlkit
+c_fix: 004fce630d2537542a03fa8d4d6d62dae418b422
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/673
+fix_date: '2026-10-27'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Reject datetime strings in the date factory
+split: test2

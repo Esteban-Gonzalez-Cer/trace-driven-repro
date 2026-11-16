@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['tomlkit/_utils.py'] (4 lines).
+id: tomlkit-641
+repo: python-poetry/tomlkit
+c_fix: 01b0f45cd43ca6d250e733b2db3a2ac84426c055
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/641
+fix_date: '2026-10-12'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Write ESC as \^[ instead of the TOML 1.1-only \e escape
+split: test2

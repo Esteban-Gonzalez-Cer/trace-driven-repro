@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/marshmallow/class_registry.py'] (4 lines).
+id: marshmallow-2735
+repo: marshmallow-code/marshmallow
+c_fix: 0902941044a9810e2187141ab9174c270c2c7378
+python_version: '3.11'
+fix_pr_url: https://github.com/marshmallow-code/marshmallow/pull/2735
+fix_date: '2025-01-07'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Fix typing for class_registry.get_class
+split: test2

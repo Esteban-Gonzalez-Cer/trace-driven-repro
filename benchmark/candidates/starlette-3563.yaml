@@ -1,0 +1,17 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['starlette/testclient.py'] (20 lines).
+id: starlette-3563
+repo: Kludex/starlette
+c_fix: 57de5fa9c2a98089a78d32d560e9b23e62560d5f
+python_version: '3.11'
+fix_pr_url: https://github.com/Kludex/starlette/pull/3563
+fix_date: '2026-09-20'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+  drop:
+  - blockbuster
+  - forbiddenfruit
+notes: Support HTTP response trailers in TestClient
+split: test2

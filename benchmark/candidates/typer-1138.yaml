@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['typer/main.py', 'typer/models.py'] (14 lines).
+id: typer-1138
+repo: fastapi/typer
+c_fix: 322bc8d9826bfa8f464f8fc3ad7854396c927550
+python_version: '3.11'
+fix_pr_url: https://github.com/fastapi/typer/pull/1138
+fix_date: '2025-03-26'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: 🐛 Ensure that autocompletion works for `Path` arguments/options
+split: test2

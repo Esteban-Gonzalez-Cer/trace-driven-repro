@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "3cd6f0fbd41ae68616f870f7ca85645c",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "SecurityError",
+        "module": "werkzeug.exceptions",
+        "value": "400 Bad Request: Host '[z:443]:8080' is not trusted.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/werkzeug/sansio/utils.py",
+              "function": "get_host",
+              "lineno": 141,
+              "in_app": true,
+              "pre_context": [
+                "        host = host.removesuffix(\":80\")",
+                "    elif scheme in {\"https\", \"wss\"}:",
+                "        host = host.removesuffix(\":443\")",
+                "",
+                "    if not host_is_trusted(host, trusted_hosts):"
+              ],
+              "context_line": "        raise SecurityError(f\"Host {host!r} is not trusted.\")",
+              "post_context": [
+                "",
+                "    return host",
+                "",
+                "",
+                "def get_current_url("
+              ],
+              "vars": {
+                "host": "'[z:443]:8080'",
+                "host_header": "'[z:443]:8080'",
+                "scheme": "'http'",
+                "server": "None",
+                "trusted_hosts": "None"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

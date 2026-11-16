@@ -1,0 +1,91 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "8f157bbc1177b03a05c27df23b888d52",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValidationError",
+        "module": "marshmallow.exceptions",
+        "value": "Not a valid datetime.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "deserialize",
+              "lineno": 386,
+              "in_app": true,
+              "pre_context": [
+                "        if value is missing_:",
+                "            _miss = self.load_default",
+                "            return _miss() if callable(_miss) else _miss",
+                "        if self.allow_none and value is None:",
+                "            return None"
+              ],
+              "context_line": "        output = self._deserialize(value, attr, data, **kwargs)",
+              "post_context": [
+                "        self._validate(output)",
+                "        return output",
+                "",
+                "    # Methods for concrete classes to override.",
+                ""
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "kwargs": "{}",
+                "self": "<fields.DateTime(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid {obj_type}.', 'invalid_awareness': 'Not a valid {awareness} {obj_type}.', 'format': '\"{input}\" cannot be formatted as a {obj_type}.'})>",
+                "value": "datetime.datetime(2014, 8, 21, 0, 0)"
+              }
+            },
+            {
+              "filename": "src/marshmallow/fields.py",
+              "function": "_deserialize",
+              "lineno": 1243,
+              "in_app": true,
+              "pre_context": [
+                "        try:",
+                "            if func:",
+                "                return func(value)",
+                "            return self._make_object_from_format(value, data_format)",
+                "        except (TypeError, AttributeError, ValueError) as error:"
+              ],
+              "context_line": "            raise self.make_error(",
+              "post_context": [
+                "                \"invalid\", input=value, obj_type=self.OBJ_TYPE",
+                "            ) from error",
+                "",
+                "    @staticmethod",
+                "    @abc.abstractmethod"
+              ],
+              "vars": {
+                "attr": "None",
+                "data": "None",
+                "data_format": "'iso'",
+                "func": "<built-in method fromisoformat of type object at 0x…>",
+                "kwargs": "{}",
+                "self": "<fields.DateTime(dump_default=<marshmallow.missing>, attribute=None, validate=None, required=False, load_only=False, dump_only=False, load_default=<marshmallow.missing>, allow_none=False, error_messages={'required': 'Missing data for required field.', 'null': 'Field may not be null.', 'validator_failed': 'Invalid value.', 'invalid': 'Not a valid {obj_type}.', 'invalid_awareness': 'Not a valid {awareness} {obj_type}.', 'format': '\"{input}\" cannot be formatted as a {obj_type}.'})>",
+                "value": "datetime.datetime(2014, 8, 21, 0, 0)"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

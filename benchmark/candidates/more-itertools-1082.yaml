@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (3 lines).
+id: more-itertools-1082
+repo: more-itertools/more-itertools
+c_fix: 5a1d64d1915df11481dcd31ffaf7165419064116
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1082
+fix_date: '2025-10-10'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2025-10-10'
+notes: Fix product_index() with iterator input
+split: test2

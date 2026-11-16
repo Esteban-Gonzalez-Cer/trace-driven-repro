@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/jinja2/runtime.py'] (6 lines).
+id: jinja2-1702
+repo: pallets/jinja
+c_fix: a4abbfd7538e9ff216244266579232585033136c
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/1702
+fix_date: '2024-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: Use correct concat function for blocks evaluation
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['rich/console.py', 'rich/diagnose.py'] (13 lines).
+id: rich-3777
+repo: Textualize/rich
+c_fix: 3b70db5a2997de191f7db3e422dbe4da35ca1c95
+python_version: '3.11'
+fix_pr_url: https://github.com/Textualize/rich/pull/3777
+fix_date: '2025-06-23'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: TTY_INTERACTIVE env var
+split: test2

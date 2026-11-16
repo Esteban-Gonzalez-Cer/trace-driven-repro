@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 1; source ['src/jinja2/filters.py'] (2 lines).
+id: jinja2-1984
+repo: pallets/jinja
+c_fix: 3ef3ba885bc7a465b022abfd525d6bb4a1c8dd3c
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/jinja/pull/1984
+fix_date: '2024-12-19'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: fix how int filter handles scientific notation
+split: test2

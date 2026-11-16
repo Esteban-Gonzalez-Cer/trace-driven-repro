@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "07f21897053ac4bd2344f968c6743719",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "IndexError",
+        "module": "builtins",
+        "value": "numeric range object index out of range",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "__reversed__",
+              "lineno": 2407,
+              "in_app": true,
+              "pre_context": [
+                "        )",
+                "",
+                "    def __reversed__(self):",
+                "        return iter(",
+                "            numeric_range("
+              ],
+              "context_line": "                self._get_by_index(-1), self._start - self._step, -self._step",
+              "post_context": [
+                "            )",
+                "        )",
+                "",
+                "    def count(self, value):",
+                "        return int(value in self)"
+              ],
+              "vars": {
+                "self": "numeric_range(0, 0)"
+              }
+            },
+            {
+              "filename": "more_itertools/more.py",
+              "function": "_get_by_index",
+              "lineno": 2432,
+              "in_app": true,
+              "pre_context": [
+                "",
+                "    def _get_by_index(self, i):",
+                "        if i < 0:",
+                "            i += self._len",
+                "        if i < 0 or i >= self._len:"
+              ],
+              "context_line": "            raise IndexError(\"numeric range object index out of range\")",
+              "post_context": [
+                "        return self._start + i * self._step",
+                "",
+                "",
+                "def count_cycle(iterable, n=None):",
+                "    \"\"\"Cycle through the items from *iterable* up to *n* times, yielding"
+              ],
+              "vars": {
+                "i": "-1",
+                "self": "numeric_range(0, 0)"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "c9e41a368f62e9212b61e81328134a5f",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "TypeError",
+        "module": "builtins",
+        "value": "object of type 'list_iterator' has no len()",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "more_itertools/more.py",
+              "function": "product_index",
+              "lineno": 4334,
+              "in_app": true,
+              "pre_context": [
+                "    ``ValueError`` will be raised if the given *element* isn't in the product",
+                "    of *args*.",
+                "    \"\"\"",
+                "    elements = tuple(element)",
+                "    pools = tuple(map(tuple, args))"
+              ],
+              "context_line": "    if len(element) != len(args):",
+              "post_context": [
+                "        raise ValueError('element is not a product of args')",
+                "",
+                "    index = 0",
+                "    for elem, pool in zip(elements, pools):",
+                "        index = index * len(pool) + pool.index(elem)"
+              ],
+              "vars": {
+                "args": "(<str_ascii_iterator object at 0x…>, <str_ascii_iterator object at 0x…>)",
+                "element": "<list_iterator object at 0x…>",
+                "elements": "('i', 'a')",
+                "pools": "(('s', 'n', 'i', 'c', 'k', 'e', 'r'), ('s', 'n', 'a', 'c', 'k'))"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

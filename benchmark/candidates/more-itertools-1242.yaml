@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (3 lines).
+id: more-itertools-1242
+repo: more-itertools/more-itertools
+c_fix: 30ada7dd597316a3ef967911477e0a1d9f55eefe
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1242
+fix_date: '2026-09-02'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-02'
+notes: 'docs: Clarify output order for sortable input elements'
+split: test2

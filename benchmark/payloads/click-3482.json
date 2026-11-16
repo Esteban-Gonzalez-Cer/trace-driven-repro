@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "synthetic": true,
+  "event_id": "3cb8c0fea8b36c22250206799d1110d1",
+  "platform": "python",
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "module": "builtins",
+        "value": "I/O operation on closed file.",
+        "mechanism": {
+          "type": "generic",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "src/click/testing.py",
+              "function": "invoke",
+              "lineno": 676,
+              "in_app": true,
+              "pre_context": [
+                "                    raise",
+                "                exception = e",
+                "                exit_code = 1",
+                "                exc_info = sys.exc_info()",
+                "            finally:"
+              ],
+              "context_line": "                sys.stdout.flush()",
+              "post_context": [
+                "                sys.stderr.flush()",
+                "",
+                "                # Stop fd capture and merge the captured bytes into",
+                "                # the stdout/stderr BytesIO streams. BytesIOCopy mirrors",
+                "                # those writes into outstreams[2] automatically."
+              ],
+              "vars": {
+                "args": "None",
+                "cap_err": "None",
+                "cap_out": "None",
+                "catch_exceptions": "True",
+                "cli": "<Command cli>",
+                "color": "False",
+                "e_code": "0",
+                "env": "None",
+                "exc_info": "(<class 'SystemExit'>, SystemExit(0), <traceback object at 0x…>)",
+                "exception": "None",
+                "exit_code": "0",
+                "extra": "{}",
+                "input": "None",
+                "outstreams": "(<click.testing.BytesIOCopy object at 0x…>, <click.testing.BytesIOCopy object at 0x…>, <_io.BytesIO object at 0x…>)",
+                "prog_name": "'cli'",
+                "return_value": "None",
+                "self": "<click.testing.CliRunner object at 0x…>"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "contexts": {
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11"
+    }
+  },
+  "tags": {
+    "synthetic": "true"
+  }
+}

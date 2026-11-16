@@ -1,0 +1,15 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['more_itertools/more.py'] (13 lines).
+id: more-itertools-1285
+repo: more-itertools/more-itertools
+c_fix: 3ea9b009b19db0e01a83d51cee43e9935c0d657f
+python_version: '3.11'
+fix_pr_url: https://github.com/more-itertools/more-itertools/pull/1285
+fix_date: '2026-09-17'
+deps:
+  strategy: compile
+  extra:
+  - pytest
+  exclude_newer: '2026-09-17'
+notes: 'Issue 1284: don''t let a bucket lookup invent a key'
+split: test2

@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['src/werkzeug/wrappers/response.py'] (23 lines).
+id: werkzeug-3110
+repo: pallets/werkzeug
+c_fix: ac9cc16ff16c6a1244be65b5be51f08dae145ce3
+python_version: '3.11'
+fix_pr_url: https://github.com/pallets/werkzeug/pull/3110
+fix_date: '2026-02-13'
+deps:
+  strategy: uv-lock
+  groups:
+  - tests
+notes: always set `Accept-Ranges` header
+split: test2

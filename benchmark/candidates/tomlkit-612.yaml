@@ -1,0 +1,14 @@
+# Written by tracerepro.dataset.find_candidates (mechanical filter, see its docstring).
+# Crash hint 0; source ['tomlkit/items.py'] (8 lines).
+id: tomlkit-612
+repo: python-poetry/tomlkit
+c_fix: 61941deb3c7155e88d5f038148b33a599c04a530
+python_version: '3.11'
+fix_pr_url: https://github.com/python-poetry/tomlkit/pull/612
+fix_date: '2026-09-30'
+deps:
+  strategy: uv-lock
+  groups:
+  - dev
+notes: Escape content appended to a String via __add__
+split: test2
