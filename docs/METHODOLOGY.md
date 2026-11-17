@@ -161,6 +161,29 @@ B2 is Pipeline B with three switches on (`crash_check`, prompts `v3`, optional `
   `retry_effort`). Retries happen only after a failed attempt. Each attempt records the model
   that answered it.
 
+### Phase 5c: definition requests and one check repair (prompts v4)
+
+Two more switches, both off in the second study (`benchmark/configs/b2-v4.yaml` turns them on;
+DECISIONS.md, 2026-11-16, Phase 5c). They are the Phase 6 demo's settings; no gain over B2 is
+measured or claimed.
+
+- **Definition requests (`request_definitions`).**
+  - A request may also name `path::function`, `path::ClassName` or `path::ClassName.method`.
+    The named definitions are shown whole, with their enclosing class headers, within the same
+    allowance; at most 3 files and 10 names. The path is checked exactly as for a whole file.
+  - A whole file that does not fit is not sent again as an outline the model has already
+    seen; it is refused with a pointer to definition requests.
+  - A round that shows nothing new does not use up the request: the model may ask once more
+    (prompt `morefiles_v4`). At most 2 rounds; `file_request.rounds` records how many.
+- **One check repair (`check_repair`, needs `crash_check`).**
+  - When a patch runs clean but its check did not reproduce the crash, and an attempt remains,
+    the model is shown what the check did on the buggy code (prompt `repair_v4`) and asked once
+    for a corrected check, with no edits. The reply costs tokens but no attempt.
+  - A corrected check that reproduces is run with the same patch (the check alone; the
+    baseline already passed). If it still fails, the patch goes back as `check_still_fails`.
+    Otherwise, or if the model replies `NO CHECK`, the patch stands.
+  - Each attempt records the repaired check's verdict on the buggy code (`check_repair`).
+
 ## Pipeline A: repro first (plan §6.5, spec §6), retired
 
 As run in the M4 study. Retired afterwards (DECISIONS.md, 2026-11-15); the code is kept at the

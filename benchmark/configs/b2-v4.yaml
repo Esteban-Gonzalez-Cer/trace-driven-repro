@@ -1,5 +1,5 @@
 # Phase 5c: Pipeline B2 with the two changes found in the second study's failed trials
-# (DECISIONS.md, 2026-11-17): definition requests and one crash-check repair, prompts v4.
+# (DECISIONS.md, 2026-11-16, Phase 5c): definition requests and one crash-check repair, prompts v4.
 # Otherwise identical to final-b2-arm-b2.yaml. These are the settings of the Phase 6 demo.
 #
 # A development check, not a measurement: the bugs are the three test2 bugs that B2 solved in

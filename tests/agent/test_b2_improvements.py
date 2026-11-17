@@ -6,7 +6,7 @@
   whose outline is already shown is refused with a pointer to that, and a round that showed
   nothing new does not use up the request.
 - **Check repair.** A patch that ran clean while its crash check did not reproduce the crash
-  was submitted untested (14 B2 trials on 6 bugs). The model now gets one chance to fix the
+  was submitted untested (9 B2 trials on 5 bugs). The model now gets one chance to fix the
   check, and the patch is run with the corrected one.
 
 Scripted model and test runs: no Docker, no plan usage."""
