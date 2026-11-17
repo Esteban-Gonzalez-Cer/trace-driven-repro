@@ -52,7 +52,9 @@ DEFAULT_BUDGET_CHARS = 250_000
 WINDOWS = ((40, True), (15, True), (15, False))
 STAGES = ("full", "outline", "drop", "window", "cut")
 MAX_REQUESTED_FILES = 3  # Pipeline B2: files the model may ask for, in one request
+MAX_REQUESTED_DEFINITIONS = 10  # with definition requests: `path::Name` entries per request
 REQUEST_BUDGET_CHARS = 80_000  # their own allowance, on top of the context budget
+DEFINITION_SEP = "::"
 GAP = "      ..."
 
 
@@ -66,7 +68,7 @@ class ContextFile:
     role: str  # "trace" or "import"
     lines: tuple[tuple[int, str], ...]  # (line number, text); gaps are rendered as "..."
     total_lines: int
-    shape: str = "whole"  # whole, outline, window, cut
+    shape: str = "whole"  # whole, outline, window, cut, definitions (requested)
 
     def render(self) -> str:
         header = f"=== file: {self.path} ({self.role}"
@@ -461,12 +463,68 @@ def _refill(
 # --- files the model asks for (Pipeline B2, Phase 5b) --------------------------------------
 
 
+def _definition_lines(lines: list[str], name: str) -> set[int] | None:
+    """The lines of the top-level function or class `name`, or of `Class.method` (with the
+    enclosing classes' headers), or None when the file has no such definition."""
+    try:
+        tree = ast.parse("\n".join(lines))
+    except (SyntaxError, ValueError, RecursionError):
+        return None
+    body: list[ast.stmt] = tree.body
+    keep: set[int] = set()
+    node: ast.AST | None = None
+    for part in name.split("."):
+        if node is not None:
+            keep |= _header_lines(node)
+        node = next(
+            (
+                n
+                for n in body
+                if isinstance(n, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+                and n.name == part
+            ),
+            None,
+        )
+        if node is None:
+            return None
+        body = node.body
+    assert isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
+    first = min([node.lineno, *(d.lineno for d in node.decorator_list)])
+    return keep | set(range(first, (node.end_lineno or node.lineno) + 1))
+
+
+def _shown_set(shown: Mapping[str, list[list[int]]], path: str) -> set[int]:
+    return {n for a, b in shown.get(path, []) for n in range(a, b + 1)}
+
+
+def _grouped(paths: Sequence[str]) -> tuple[dict[str, list[str]], dict[str, str]]:
+    """Definition requests: entries grouped by file in first-seen order ({path: [names]}, an
+    empty list meaning the whole file), and the entries over the limits."""
+    groups: dict[str, list[str]] = {}
+    over: dict[str, str] = {}
+    definitions = 0
+    for raw in paths:
+        entry = raw.strip().strip("`'\"")
+        path, _, name = entry.partition(DEFINITION_SEP)
+        if path not in groups and len(groups) >= MAX_REQUESTED_FILES:
+            over[raw] = f"at most {MAX_REQUESTED_FILES} files can be requested"
+            continue
+        if name:
+            definitions += 1
+            if definitions > MAX_REQUESTED_DEFINITIONS:
+                over[raw] = f"at most {MAX_REQUESTED_DEFINITIONS} definitions can be requested"
+                continue
+        groups.setdefault(path, []).append(name)
+    return groups, over
+
+
 def requested_files(
     root: Path,
     paths: Sequence[str],
     shown: Mapping[str, list[list[int]]],
     *,
     budget: int = REQUEST_BUDGET_CHARS,
+    definitions: bool = False,
 ) -> tuple[list[ContextFile], dict[str, str]]:
     """The library files the model asked for, checked like trace files, and why any was refused.
 
@@ -475,24 +533,21 @@ def requested_files(
     tree as a regular file (never a symlink), and was not already shown whole. At most
     `MAX_REQUESTED_FILES` are considered. Each is shown whole while it fits the allowance,
     else as an outline, else refused. Nothing outside the read-only source tree is ever read.
+
+    With `definitions` (Phase 5c), an entry may also name a definition, `path::Name` or
+    `path::Class.method`; the named definitions of one file are shown whole, together, and the
+    path is checked exactly as above. A whole file that does not fit is not sent again as an
+    outline the model has already seen: it is refused with a pointer to definition requests.
     """
+    if definitions:
+        return _requested_definitions(root, paths, shown, budget)
     granted: list[ContextFile] = []
     refused: dict[str, str] = {}
     used = 0
     for raw in paths[:MAX_REQUESTED_FILES]:
         path = raw.strip().strip("`'\"")
-        parts = PurePosixPath(path).parts
-        if (
-            not _safe_source(path)
-            or is_config_path(path)
-            or is_dependency_or_ci_path(path)
-            or any(part.startswith(".") for part in parts)
-        ):
-            refused[raw] = "not a library source file that may be shown"
-            continue
-        lines = _read(root, path)
+        lines = _checked_source(root, path, refused, raw)
         if lines is None:
-            refused[raw] = "no such file in the library"
             continue
         if shown.get(path) == ([[1, len(lines)]] if lines else []):
             refused[raw] = "already shown in full"
@@ -514,6 +569,97 @@ def requested_files(
         used += len(candidate.render()) + 2
     for raw in paths[MAX_REQUESTED_FILES:]:
         refused[raw] = f"at most {MAX_REQUESTED_FILES} files can be requested"
+    return granted, refused
+
+
+def _checked_source(root: Path, path: str, refused: dict[str, str], raw: str) -> list[str] | None:
+    """The file's lines if `path` is library source that may be shown, else None (and why, in
+    `refused`)."""
+    parts = PurePosixPath(path).parts
+    if (
+        not _safe_source(path)
+        or is_config_path(path)
+        or is_dependency_or_ci_path(path)
+        or any(part.startswith(".") for part in parts)
+    ):
+        refused[raw] = "not a library source file that may be shown"
+        return None
+    lines = _read(root, path)
+    if lines is None:
+        refused[raw] = "no such file in the library"
+    return lines
+
+
+def _requested_definitions(
+    root: Path, paths: Sequence[str], shown: Mapping[str, list[list[int]]], budget: int
+) -> tuple[list[ContextFile], dict[str, str]]:
+    groups, refused = _grouped(paths)
+    granted: list[ContextFile] = []
+    used = 0
+    raw_of: dict[str, str] = {}
+    for raw in paths:
+        raw_of.setdefault(raw.strip().strip("`'\""), raw)
+    for path, names in groups.items():
+        entries = [path + (DEFINITION_SEP + n if n else "") for n in names]
+        raws = [raw_of.get(e, e) for e in entries]
+        lines = _checked_source(root, path, refused, raws[0])
+        if lines is None:
+            for raw in raws[1:]:
+                refused[raw] = refused[raws[0]]
+            continue
+        seen = _shown_set(shown, path)
+        everything = set(range(1, len(lines) + 1))
+        keep: set[int] = set()
+        defined = False
+        whole_wanted = "" in names
+        for name, raw in zip(names, raws, strict=True):
+            if not name:
+                continue
+            found = _definition_lines(lines, name)
+            if found is None:
+                refused[raw] = (
+                    f"no definition named {name} in {path} (name a top-level function or "
+                    "class, or Class.method)"
+                )
+            elif found <= seen:
+                refused[raw] = "already shown in full"
+            else:
+                keep |= found
+                defined = True
+        if whole_wanted:
+            raw = raws[names.index("")]
+            if everything <= seen:
+                refused[raw] = "already shown in full"
+            else:
+                whole = ContextFile(path, "requested", _numbered(lines), len(lines))
+                if used + len(whole.render()) <= budget:
+                    granted.append(whole)
+                    used += len(whole.render()) + 2
+                    continue
+                outline = _outline_lines(lines)
+                if outline is not None and not outline <= seen:
+                    keep |= outline
+                else:
+                    refused[raw] = (
+                        "too large to show whole, and its outline is already shown; ask for "
+                        f"the functions or classes you need as `{path}{DEFINITION_SEP}Name`"
+                    )
+        if not keep:
+            continue
+        shape = "whole" if keep >= everything else "definitions" if defined else "outline"
+        candidate = ContextFile(
+            path,
+            "requested",
+            _numbered(lines, None if shape == "whole" else keep),
+            len(lines),
+            shape,
+        )
+        if used + len(candidate.render()) > budget:
+            for raw in raws:
+                refused.setdefault(raw, "too large to show")
+            continue
+        granted.append(candidate)
+        used += len(candidate.render()) + 2
     return granted, refused
 
 

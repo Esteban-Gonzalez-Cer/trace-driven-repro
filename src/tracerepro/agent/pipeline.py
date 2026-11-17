@@ -66,6 +66,9 @@ from tracerepro.sandbox.validator import validate
 FEEDBACK = "feedback"
 REQUEST = "request"  # B2: the file-request option, added to the first message
 FILES = "files"  # B2: the message that brings the requested files
+MORE_FILES = "morefiles"  # B2 (Phase 5c): the same, when nothing new could be shown
+REPAIR = "repair"  # B2 (Phase 5c): asks once for a crash check that reproduces the crash
+MAX_REQUEST_ROUNDS = 2  # with definition requests: a round that showed nothing is not counted
 REQUEST_PREFIX = "REQUEST FILES:"
 REGRESSION_FAILURE = "regression_failure"
 MODEL_FAILURE = "model_failure"
@@ -89,6 +92,9 @@ class PipelineConfig:
     retry_settings: Settings | None = (
         None  # escalation: model and effort for attempts after the first
     )
+    # Phase 5c switches (prompts v4); both off reproduces B2 as run in the second study.
+    request_definitions: bool = False  # requests may name `path::Name`; empty rounds don't count
+    check_repair: bool = False  # one chance to fix a check that does not reproduce the crash
 
 
 @dataclass
@@ -107,6 +113,7 @@ class Attempt:
     check: str | None = None  # B2: the crash check's verdict on the buggy code, or "none"
     check_after: str | None = None  # B2: "passes" or "still_fails" with this patch
     model: str | None = None  # the model that answered, when it differs by attempt (escalation)
+    check_repair: str | None = None  # B2 (5c): the repaired check's verdict on the buggy code
 
 
 @dataclass
@@ -123,7 +130,8 @@ class AgentResult:
     prompts: dict[str, str] = field(default_factory=dict)  # prompt id -> sha256
     repro: str | None = None
     check: str | None = None  # B2: the last crash check the model sent
-    # B2: the one file request, if any: {"requested": [...], "granted": [...], "refused": {...}}
+    # B2: the file request, if any: {"requested": [...], "granted": [...], "refused": {...}},
+    # summed over rounds, with "rounds" when definition requests are on
     file_request: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -350,16 +358,18 @@ def run_pipeline_b(
     result = AgentResult(pipeline="B", status="", context=context.summary())
     prompts = [session.system, patch_prompt, load_prompt(FEEDBACK, config.prompt_version)]
     if config.file_requests:
-        prompts += [
-            load_prompt(REQUEST, config.prompt_version),
-            load_prompt(FILES, config.prompt_version),
-        ]
+        request = load_prompt(REQUEST, config.prompt_version)
+        prompts += [request, load_prompt(FILES, config.prompt_version)]
+        if config.request_definitions:
+            prompts.append(load_prompt(MORE_FILES, config.prompt_version))
         # The request option is offered in the first message, after the patch instructions.
         patch_prompt = Prompt(
             patch_prompt.name,
             patch_prompt.version,
-            patch_prompt.text.rstrip() + "\n\n" + prompts[3].text,
+            patch_prompt.text.rstrip() + "\n\n" + request.text,
         )
+    if config.check_repair:
+        prompts.append(load_prompt(REPAIR, config.prompt_version))
     result.prompts = {p.id: load_prompt(p.name, p.version).sha256 for p in prompts}
     message = patch_message(patch_prompt, payload=bug.payload_text, context=context.render())
     if config.crash_check or config.file_requests:
@@ -382,17 +392,25 @@ def parse_file_request(reply: str) -> list[str] | None:
 
 
 def _grant_files(
-    session: _Session, result: AgentResult, bench: Workbench, paths: list[str]
-) -> tuple[str, list[str]]:
+    session: _Session, result: AgentResult, bench: Workbench, paths: list[str], more: bool
+) -> tuple[str, list[str], bool]:
     """Check the requested paths, add the granted files to what the agent was shown, and
-    return the next message: the files, and why any was refused."""
+    return the next message (the files, and why any was refused) and whether anything was
+    granted. With `more`, a round that granted nothing tells the model it may ask again."""
+    config = session.config
     shown = result.context.get("shown_lines", {})
-    granted, refused = requested_files(bench.source_tree(), paths, shown)
-    result.file_request = {
-        "requested": paths,
-        "granted": [f"{f.path} ({f.shape})" for f in granted],
-        "refused": refused,
-    }
+    granted, refused = requested_files(
+        bench.source_tree(), paths, shown, definitions=config.request_definitions
+    )
+    names = [f"{f.path} ({f.shape})" for f in granted]
+    if result.file_request is None:
+        result.file_request = {"requested": paths, "granted": names, "refused": refused}
+    else:  # a second round (definition requests only)
+        result.file_request["requested"] = [*result.file_request["requested"], *paths]
+        result.file_request["granted"] = [*result.file_request["granted"], *names]
+        result.file_request["refused"] = {**result.file_request["refused"], **refused}
+    if config.request_definitions:
+        result.file_request["rounds"] = result.file_request.get("rounds", 0) + 1
     result.context["shown_lines"] = merge_shown(shown, granted)
     result.context["files"] = [
         *result.context.get("files", []),
@@ -401,11 +419,48 @@ def _grant_files(
     body = "\n\n".join(f.render() for f in granted) or "(no file could be shown)"
     if refused:
         body += "\n\nNot shown:\n" + "\n".join(f"- {p}: {why}" for p, why in refused.items())
-    message = build_message(
-        load_prompt(FILES, session.config.prompt_version).text,
-        [DataBlock("requested-files", body)],
+    again = more and not granted
+    prompt = load_prompt(MORE_FILES if again else FILES, config.prompt_version)
+    message = build_message(prompt.text, [DataBlock("requested-files", body)])
+    return message.text, list(message.tags), bool(granted)
+
+
+def _repair_check(
+    session: _Session,
+    result: AgentResult,
+    bench: Workbench,
+    target: Target,
+    check: Check,
+    attempt: Attempt,
+) -> Check:
+    """Phase 5c: the patch ran clean but its crash check did not reproduce the crash. Ask once
+    for a corrected check; if the new one reproduces, run the patch with it and update the
+    attempt. Returns the check to use from now on. May raise `TokenCapReached`."""
+    prompt = load_prompt(REPAIR, session.config.prompt_version)
+    message = build_message(prompt.text, [DataBlock("check-run", check.gate.report)])
+    reply, stop, tokens = session.ask(prompt, message.text, list(message.tags))
+    attempt.tokens += tokens
+    attempt.check_repair = NO_CHECK
+    code = parse_check(reply) if stop not in ("max_tokens", "refusal") else None
+    if code is None or code == check.code:
+        return check
+    repaired = run_on_bug(code, bench, target)
+    result.check = code
+    attempt.check_repair = repaired.gate.verdict
+    if not repaired.usable or attempt.diff is None:
+        return repaired
+    trial = bench.try_patch(
+        attempt.diff, extra_files={CHECK_PATH: code.encode()}, tests=[CHECK_PATH], baseline=False
     )
-    return message.text, list(message.tags)
+    reason = after_patch(repaired, trial, target)
+    attempt.check_after = "still_fails" if reason else "passes"
+    if reason:
+        attempt.outcome, attempt.label, attempt.detail = (
+            CHECK_STILL_FAILS,
+            "incorrect_patch",
+            reason,
+        )
+    return repaired
 
 
 def b2_patch_loop(
@@ -428,6 +483,8 @@ def b2_patch_loop(
     text, tags = first_message
     check: Check | None = None
     requests_left = 1 if config.file_requests else 0
+    rounds = 0
+    repairs_left = 1 if config.crash_check and config.check_repair else 0
     n = 0
     while n < config.max_patch_attempts:
         settings = config.retry_settings if n > 0 and config.retry_settings else None
@@ -439,9 +496,11 @@ def b2_patch_loop(
         ok = stop not in ("max_tokens", "refusal")
         paths = parse_file_request(reply) if requests_left and ok else None
         if paths is not None and isinstance(parse_edits(reply), ContractFailure):
-            requests_left = 0
-            text, tags = _grant_files(session, result, bench, paths)
-            prompt = load_prompt(FILES, config.prompt_version)
+            rounds += 1
+            more = config.request_definitions and rounds < MAX_REQUEST_ROUNDS
+            text, tags, granted = _grant_files(session, result, bench, paths, more)
+            requests_left = 1 if more and not granted else 0
+            prompt = load_prompt(MORE_FILES if requests_left else FILES, config.prompt_version)
             continue
         n += 1
         code = parse_check(reply) if config.crash_check and ok else None
@@ -465,6 +524,20 @@ def b2_patch_loop(
                     "incorrect_patch",
                     reason,
                 )
+        if (
+            repairs_left
+            and attempt.outcome == "clean"
+            and check is not None
+            and not check.usable
+            and n < config.max_patch_attempts
+        ):
+            repairs_left = 0
+            try:
+                check = _repair_check(session, result, bench, target, check, attempt)
+            except TokenCapReached:
+                result.stopped_by = "token_cap"
+                result.attempts.append(attempt)
+                break
         result.attempts.append(attempt)
         if attempt.outcome == "clean":
             break

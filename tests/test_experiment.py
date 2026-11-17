@@ -82,6 +82,16 @@ def test_bad_configs_are_refused(tmp_path: Path) -> None:
     path.write_text("name: x\nmodel: m\nbugs: [a]\nfile_requests: true\n")
     with pytest.raises(ValueError, match="v3"):
         experiment.load_config(path)
+    for phase5c in ("check_repair: true\n", "request_definitions: true\n"):
+        path.write_text("name: x\nmodel: m\nbugs: [a]\nprompt_version: v3\n" + phase5c)
+        with pytest.raises(ValueError, match="v4"):
+            experiment.load_config(path)
+    path.write_text("name: x\nmodel: m\nbugs: [a]\nprompt_version: v4\ncheck_repair: true\n")
+    with pytest.raises(ValueError, match="needs crash_check"):
+        experiment.load_config(path)
+    path.write_text("name: x\nmodel: m\nbugs: [a]\nprompt_version: v4\nrequest_definitions: true\n")
+    with pytest.raises(ValueError, match="needs file_requests"):
+        experiment.load_config(path)
     path.write_text("name: x\nmodel: m\nbugs: [a]\nretry_effort: extreme\n")
     with pytest.raises(ValueError, match="effort"):
         experiment.load_config(path)
@@ -231,6 +241,14 @@ def test_b2_switches_reach_the_pipeline(tmp_path: Path) -> None:
     assert pipeline.retry_settings.model == "claude-opus-5-5"
     assert pipeline.retry_settings.effort == "medium"  # inherited when only the model is set
     assert experiment.load_config(DEV).pipeline_config.retry_settings is None
+
+
+def test_phase5c_switches_reach_the_pipeline() -> None:
+    config = experiment.load_config(PROJECT_ROOT / "benchmark" / "configs" / "b2-v4.yaml")
+    pipeline = config.pipeline_config
+    assert pipeline.prompt_version == "v4" and pipeline.crash_check and pipeline.file_requests
+    assert pipeline.request_definitions and pipeline.check_repair
+    assert pipeline.retry_settings is not None and pipeline.retry_settings.effort == "high"
 
 
 def test_the_practice_split_admits_dev_and_spent_test_bugs(tmp_path: Path) -> None:

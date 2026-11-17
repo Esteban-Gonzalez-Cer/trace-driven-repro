@@ -89,6 +89,9 @@ class RunConfig:
     file_requests: bool = False  # the model may ask once for up to 3 more library files
     retry_model: str | None = None  # escalation: the model for attempts after the first
     retry_effort: str | None = None  # escalation: the effort for attempts after the first
+    # Phase 5c switches (prompts v4): requests may name definitions; one check repair.
+    request_definitions: bool = False
+    check_repair: bool = False
 
     @property
     def settings(self) -> Settings:
@@ -105,6 +108,8 @@ class RunConfig:
             crash_check=self.crash_check,
             file_requests=self.file_requests,
             retry_settings=self.retry_settings,
+            request_definitions=self.request_definitions,
+            check_repair=self.check_repair,
         )
 
     @property
@@ -165,6 +170,16 @@ def load_config(path: Path) -> RunConfig:
     config.retry_settings  # validates the escalation's effort  # noqa: B018
     if (config.crash_check or config.file_requests) and config.prompt_version in ("v1", "v2"):
         raise ValueError(f"{path}: crash_check and file_requests need prompts v3 or later")
+    if (config.request_definitions or config.check_repair) and config.prompt_version in (
+        "v1",
+        "v2",
+        "v3",
+    ):
+        raise ValueError(f"{path}: request_definitions and check_repair need prompts v4 or later")
+    if config.request_definitions and not config.file_requests:
+        raise ValueError(f"{path}: request_definitions needs file_requests")
+    if config.check_repair and not config.crash_check:
+        raise ValueError(f"{path}: check_repair needs crash_check")
     if config.split not in SPLITS:
         raise ValueError(f"{path}: split must be one of {list(SPLITS)}")
     return config
