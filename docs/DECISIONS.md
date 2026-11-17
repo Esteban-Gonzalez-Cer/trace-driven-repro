@@ -410,6 +410,70 @@ effort, crash check and file requests on. None of these runs is a reported resul
   in one pull request, because the owner is away and merges would hold up the run; the tag
   marks the freeze point inside that pull request.
 
+## 2026-11-16: Phase 5c, two changes to B2 from the second study's failed trials
+
+The owner asked how to turn the three bugs B2 solved in only 1 of 3 trials (jinja2-1702,
+jinja2-1852, tomlkit-698) into 2 of 3. The logs of their failed trials show two harness gaps
+and one model limit:
+
+- **A requested file was sent again as the outline already shown.** On both jinja2 bugs every
+  trial asked for `compiler.py`. Its whole text is larger than the 80,000-character request
+  allowance, so it came back as an outline, the same one the context already held (the context
+  was at 225,000 to 229,000 of 250,000 characters). The model then edited code it could not
+  see: two trials failed with edits whose text is not in the file, and one made no change at
+  all.
+- **A crash check that did not reproduce left a clean patch untested.** The check did not
+  reproduce in 15 of 84 B2 trials, on 6 bugs. In 9 of them, on 5 bugs, a patch that ran clean
+  was then submitted with no test of the crash, among them 4 of the 6 jinja2 trials above.
+- **tomlkit-698** found the right place in every trial, and every patch passed its own check.
+  One narrowed the fix and one broke a test that exists only in the maintainers' fix commit,
+  so nothing at agent time could see it. No general change addresses this without looking at
+  the oracle; it is left alone.
+
+Changes (prompts v4, two switches, both off by default so the second study reproduces
+unchanged; `benchmark/configs/b2-v4.yaml`):
+
+1. **Definition requests** (`request_definitions`). A request may name `path::function`,
+   `path::ClassName` or `path::ClassName.method`, shown whole with the enclosing class
+   headers; at most 3 files and 10 names. Paths are checked exactly as before. A large file
+   whose outline is already shown is refused with a pointer to definition requests, and a
+   round that showed nothing new does not use up the request (at most 2 rounds).
+2. **One crash-check repair** (`check_repair`). When a patch runs clean but its check did not
+   reproduce the crash, and an attempt remains, the model is shown what the check did and asked
+   once for a corrected check (no edits). If the new check reproduces, the patch is run with it;
+   if it still fails, the patch goes back as in B2.
+
+Considered and not done:
+
+- **Running the library's existing tests before submitting.** Already done since Phase 4: the
+  workbench runs every patch against the visible baseline. The regressions in the second study
+  were in tests added by the fix commit, which are not visible by design.
+- **Several patches per trial, keep the best.** Triples the cost, and the only signal to choose
+  by (the model's own check) passed for every tomlkit-698 patch, good and bad.
+
+**No measured gain is claimed.** test2 was spent by the second study, and no fresh set is left
+(screening for test2 already reached back to 2024-11). The changes were checked on the three
+bugs above as a development run (`b2-v4`, commit 69fcbf1, 3 trials each, 2026-11-17).
+
+**Development check: no sign of help.** 1 of 9 trials correct, against 3 of 9 for B2 on the
+same bugs in the second study (descriptive; 3 trials per bug cannot tell the two apart).
+
+- **Definition requests worked as built.** Every jinja2 trial asked for named methods of
+  `compiler.py` and got them, in one round. But on jinja2-1702 all three looked in the
+  compiler, while the bug is in `runtime.py`, which B2's one correct trial had asked for whole.
+  On jinja2-1852, two trials still wrote edits for lines that are not in the file, after
+  seeing the methods.
+- **The check repair never helped.** It ran in 4 trials; no corrected check reproduced the
+  crash (3 still passed on the buggy code, 1 reply sent no check).
+- **tomlkit-698** lost all three trials to the test that exists only in the fix commit; neither
+  change was involved (each check reproduced and passed).
+- **Cost.** The six jinja2 trials used 276,000 tokens on average (271,000 to 281,000),
+  against 206,000 for B2 on the same bugs in the second study (90,000 to 286,000).
+
+**Decision (owner, 2026-11-17): not adopted.** The Phase 6 demo uses B2 as measured in the
+second study (`final-b2-arm-b2.yaml`), the only version with numbers behind it. The code and
+prompts v4 stay in the repository with both switches off, so the check can be repeated.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

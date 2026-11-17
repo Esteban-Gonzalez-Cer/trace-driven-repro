@@ -1,0 +1,34 @@
+# Phase 5c: Pipeline B2 with the two changes found in the second study's failed trials
+# (DECISIONS.md, 2026-11-16, Phase 5c): definition requests and one crash-check repair, prompts v4.
+# Otherwise identical to final-b2-arm-b2.yaml. Tried and not adopted: the Phase 6 demo uses
+# the measured B2 settings (final-b2-arm-b2.yaml).
+#
+# A development check, not a measurement: the bugs are the three test2 bugs that B2 solved in
+# only 1 of 3 trials. test2 was spent by the second study (docs/RESULTS_B2.md), so nothing run
+# here is a held-out result, and no gain over B2 is claimed.
+name: b2-v4
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v4
+pipelines: [B]
+crash_check: true
+file_requests: true
+request_definitions: true
+check_repair: true
+retry_effort: high
+trials: 3
+split: test2
+bugs:
+  - benchmark/manifests/jinja2-1702.yaml
+  - benchmark/manifests/jinja2-1852.yaml
+  - benchmark/manifests/tomlkit-698.yaml
+max_patch_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: false
+evaluate: true
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0
