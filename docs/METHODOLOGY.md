@@ -164,8 +164,8 @@ B2 is Pipeline B with three switches on (`crash_check`, prompts `v3`, optional `
 ### Phase 5c: definition requests and one check repair (prompts v4)
 
 Two more switches, both off in the second study (`benchmark/configs/b2-v4.yaml` turns them on;
-DECISIONS.md, 2026-11-16, Phase 5c). They are the Phase 6 demo's settings; no gain over B2 is
-measured or claimed.
+DECISIONS.md, 2026-11-16, Phase 5c). **Tried and not adopted:** a development check on three
+bugs showed no sign of help, so the Phase 6 demo uses B2 as measured. The code stays, off.
 
 - **Definition requests (`request_definitions`).**
   - A request may also name `path::function`, `path::ClassName` or `path::ClassName.method`.

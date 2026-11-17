@@ -67,8 +67,9 @@ Phase 5 complete (milestone M4, results final): the final run (180 trials), the 
 logs, and the manual audit ([`docs/AUDIT.md`](docs/AUDIT.md)). Phase 5b complete (milestone
 M5b): Pipeline A retired, Pipeline B2 built and measured against B on 28 fresh bugs
 ([`docs/RESULTS_B2.md`](docs/RESULTS_B2.md), audit [`docs/AUDIT_B2.md`](docs/AUDIT_B2.md); the
-owner's second review of a sample is pending). Next: the demo, with B2, and the write-up
-(Phase 6).
+owner's second review of a sample is pending). Two further B2 switches were tried on three bugs
+and not adopted ([`docs/DECISIONS.md`](docs/DECISIONS.md), Phase 5c). Next: the demo, with B2
+as measured, and the write-up (Phase 6).
 
 - Specification: [`docs/spec/spec-v1.0.pdf`](docs/spec/spec-v1.0.pdf) (frozen, tag `spec-v1.0`)
 - Development plan: [`docs/spec/development-plan.pdf`](docs/spec/development-plan.pdf)

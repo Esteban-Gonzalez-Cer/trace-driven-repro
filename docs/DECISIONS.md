@@ -470,6 +470,10 @@ same bugs in the second study (descriptive; 3 trials per bug cannot tell the two
 - **Cost.** The six jinja2 trials used 276,000 tokens on average (271,000 to 281,000),
   against 206,000 for B2 on the same bugs in the second study (90,000 to 286,000).
 
+**Decision (owner, 2026-11-17): not adopted.** The Phase 6 demo uses B2 as measured in the
+second study (`final-b2-arm-b2.yaml`), the only version with numbers behind it. The code and
+prompts v4 stay in the repository with both switches off, so the check can be repeated.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).
