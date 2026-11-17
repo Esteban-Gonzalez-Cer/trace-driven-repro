@@ -452,8 +452,23 @@ Considered and not done:
   by (the model's own check) passed for every tomlkit-698 patch, good and bad.
 
 **No measured gain is claimed.** test2 was spent by the second study, and no fresh set is left
-(screening for test2 already reached back to 2024-11). The changes are checked on the three
-bugs above as a development run, reported as such, and the Phase 6 demo uses these settings.
+(screening for test2 already reached back to 2024-11). The changes were checked on the three
+bugs above as a development run (`b2-v4`, commit 69fcbf1, 3 trials each, 2026-11-17).
+
+**Development check: no sign of help.** 1 of 9 trials correct, against 3 of 9 for B2 on the
+same bugs in the second study (descriptive; 3 trials per bug cannot tell the two apart).
+
+- **Definition requests worked as built.** Every jinja2 trial asked for named methods of
+  `compiler.py` and got them, in one round. But on jinja2-1702 all three looked in the
+  compiler, while the bug is in `runtime.py`, which B2's one correct trial had asked for whole.
+  On jinja2-1852, two trials still wrote edits for lines that are not in the file, after
+  seeing the methods.
+- **The check repair never helped.** It ran in 4 trials; no corrected check reproduced the
+  crash (3 still passed on the buggy code, 1 reply sent no check).
+- **tomlkit-698** lost all three trials to the test that exists only in the fix commit; neither
+  change was involved (each check reproduced and passed).
+- **Cost.** The six jinja2 trials used 276,000 tokens on average (271,000 to 281,000),
+  against 206,000 for B2 on the same bugs in the second study (90,000 to 286,000).
 
 ## Open (spec §16)
 
