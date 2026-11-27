@@ -251,7 +251,10 @@ def run_trial(
     guard: UsageGuard | None,
     bench_factory: Callable[[Manifest, Path], Any],
     meta: dict[str, Any],
+    bug: Bug | None = None,
 ) -> AgentResult:
+    """One trial of the agent stage. `bug` replaces the manifest's payload (the live demo passes
+    the payload its webhook received)."""
     client = LLMClient(
         provider,
         log_path=folder / "calls.jsonl",
@@ -261,7 +264,9 @@ def run_trial(
     started = time.time()
     with bench_factory(manifest, WORK_DIR / "agent" / uuid.uuid4().hex[:12]) as bench:
         bench_: Workbench = bench
-        result = PIPELINES[pipeline](bug_of(manifest), client, bench_, config.pipeline_config)
+        result = PIPELINES[pipeline](
+            bug or bug_of(manifest), client, bench_, config.pipeline_config
+        )
     meta = {**meta, "agent_seconds": round(time.time() - started, 1)}
     write_record(folder, result, meta)
     return result

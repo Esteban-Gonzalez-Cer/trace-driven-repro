@@ -474,6 +474,33 @@ same bugs in the second study (descriptive; 3 trials per bug cannot tell the two
 second study (`final-b2-arm-b2.yaml`), the only version with numbers behind it. The code and
 prompts v4 stay in the repository with both switches off, so the check can be repeated.
 
+## 2026-11-27: Phase 6, the live demo's webhook receiver
+
+The demo shows Pipeline B2 on one crash as it would arrive from Sentry: a webhook in, a draft
+pull request out on the owner's fork of werkzeug (spec §10, plan §8.3). The receiver is the
+first part of the harness that takes input from outside, so it is built to refuse first:
+
+- **Local only.** It listens on 127.0.0.1 and refuses any other client. No tunnel or public
+  address is part of the demo.
+- **Signed, small and well-formed.** The body must carry an HMAC-SHA256 signature made with a
+  secret from `.env`, as Sentry signs its webhooks; it is cut off at 256 KB while still being
+  read; and it must pass a strict shape check (`live/payload_check.py`): exactly the payload
+  format the builder writes, every string and list capped, no control characters, in-app
+  frames naming library source files only. Every one of the 63 benchmark payloads passes it.
+- **Only listed bugs, only prebuilt images.** A `tracerepro_bug` tag must name a bug in
+  `benchmark/configs/live-demo.yaml` (werkzeug-3110, the owner's choice), and its image must
+  already exist: a webhook never clones or builds anything. The tag is removed before the run,
+  so the model sees the payload the benchmark measured.
+- **One job at a time, three per server.** The Claude plan is spent only on purpose.
+- **B2 as measured, no grading.** A job is the benchmark's agent stage (`run_trial`) with the
+  received payload; `live-demo.yaml` must keep the measured arm's settings (a test checks it).
+  A live crash has no maintainers' test, so the evaluator is never called.
+- **Secrets never enter the environment.** `.env` is read into the objects that use the values,
+  not into `os.environ`, so no child process (the Claude CLI, Docker, git) can inherit them.
+
+FastAPI and uvicorn come in as a `live` dependency group, as the spec names them. The publisher
+(the GitHub token, the fork checks) is the next step.
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

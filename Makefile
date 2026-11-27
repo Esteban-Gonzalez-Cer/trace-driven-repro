@@ -1,4 +1,4 @@
-.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold llm-smoke run-benchmark analyze export-results
+.PHONY: help setup lint fmt typecheck test test-docker build-images validate-gold llm-smoke run-benchmark analyze export-results demo-serve demo-send
 
 help:
 	@echo "setup         install dev environment and pre-commit hooks"
@@ -12,6 +12,8 @@ help:
 	@echo "run-benchmark run the agent pipelines and score them (CONFIG=..., uses plan + Docker)"
 	@echo "analyze       rebuild results/ tables and figures from benchmark/results (no Docker, no keys)"
 	@echo "export-results write benchmark/results from a run folder (RUN=runs/<run_id>)"
+	@echo "demo-serve    live demo: webhook receiver on 127.0.0.1:8765 (uses plan + Docker per job)"
+	@echo "demo-send     live demo: sign and send werkzeug-3110's payload, then follow the job"
 
 setup:
 	uv sync
@@ -65,3 +67,10 @@ analyze:
 export-results:
 	@test -n "$(RUN)" || { echo "usage: make export-results RUN=runs/<run_id>"; exit 2; }
 	uv run python -m tracerepro.analysis.export $(RUN)
+
+# Live demo (docs/DEMO.md). Needs DEMO_WEBHOOK_SECRET in .env and the bug's image built.
+demo-serve:
+	uv run python -m tracerepro.live.server
+
+demo-send:
+	uv run python scripts/demo-send.py --wait
