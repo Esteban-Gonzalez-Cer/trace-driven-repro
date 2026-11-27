@@ -68,9 +68,10 @@ export-results:
 	@test -n "$(RUN)" || { echo "usage: make export-results RUN=runs/<run_id>"; exit 2; }
 	uv run python -m tracerepro.analysis.export $(RUN)
 
-# Live demo (docs/DEMO.md). Needs DEMO_WEBHOOK_SECRET in .env and the bug's image built.
+# Live demo (docs/DEMO.md). Needs DEMO_WEBHOOK_SECRET in .env and the bug's image built;
+# PUBLISH=1 also needs GITHUB_DEMO_TOKEN and DEMO_REPO (the owner's fork) and opens draft PRs.
 demo-serve:
-	uv run python -m tracerepro.live.server
+	uv run python -m tracerepro.live.server $(if $(PUBLISH),--publish)
 
 demo-send:
 	uv run python scripts/demo-send.py --wait

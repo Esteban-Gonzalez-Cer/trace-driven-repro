@@ -501,6 +501,36 @@ first part of the harness that takes input from outside, so it is built to refus
 FastAPI and uvicorn come in as a `live` dependency group, as the spec names them. The publisher
 (the GitHub token, the fork checks) is the next step.
 
+## 2026-11-27: Phase 6, the draft-PR publisher
+
+A patch from the live demo becomes a **draft** pull request on the owner's fork of werkzeug,
+never on the real project (spec §10). The publisher (`live/publisher.py`) is the only code that
+holds the GitHub token, so its rules are checked before anything is written:
+
+- **The owner's fork only.** `DEMO_REPO` must belong to the token's user, be a fork and not be
+  archived; the pull request goes from a new `tracerepro/{job}` branch to a branch of that same
+  fork. The token is fine-grained and scoped to the fork by the owner, so GitHub would also
+  refuse any other repository; the check makes the refusal ours and early (the server will not
+  start with `--publish` if the fork fails it).
+- **The code the patch was made for.** The fork's base branch (`DEMO_BASE`, `demo-base`) must
+  point at the bug's `c_bug`. The files the patch touches are read from that commit, the
+  harness's diff rules are checked again, and the patch is applied on the host with the same
+  `git apply` step the sandbox uses. Only edits of existing files are published.
+- **Only clean patches.** A run whose submitted patch did not run clean is reported in the job
+  status, not published.
+- **Model text is inert.** The model's explanation goes into a fenced text block, longer than
+  any backtick run in it; `@` mentions and issue references (`#12`, `owner/repo#12`, `GH-12`)
+  are broken with a zero-width space, so no one is notified and no upstream issue gets a
+  "mentioned this" link. Title and commit message are written by the harness.
+- **The token stays put.** Read from `.env`, never `os.environ`; sent only to `api.github.com`;
+  redirects are refused (Python's `urllib` would otherwise repeat the `Authorization` header to
+  the new address); removed from every error message; hidden in reprs.
+- **Standard library only.** `urllib` instead of a GitHub client library: a dozen calls do not
+  justify another dependency holding the token.
+
+The fork must keep GitHub Actions disabled (the default for forks), so model-written code never
+runs in CI there; the owner sets this when creating the fork (P6.3).
+
 ## Open (spec §16)
 
 - Real deadline (the plan assumes 12 weeks from 2026-11-01).

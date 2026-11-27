@@ -17,6 +17,9 @@
    `--max-jobs` payloads in its life, so a loop cannot spend the Claude plan.
 
 The routing tag is removed before the run, so the model sees the payload as the benchmark did.
+With `--publish` (`make demo-serve PUBLISH=1`), a patch that ran clean becomes a draft pull
+request on the owner's fork (`publisher.py`); the server refuses to start if the fork fails its
+checks.
 """
 
 from __future__ import annotations
@@ -40,6 +43,7 @@ from tracerepro.experiment import RunConfig, load_config
 from tracerepro.live.env_file import read_env_file, require
 from tracerepro.live.jobs import LIVE_DIR, Job, run_job, short_message, summarize
 from tracerepro.live.payload_check import MAX_BYTES, PayloadRejected, check_payload, without_tags
+from tracerepro.live.publisher import GitHubError, Publisher, PublishRefused, PublishSettings
 
 HOST = "127.0.0.1"
 PORT = 8765
@@ -121,7 +125,10 @@ class LiveService:
         try:
             job.summary = self._runner(job, manifest, payload)
             job.state = "done"
-            job.message = "patch ready" if job.summary.get("patch") else "no patch"
+            if job.summary.get("pr"):
+                job.message = "draft PR opened"
+            else:
+                job.message = "patch ready" if job.summary.get("patch") else "no patch"
         except BaseException as exc:  # the job reports every failure; the server keeps running
             job.state, job.message = "failed", short_message(exc)
         finally:
@@ -167,9 +174,18 @@ def create_app(service: LiveService, *, clients: frozenset[str] = LOOPBACK) -> F
     return app
 
 
-def b2_runner(config: RunConfig) -> Runner:
+def b2_runner(config: RunConfig, publisher: Publisher | None = None, **run_kw: Any) -> Runner:
+    """Run B2 on the payload; with a publisher, open a draft PR when the patch ran clean."""
+
     def run(job: Job, manifest: Manifest, payload: dict[str, Any]) -> dict[str, Any]:
-        return summarize(run_job(job, manifest, config, payload))
+        result = run_job(job, manifest, config, payload, **run_kw)
+        summary = summarize(result)
+        if publisher is not None:
+            try:
+                summary["pr"] = publisher.publish(job.id, manifest, result, payload)
+            except (PublishRefused, GitHubError) as exc:
+                summary["publish"] = f"not published: {exc}"[:300]
+        return summary
 
     return run
 
@@ -181,10 +197,21 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--config", type=Path, default=DEMO_CONFIG)
     parser.add_argument("--port", type=int, default=PORT)
     parser.add_argument("--max-jobs", type=int, default=MAX_JOBS)
+    parser.add_argument(
+        "--publish", action="store_true", help="open a draft PR on DEMO_REPO (the owner's fork)"
+    )
     args = parser.parse_args(argv)
     config = load_config(args.config)
     secret = require(read_env_file({SECRET_KEY}), SECRET_KEY, min_length=MIN_SECRET)
-    service = LiveService(config, secret.encode(), b2_runner(config), max_jobs=args.max_jobs)
+    publisher = None
+    if args.publish:
+        publisher = Publisher(PublishSettings.from_env_file())
+        manifests = [load_manifest(p) for p in config.manifests()]
+        c_bug = manifests[0].c_bug if len(manifests) == 1 else None
+        target = publisher.check_target(c_bug)  # refuse to start rather than fail per job
+        print(f"draft PRs go to {target.repo}, base {target.base} at {target.base_sha[:12]}")
+    runner = b2_runner(config, publisher)
+    service = LiveService(config, secret.encode(), runner, max_jobs=args.max_jobs)
     uvicorn.run(create_app(service), host=HOST, port=args.port, log_level="info")
 
 
