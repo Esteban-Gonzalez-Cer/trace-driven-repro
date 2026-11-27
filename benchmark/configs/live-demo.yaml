@@ -1,0 +1,26 @@
+# Phase 6 live demo (docs/DEMO.md): Pipeline B2 exactly as measured in the second study
+# (final-b2-arm-b2.yaml; the Phase 5c switches were not adopted, DECISIONS.md 2026-11-17).
+# `bugs` is the webhook's allow-list. No grading: a live crash has no maintainers' test.
+# tests/live/test_live_config.py checks these settings stay equal to the measured arm's.
+name: live-demo
+model: claude-sonnet-5-5
+effort: medium
+max_output_tokens: 16000
+prompt_version: v3
+pipelines: [B]
+crash_check: true
+file_requests: true
+retry_effort: high
+trials: 1
+split: test2
+bugs:
+  - benchmark/manifests/werkzeug-3110.yaml
+max_patch_attempts: 2
+token_cap: 400000
+context_budget: 250000
+cache: false
+evaluate: false
+guard:
+  max_calls_per_hour: 60
+  max_calls_per_day: 400
+  min_interval_s: 2.0

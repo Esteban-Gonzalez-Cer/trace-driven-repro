@@ -23,11 +23,16 @@ dev = [
     "types-docker>=7.2.0.20261006",
     "types-pyyaml>=6.0.12.20261030",
 ]
+live = [
+    "fastapi>=0.165.0",
+    "httpx>=0.29.0",
+    "uvicorn>=0.54.0",
+]
 
 [tool.uv]
-# `analysis` (matplotlib) is only for `make analyze` figures; installed by default so tests,
-# mypy and CI see one environment.
-default-groups = ["dev", "analysis"]
+# `analysis` (matplotlib) is only for `make analyze` figures and `live` (FastAPI) only for the
+# live demo; both are installed by default so tests, mypy and CI see one environment.
+default-groups = ["dev", "analysis", "live"]
 
 [build-system]
 requires = ["hatchling"]
